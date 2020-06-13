@@ -1,0 +1,18 @@
+{
+  "name": "HandyBrowser",
+  "main": "boot.html",
+  "nodejs": true,
+  "window": {
+    "width": 480,
+    "frame":false,
+    "resize":false,
+    "position":"center",
+    "height": 240,
+    "icon": "icons/app_256x256x32.png",
+    "chromium-args":"--allow-running-insecure-content --ignore-certificate-errors --ignore-urlfetcher-cert-requests --remember-cert-error-decisions"
+  },
+  "node-remote":{
+    "scheme":"file"
+  },
+  "chromium-args":"--allow-running-insecure-content --ignore-certificate-errors --ignore-urlfetcher-cert-requests --remember-cert-error-decisions"
+}

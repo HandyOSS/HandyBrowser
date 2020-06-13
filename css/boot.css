@@ -1,0 +1,88 @@
+html,body{
+	background:#111;
+	font-family: 'IBM Plex Mono', sans-serif;
+	color:#eee;
+	text-align:center;
+}
+.logo{
+	float:left;
+	height:225px;
+	left:130px;
+	position:absolute;
+	margin:0 auto;
+	z-index:0;
+	top:7px;
+	filter:invert(0.1);
+}
+.main{
+	width:calc(100% - 20px);
+	height:calc(100% - 20px);
+
+	margin: 10px;
+	position:absolute;
+	z-index:1;
+	margin-top:120px;
+
+}
+@font-face {
+	font-family: "Nitti Light";
+	font-weight: normal;
+	src: url('../fonts/nitti-light-v500.eot') format('embedded-opentype'),
+       url('../fonts/nitti-light-v500.woff') format('woff');
+}
+
+@font-face {
+	font-family: "Nitti Light";
+	font-weight: bold;
+	src: url('../fonts/nitti-medium-v500.eot') format('embedded-opentype'),
+       url('../fonts/nitti-medium-v500.woff') format('woff'),
+       url('../fonts/nitti-medium-v500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-weight: 400;
+  src: url('../fonts/IBMPlexMono-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: italic;
+  font-weight: 400;
+  src: url('../fonts/IBMPlexMono-Italic.ttf');
+}
+
+
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: italic;
+  font-weight: 600;
+  src: url('../fonts/IBMPlexMono-SemiBoldItalic.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-weight: 400;
+  src: url('../fonts/IBMPlexSans-Regular.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: italic;
+  font-weight: 400;
+  src: url('../fonts/IBMPlexSans-Italic.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-weight: 600;
+  src: url('../fonts/IBMPlexSans-SemiBold.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: italic;
+  font-weight: 600;
+  src: url('../fonts/IBMPlexSans-SemiBoldItalic.ttf');
+}

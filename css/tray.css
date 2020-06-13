@@ -1,0 +1,315 @@
+html,body{
+	background:#111;
+}
+#introLogo{
+	background: #111; 
+}
+#toolbar{
+	float:left;
+	position:fixed;
+	top:0px;
+	left:0px;
+	z-index:101;
+  width: calc(100% - 62px);
+  height: auto;
+  margin-left: 62px;
+  padding-top: 5px;
+  
+}
+#toolbar #dragHandle{
+	-webkit-app-region: drag;
+	position:absolute;
+	z-index:1;
+	width:calc(5% + 10px);
+	height: calc(100% + 5px);
+	right: 0px;
+	top:0px;
+}
+#dragHandle.bookmarksBarShowing{
+	height:calc(100% - 22px) !important;
+}
+
+#urlQueryWrap{
+	position:absolute;
+	float:left;
+	width:40%;
+	z-index:2;
+	left: 90px;
+}
+#urlQuery{
+	float:left;
+	font-size:16px;
+	font-family:'IBM Plex Mono';
+	padding: 2px 25px 2px 10px;
+	width: 100%;
+	margin: 2px;
+  height: 26px;
+  line-height: 26px;
+  background: #333;
+  color: #eee;
+  border-radius:16px;
+}
+#urlQuery:hover, #urlQuery:focus{
+	background:#444;
+}
+#urlNavigation{
+	float:left;
+	width: auto;
+}
+#urlNavigation .navButton{
+	float:left;
+	width:20px;
+	height:20px;
+	border-radius:50px;
+	background:#333;
+	color:#999;
+	text-align: center;
+	padding: 3px;
+	font-size:20px;
+	line-height:20px;
+	margin: 2px;
+	cursor:pointer;
+}
+#urlNavigation .navButton:hover{
+	background:#444;
+}
+#urlNavigation #back{
+	transform: rotate(180deg);
+}
+#appNavigation{
+	float:left;
+	width: 55px;
+	height: auto;
+	top:0px;
+	left:3px;
+	padding: 2px;
+	position:absolute;
+	z-index:101;
+}
+#appNavigation .button{
+	width: 14px;
+	height:14px;
+	border-radius:14px;
+	font-size:12px;
+	line-height: 12px;
+	text-align: center;
+	float:left;
+	margin: 11px 2px;
+	color:rgba(0,0,0,0);
+	cursor:pointer;
+}
+#appNavigation:hover .button{
+	color:rgba(0,0,0,0.75);
+}
+#appNavigation #close{
+	background:#FF605C;
+}
+#appNavigation #hide{
+	background:#FFBD44;
+}
+#appNavigation #full{
+	background:#00CA4E;
+}
+
+#tabs{
+	float:left;
+	/*width:auto;*/
+	/*max-*/width:calc(55% - 114px);
+	height: 30px;
+	margin-left:calc(40% + 10px);
+	overflow:hidden;
+	position:relative;
+	z-index:1;
+}
+#tabs ul{
+	float:left;
+	margin:0;
+	padding:0;
+	list-style-type:none;
+	position:relative;
+	/*min-width: calc(100% - 25px);*/
+
+}
+#tabs li, #addTabButton{
+	float:left;
+	padding: 0px 5px;
+	line-height:30px;
+	background:rgba(255,255,255,0.1);
+	border-right: 1px solid rgba(255,255,255,0.2);
+	color:rgba(255,255,255,0.5);
+	cursor:pointer;
+	max-width: 100px;
+	white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position:relative;
+}
+#tabs li .closeTab{
+  float: right;
+  position: absolute;
+  background: rgba(161,161,161,0.7);
+  color: #eee;
+  font-size: 12px;
+  padding: 2px;
+  border-radius: 15px;
+  top: 2px;
+  right: 2px;
+  width: 15px;
+  height: 15px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 14px;
+  cursor:pointer;	
+}
+#tabs li:hover, #addTabButton:hover{
+	background:rgba(255,255,255,0.2);
+	border-right: 1px solid rgba(255,255,255,0.3);
+
+}
+#tabs li .favicon,#bookmarksBar li .icon, #bookmarksBar li .iconPlaceholder{
+	width:32px;
+	height:32px;
+	/*border-radius:32px;
+	border: 2px solid #000;*/
+	margin: -1px -3px 0px -7px;
+	transform:scale(0.5);
+	display: inline;
+  position: relative;
+  float: left;
+}
+#sessionNotification.hidden{
+	display:none;
+}
+#sessionNotification{
+	float:left;
+	width:400px;
+	height:100px;
+	color:#eee;
+	background:rgba(0,0,0,0.7);
+	box-shadow: 2px 2px 10px #000;
+	z-index:101;
+	position:absolute;
+	top: calc(50% - 70px);
+	left: calc(50% - 200px);
+}
+
+
+#sessionNotification .main{
+	width:calc(100%);
+	height:calc(100%);
+	text-align:center;
+	float:left;
+	margin-top: 10px;
+}
+#sessionNotification .option{
+	float:right;
+	width: 50px;
+	text-align:center;
+	padding: 10px;
+	border: 1px solid rgba(91,91,91,0.7);
+	background:rgba(51,51,51,0.7);
+	cursor:pointer;
+	margin: 10px;
+	transition: all 0.1s linear;
+}
+#sessionNotification .options{
+	margin-right:30px;
+}
+#sessionNotification .option:hover{
+	border: 1px solid rgba(91,91,91,0.7);
+	background:rgba(91,91,91,0.9);
+}
+.webviewTab{
+	position:absolute;
+	z-index:102;
+	width:100%;
+	left:0px;
+	height: calc(100% - 28px);
+	top:28px;
+}
+#bookmarkPage{
+	position: absolute;
+  left: calc(40% + 69px);
+  z-index: 10;
+  top: 8px;
+  color: #888;
+  cursor:pointer;
+}
+#bookmarkPage:not(.clicked):hover{
+	color:#ccc;
+}
+#bookmarkPage.clicked{
+	color:#00a0fe;
+}
+#tabNav{
+	float:left;
+	position:absolute;
+	top:5px;
+	right:10px;
+	display:none;
+}
+.tabNavButton{
+	float:left;
+	color:#aaa;
+	padding: 5px 0px 5px 2px;
+	cursor:pointer;
+}
+.tabNavButton:not(.disabled):hover{
+	color:#ccc;
+}
+.tabNavButton.disabled{
+	color:#777;
+}
+#tabBack{
+	transform: rotate(180deg);
+	margin-top: -1px;
+}
+#bookmarksBar{
+	float:left;
+	width:calc(100% + 45px);
+	height: 25px;
+	margin-left: -55px;
+	overflow:hidden;
+	display:none;
+}
+#bookmarksBar.visible{
+	display:block;
+}
+#bookmarksBar ul{
+	float:left;
+	width: calc(100% - 4px);
+	height: 100%;
+	padding: 2px;
+	list-style-type:none;
+	margin:0;
+}
+#bookmarksBar li{
+	float: left;
+  margin: 0px 2px;
+  background: rgba(255,255,255,0.2);
+  color:#ddd;
+  padding: 4px 5px;
+  height: 16px;
+  line-height: 16px;
+  vertical-align: middle;	
+  cursor:pointer;
+  transition: background 0.1s linear;
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#bookmarksBar li:hover{
+	background: rgba(255,255,255,0.4);
+}
+#bookmarksBar li .icon,#bookmarksBar li .iconPlaceholder{
+	margin: -8px -4px 0px -7px;
+}
+#bookmarksBar li span.folder{
+	display:inline;
+	float:left;
+	margin: 1px 3px 0 0;
+}
+.bookmarkFolderUl{
+	display:none;
+}

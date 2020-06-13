@@ -1,0 +1,112 @@
+@font-face {
+  font-family: "Nitti Light";
+  font-weight: normal;
+  src: url('../fonts/nitti-light-v500.eot') format('embedded-opentype'),
+       url('../fonts/nitti-light-v500.woff') format('woff');
+}
+
+@font-face {
+  font-family: "Nitti Light";
+  font-weight: bold;
+  src: url('../fonts/nitti-medium-v500.eot') format('embedded-opentype'),
+       url('../fonts/nitti-medium-v500.woff') format('woff'),
+       url('../fonts/nitti-medium-v500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-weight: 400;
+  src: url('../fonts/IBMPlexMono-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: italic;
+  font-weight: 400;
+  src: url('../fonts/IBMPlexMono-Italic.ttf');
+}
+
+
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: italic;
+  font-weight: 600;
+  src: url('../fonts/IBMPlexMono-SemiBoldItalic.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-weight: 400;
+  src: url('../fonts/IBMPlexSans-Regular.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: italic;
+  font-weight: 400;
+  src: url('../fonts/IBMPlexSans-Italic.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-weight: 600;
+  src: url('../fonts/IBMPlexSans-SemiBold.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: italic;
+  font-weight: 600;
+  src: url('../fonts/IBMPlexSans-SemiBoldItalic.ttf');
+}
+html,body{
+  margin:0;
+  font-family: "IBM Plex Mono";
+}
+#map{
+  float:left;
+  width:100%;
+  height:100%;
+}
+#closeMap{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  /* padding: 5px; */
+  text-align: center;
+  cursor: pointer;
+  background: rgba(0,0,0,0.7);
+  border: 1px solid #333;
+  width: 25px;
+  height: 25px;
+  z-index: 25;
+  line-height: 25px;
+  color: #fff;
+  transition: all 0.1s linear;
+}
+#closeMap:hover{
+  background: rgba(0,0,0,0.9);
+}
+/*.mapPopup{
+  background:rgba(255,255,255,0.9);
+  padding:10px;
+}*/
+.mapPopup .resp{
+  word-wrap:break-word;
+  padding: 10px;
+}
+.mapPopup .geoInfo{
+  font-weight:600;
+  font-size: 16px;
+}
+.mapPopup textarea{
+  outline:none;
+  background:rgba(0,0,0,0.02);
+  box-shadow:none;
+  border: 1px solid #ccc;
+  padding: 3px;
+  width:auto;
+  min-height:77px;
+  height:auto;
+} 

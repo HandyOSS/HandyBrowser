@@ -1,0 +1,913 @@
+@font-face {
+	font-family: "Nitti Light";
+	font-weight: normal;
+	src: url('../fonts/nitti-light-v500.eot') format('embedded-opentype'),
+       url('../fonts/nitti-light-v500.woff') format('woff');
+}
+
+@font-face {
+	font-family: "Nitti Light";
+	font-weight: bold;
+	src: url('../fonts/nitti-medium-v500.eot') format('embedded-opentype'),
+       url('../fonts/nitti-medium-v500.woff') format('woff'),
+       url('../fonts/nitti-medium-v500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-weight: 400;
+  src: url('../fonts/IBMPlexMono-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: italic;
+  font-weight: 400;
+  src: url('../fonts/IBMPlexMono-Italic.ttf');
+}
+
+
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: italic;
+  font-weight: 600;
+  src: url('../fonts/IBMPlexMono-SemiBoldItalic.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-weight: 400;
+  src: url('../fonts/IBMPlexSans-Regular.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: italic;
+  font-weight: 400;
+  src: url('../fonts/IBMPlexSans-Italic.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-weight: 600;
+  src: url('../fonts/IBMPlexSans-SemiBold.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: italic;
+  font-weight: 600;
+  src: url('../fonts/IBMPlexSans-SemiBoldItalic.ttf');
+}
+
+html,body{
+	margin:0;
+	padding:0;
+	background:#eee;
+	color:#111;
+	font-family: 'IBM Plex Mono', sans-serif;
+}
+html.inverted{
+	filter:invert(1.0);
+}
+html.inverted h3, html.inverted .minerMain ul li:first-child{
+	filter:invert(1.0);
+}
+
+h3{
+	font-size:24px;
+	font-weight:300;
+	margin:5px 0;
+	color:#0c0;
+	font-weight:700;
+	font-family:'IBM Plex Sans';
+}
+.minerForm{
+	position:absolute;
+	width:calc(100% - 20px);
+	height:calc(100% - 20px);
+	padding: 10px;
+	position:absolute;
+	top:0;
+	left:0;
+	transition: left 0.2s linear;
+	background:#eee;
+	z-index:1;
+}
+.minerForm#cyoa{
+	z-index:6;
+}
+.minerForm#cyoa2{
+	z-index:5;
+}
+.minerForm#poolUI{
+	z-index:4;
+}
+.minerForm#stratum{
+	z-index:3;
+}
+.minerForm#gpus{
+	z-index:2;
+}
+.minerForm#hsd{
+	z-index:1;
+}
+.minerForm.minerMain{
+	z-index:0;
+}
+
+.minerForm .escape{
+	font-size:12px;
+	color:#444;
+	right:5px;
+	bottom: 5px;
+	position:absolute;
+}
+
+#cyoa .option, #cyoa2 .option{
+	float:left;
+	width:90%;
+	padding: 12% 10px;
+	margin: 5% calc(5% - 10px);
+	background:#fff;
+	border-radius:4px;
+	text-align:center;
+	font-family:'IBM Plex Sans';
+	font-size:18px;
+	cursor:pointer;
+}
+#cyoa .option:hover, #cyoa2 .option:hover{
+	background:#ccc;
+}
+.infoElement#hsdAPI{
+	display:none;
+}
+.minerForm.hidden{
+	left:-100%;
+}
+.infoElement{
+	float:left;
+	width:calc(100% - 40px);
+	padding: 10px;
+	background: linear-gradient(to bottom, rgba(0,0,0,0.09) 0%,rgba(0,0,0,0.01) 1%,rgba(0,0,0,0) 100%); 
+
+	position:relative;
+}
+.infoElement label{
+  display: block;
+  margin-bottom: 5px;
+  font-family:'IBM Plex Sans';
+}
+.infoElement small{
+	font-weight:300;
+	font-size:12px;
+	display:block;
+	color:#666;
+	margin: 5px 0;
+
+}
+.stratumSubElement{
+	float:left;
+	width:50%;
+}
+.stratumSubElement.hidden{
+	display:none;
+}
+.stratumSubElement input{
+	width: 95%;
+}
+#stratumUserPool.superwide{
+	width: 200%;
+}
+select#poolProvider{
+	margin: 2px 5px;
+	padding: 2px 5px;
+}
+#advancedPoolSettings{
+	float:left;
+	clear:both;	
+	color:#0066f0;
+	font-size:11px;
+	margin-top: 5px;
+}
+#gpuTemplate{
+	display:none;
+}
+.queryGPUs{
+	background: rgba(0,0,0,0.07);
+  padding: 5px 6px;
+  font-size: 16px;
+  cursor: pointer;
+  border: 1px solid #444;
+  line-height: 20px;
+  color: #333;
+  position: absolute;
+	right: 5px;
+	bottom: 5px;	
+}
+
+.queryGPUs:hover{
+	background:rgba(0,0,0,0.15);
+	border: 1px solid #777;
+	color:#555;	
+}
+.queryGPUs span{
+	width: 20px;
+  height: 20px;
+  line-height: 20px;
+  vertical-align: middle;
+  text-align: center;
+  background: rgba(0,0,120,0.5);
+  border-radius: 30px;
+  float: left;
+  margin-right: 3px;
+  font-weight:700;
+  color:#ccc;	
+}
+.queryGPUs:hover span{
+	background:rgba(0,0,180,0.5);
+	color:#eee;
+}
+input{
+	background: rgba(0,0,0,0.15);
+	border-radius: 3px;
+  padding: 5px 10px;
+  font-size: 20px;
+  outline: none;
+  color:#111;
+  border:none;
+}
+select {
+    /*-webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;*/
+    background: rgba(0,0,0,0.15);
+    border: none;
+    border-radius: 3px;
+    padding: 5px 10px;
+    font-size: 20px;
+    outline: none;
+    color:#111;
+    font-family:'IBM Plex Sans';
+}
+.saveButton, #logs .close, .nukeDocker{
+	float:left;
+	padding: 5px 10px;
+	cursor:pointer;
+	background:rgba(0,0,0,0.15);
+	position:absolute;
+	bottom:10px;
+	left:10px;
+}
+.nukeDocker{
+	left: 10px;
+	bottom: 75px;
+}
+.doRemoveThisTime, .doRemoveThisTime:hover{
+	background:rgba(200,200,0,1.0);
+}
+.saveButton:hover, #logs .close:hover, .nukeDocker:hover{
+	background:rgba(0,0,0,0.4);
+}
+.minerMain .infoElement img{
+	width: 40px;
+	filter:invert(0.2);
+	float:left;
+}
+.minerMain ul{
+	float:left;
+	width:calc(100% - 50px);
+	padding: 0;
+	margin:0;
+	list-style-type: none;
+	line-height:40px;
+}
+.minerMain .infoElement{
+	width:calc(50% - 20px);
+	margin:0;
+}
+.minerMain ul li{
+	float:left;
+	padding:2px 3px;
+	margin:0;
+	font-size:20px;
+
+}
+.minerMain ul li:first-child{
+	color:#00cc00;
+	padding-left:7px;
+	font-weight:700;
+	font-family:'IBM Plex Sans';
+}
+.blocksAllTime, .blocksToday{
+	float:left;
+	width:50%;
+	text-align: center;
+	background:linear-gradient(to bottom, rgba(0,0,0,0.09) 0%,rgba(0,0,0,0.01) 1%,rgba(0,0,0,0) 100%);
+}
+.title{
+	float:right;
+	margin-top: 31px;
+	font-size:12px;
+	color:#777;
+	position:absolute;
+	right: 15px;
+	bottom: 15px;
+}
+.title a{
+	color:#0066f0;
+}
+a:visited{
+	color:#0066f0;
+}
+
+.syncedButton{
+	float: left;
+  position: absolute;
+  right: 10px;
+  bottom: 11px;
+  font-size: 12px;
+  color: #333;
+  background: #ccc;
+  padding: 0px 5px 0 0;
+  line-height:16px;
+  vertical-align: middle;
+  overflow:hidden;
+  z-index:1;
+}
+
+.syncedButton .syncedIcon{
+
+	width: 15px;
+  height: 15px;
+  display: inline;
+  padding: 0 4px;
+  background: #ccc;
+  color: #000;
+  font-size:16px;
+  transition: all 0.3s linear;
+}
+.syncedIcon.alert{
+  background: #eaa400;
+  color: #ff0;
+}
+
+.syncedIcon.success{
+	width: 15px;
+  height: 15px;
+  display: inline;
+  padding: 0 4px;
+  background: #060;
+  color: #0f0;
+  line-height:21px;
+  vertical-align: middle;
+}
+
+.blocksToday .number, .blocksAllTime .number{
+	font-size:86px;
+	display:block;
+}
+.blocksToday .label, .blocksAllTime .label{
+	color:#555;
+	margin-top:-5px;
+	font-size:12px;
+}
+.gpuStatus{
+	float:left;
+	width:100%;
+}
+#modal{
+	float:left;
+	position:absolute;
+	z-index:100;
+	background:rgba(255,255,255,0.7);
+	width:100%;
+	height:100%;
+	display: none;
+}
+#modal .modalBody{
+	float:left;
+	width:calc(80% - 20px);
+	height:calc(80% - 20px);
+	margin: 7% 10%;
+	padding: 10px;
+	border: 1px solid #ccc;
+	background:#aaa;
+	color:#eee;
+}
+.modalContent{
+	height:88%;
+	border: 1px solid #777;
+	overflow-y:scroll;
+	background: #eee;
+	color: #111;
+}
+.modalBody ul{
+	list-style-type:none;
+	padding:0;
+	margin:0;
+}
+.modalBody li{
+	margin: 0 3%;
+	padding: 5px;
+	background: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%,rgba(255,255,255,0.07) 1%,rgba(0,0,0,0) 100%);
+	border-bottom: 1px solid #ccc;
+	width:94%;
+	float:left;
+}
+.modalBody li .checkbox-label .checkbox-custom{
+	background:#ccc;
+}
+.modalBody .tLabel{
+	margin-left:5px;
+	padding-top:2px;
+	float:left;
+	cursor:pointer;
+}
+.tLabel.isIntel{
+	color:#c00;
+}
+.modalBody small.isIntel{
+	color:#c00;
+	float:left;
+	margin-left:35px;
+	font-size:12px;
+}
+.modalBody .button{
+	padding: 5px 10px;
+	cursor:pointer;
+	background:rgba(0,0,0,0.35);
+	margin: 5px;
+	float:left;
+}
+.modalBody .save{
+	background:rgba(0,0,0,0.35);
+}
+.modalBody .close{
+
+}
+.settings,.startStop,.logs{
+	position:absolute;
+	top:0;
+	right:0;
+	padding:5px;
+	font-size:14px;
+	color:#555;
+	text-align: center;
+	/*line-height:20px;*/
+	padding-left:7px;
+	cursor:pointer;
+	background:rgba(255,255,255,0.8);
+}
+.logs.mac{
+	overflow:hidden;
+	height:20px;
+}
+.logs.alerted{
+	background:#c00;
+}
+.settings{
+	right: 30px;
+}
+.startStop{
+	top: 0px;
+  right: 54px;
+  padding: 3px 5px;
+  padding-bottom: 0px;
+  color: #555;
+  line-height: 26px;
+  padding-left: 9px;
+}
+.startStop.playing{
+	font-size:12px;
+}
+.stats{
+	float:left;
+	height:31%;
+	width:100%;
+	margin-top:10px;
+	background:linear-gradient(to bottom, rgba(0,0,0,0.09) 0%,rgba(0,0,0,0.01) 1%,rgba(0,0,0,0) 100%);
+	padding-top:5px;
+}
+.stats .halfChart{
+	float:left;
+	width:50%;
+	height:100%;
+
+}
+.stats .halfChart svg{
+	float:left;
+	width:100%;
+	height:100%;
+}
+path.line{
+	stroke:#666;
+	fill:#fff;
+}
+path.localHR{
+	stroke:#00cc00;
+	stroke-width:1.5px;
+	fill:none;
+}
+html.inverted path.localHR{
+	filter:invert(1.0);
+}
+.stats .label{
+	color:#555;
+	margin-bottom: 5px;
+	padding-left:5px;
+}
+.stats svg text, .stats svg line, .stats svg .tick{
+	fill:#555;
+}
+.stats svg line{
+	stroke:#555;
+}
+html.inverted g.locaHRAxis text, html.inverted g.localHRAxis line{
+	filter:invert(1.0);
+}
+g.localHRAxis text, g.localHRAxis line{
+	fill:#00aa00;
+}
+g.localHRAxis line{
+	stroke:#00cc00;
+}
+.label small{
+	font-size: 10px;
+}
+input#hsdMinerWallet, input#hsdMinerWalletPool{
+	width:100%;
+}
+
+#logs{
+	float:left;
+	width:100%;
+	height:100%;
+	background:rgba(255,255,255,0.85);
+	z-index:10;
+	position:absolute;
+	left:0;
+	top:0;
+	transition: all 0.1s linear;
+}
+#logs.hidden{
+	left:-110%;
+}
+#logs pre{
+	float:left;
+	width: 92%;
+	color:#0c0;
+	margin: 1% 2%;
+	padding: 10px;
+	background:rgba(0,0,0,0.88);
+	height:35%;
+	overflow-y:scroll;
+	overflow-x: auto;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+}
+#logs .label{
+	float:left;
+	width:100%;
+	padding: 0px 20px;
+}
+#logs .close{
+	right: 20px;
+	bottom: 10px;
+	left: auto;
+}
+#logs.required .close{
+	display:none;
+}
+.infoElement#difficulty small{
+	font-size: 14px;
+    color: #555;
+}
+.checkboxWrapper{
+	float:left;
+	width:100%;
+	background:#ccc;
+	border-radius: 4px;
+	border: 1px solid #aaa;
+	padding: 5px 12px;
+}
+.checkboxWrapper label{
+	cursor:pointer;
+}
+
+
+.infoElement .checkbox-container, .modalContent .checkbox-container {
+    float: left;
+    width: auto;
+    box-sizing: border-box;
+    text-align:center;
+    padding:10px 0px 6px 0px;
+}
+.infoElement .circular-container, .modalContent .circular-container {
+  background-color:#0067FF;
+}
+
+.input-title {
+    clear: both;
+    padding: 22px 0px 0px 0px;
+    font-size: 16px;
+    color: rgba(255,255,255,.6);
+    font-weight: 300;
+}
+
+
+
+
+/* Styling Checkbox Starts */
+.checkbox-label {
+    display: block;
+    position: relative;
+    margin: 0px 5px 0px 0px;
+    float:left;
+    cursor: pointer;
+    font-size: 22px;
+    line-height: 24px;
+    height: 24px;
+    width: 24px;
+}
+#fflabel{
+	float: left;
+    margin-left: 11px;
+    font-size: 20px;
+}
+
+.checkbox-label input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.checkbox-label .checkbox-custom {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 24px;
+    width: 24px;
+    background-color: transparent;
+    border-radius: 5px;
+    transition: all 0.3s ease-out;
+    -webkit-transition: all 0.3s ease-out;
+    -moz-transition: all 0.3s ease-out;
+    -ms-transition: all 0.3s ease-out;
+    -o-transition: all 0.3s ease-out;
+    border: 2px solid #FFFFFF;
+    background:#999;
+}
+
+
+.checkbox-label input:checked ~ .checkbox-custom {
+    background-color: #FFFFFF;
+    border-radius: 5px;
+    -webkit-transform: rotate(0deg) scale(1);
+    -ms-transform: rotate(0deg) scale(1);
+    transform: rotate(0deg) scale(1);
+    opacity:1;
+    border: 2px solid #FFFFFF;
+}
+
+
+.checkbox-label .checkbox-custom::after {
+    position: absolute;
+    content: "";
+    left: 12px;
+    top: 12px;
+    height: 0px;
+    width: 0px;
+    border-radius: 5px;
+    border: solid #009BFF;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(0deg) scale(0);
+    -ms-transform: rotate(0deg) scale(0);
+    transform: rotate(0deg) scale(0);
+    opacity:1;
+    transition: all 0.3s ease-out;
+    -webkit-transition: all 0.3s ease-out;
+    -moz-transition: all 0.3s ease-out;
+    -ms-transition: all 0.3s ease-out;
+    -o-transition: all 0.3s ease-out;
+}
+
+
+.checkbox-label input:checked ~ .checkbox-custom::after {
+  -webkit-transform: rotate(45deg) scale(1);
+  -ms-transform: rotate(45deg) scale(1);
+  transform: rotate(45deg) scale(1);
+  opacity:1;
+  left: 8px;
+  top: 3px;
+  width: 6px;
+  height: 12px;
+  border: solid #009BFF;
+  border-width: 0 2px 2px 0;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+
+
+/* For Ripple Effect */
+.checkbox-label .checkbox-custom::before {
+    position: absolute;
+    content: "";
+    left: 10px;
+    top: 10px;
+    width: 0px;
+    height: 0px;
+    border-radius: 5px;
+    border: 2px solid #FFFFFF;
+    -webkit-transform: scale(0);
+    -ms-transform: scale(0);
+    transform: scale(0);    
+}
+
+.checkbox-label input:checked ~ .checkbox-custom::before {
+    left: -3px;
+    top: -3px;
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    -webkit-transform: scale(3);
+    -ms-transform: scale(3);
+    transform: scale(3);
+    opacity:0;
+    z-index: 999;
+    transition: all 0.3s ease-out;
+    -webkit-transition: all 0.3s ease-out;
+    -moz-transition: all 0.3s ease-out;
+    -ms-transition: all 0.3s ease-out;
+    -o-transition: all 0.3s ease-out;
+}
+
+
+
+
+/* Style for Circular Checkbox */
+.checkbox-label .checkbox-custom.circular {
+    border-radius: 50%;
+    border: 2px solid #FFFFFF;
+}
+
+.checkbox-label input:checked ~ .checkbox-custom.circular {
+    background-color: #FFFFFF;
+    border-radius: 50%;
+    border: 2px solid #FFFFFF;
+}
+.checkbox-label input:checked ~ .checkbox-custom.circular::after {
+    border: solid #0067FF;
+    border-width: 0 2px 2px 0;
+}
+.checkbox-label .checkbox-custom.circular::after {
+    border-radius: 50%;
+}
+
+.checkbox-label .checkbox-custom.circular::before {
+    border-radius: 50%;
+    border: 2px solid #FFFFFF;
+}
+
+.checkbox-label input:checked ~ .checkbox-custom.circular::before {
+    border-radius: 50%;
+}
+
+#loading{
+	position:absolute;
+	width:64px;
+	height:64px;
+	padding:16px;
+	border: 1px solid #ccc;
+	background:rgba(50,50,50,0.7);
+	left: calc( 50% - 40px);
+	top: calc(50% - 40px);
+	z-index:50;
+}
+
+.lds-grid {
+  display: inline-block;
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+.lds-grid div {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #fff;
+  animation: lds-grid 1.2s linear infinite;
+}
+.lds-grid div:nth-child(1) {
+  top: 6px;
+  left: 6px;
+  animation-delay: 0s;
+}
+.lds-grid div:nth-child(2) {
+  top: 6px;
+  left: 26px;
+  animation-delay: -0.4s;
+}
+.lds-grid div:nth-child(3) {
+  top: 6px;
+  left: 45px;
+  animation-delay: -0.8s;
+}
+.lds-grid div:nth-child(4) {
+  top: 26px;
+  left: 6px;
+  animation-delay: -0.4s;
+}
+.lds-grid div:nth-child(5) {
+  top: 26px;
+  left: 26px;
+  animation-delay: -0.8s;
+}
+.lds-grid div:nth-child(6) {
+  top: 26px;
+  left: 45px;
+  animation-delay: -1.2s;
+}
+.lds-grid div:nth-child(7) {
+  top: 45px;
+  left: 6px;
+  animation-delay: -0.8s;
+}
+.lds-grid div:nth-child(8) {
+  top: 45px;
+  left: 26px;
+  animation-delay: -1.2s;
+}
+.lds-grid div:nth-child(9) {
+  top: 45px;
+  left: 45px;
+  animation-delay: -1.6s;
+}
+@keyframes lds-grid {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+
+#settingsOptions{
+	position:absolute;
+	top:30px;
+	right:31px;
+	width: 150px;
+	text-align:center;
+	background:rgba(200,200,200,0.8);
+	box-shadow:-1px 2px 3px #ccc;
+	display:none;
+}
+#settingsOptions ul{
+	padding:0;
+	list-style-type:none;
+	width:100%;
+	float:left;
+	margin:0;
+}
+#settingsOptions ul li{
+	float:left;
+	padding:3px 0;
+	margin:0;
+	border-bottom: 1px solid #888;
+	width:100%;
+	cursor:pointer;
+}
+#settingsOptions li:hover{
+	background:#666;
+	color:#fff;
+}
+.settings.hovered{
+	background:rgba(200,200,200,0.8);
+}
+#settingsOptions ul li:last-child{
+	border-bottom:none !important;
+}
+#introLogo{
+	position:absolute;
+	z-index:100;
+	background:#fff;
+	width:100%;
+	height:100%;
+	top:0;
+	left:0;
+}
+#introLogo.hidden{
+	display:none;
+}
+
+.gpuPlatformNote.err{
+	color:#aa0000;
+}
+

@@ -1,0 +1,102 @@
+<html style="background:#eee;">
+<head>
+	<meta charset="utf-8">
+	<title>HandyBrowser</title>
+	<link rel="stylesheet" type="text/css" href="css/main.css" />
+	<link rel="stylesheet" type="text/css" href="css/tray.css" />
+	<script src="bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="bower_components/d3/d3.min.js"></script>
+	<script src="bower_components/numeral/numeral.js"></script>
+	<script src="bower_components/moment/moment.js"></script>
+	<script src="externals/three.js/three.min.js"></script>
+	<script src="bower_components/Sortable/Sortable.min.js"></script>
+	<script src="bower_components/threejs-trackball-controls/TrackballControls.js"></script>
+	<script type="shader/x-fragment" id="logoFragmentShader">
+		uniform float animate;
+		uniform float opacity;
+
+		void main() {
+		  gl_FragColor = vec4(vec3(0.25,0.25,0.25), opacity);
+		}
+	</script>
+	<script type="shader/x-vertex" id="logoVertexShader">
+		attribute vec3 direction;
+		attribute vec3 centroid;
+
+		uniform float animate;
+		uniform float opacity;
+		uniform float scale;
+
+		#define PI 3.14
+
+		void main() {
+		  // rotate the triangles
+		  // each half rotates the opposite direction
+		  float theta = (1.0 - animate) * (PI * 1.5) * sign(centroid.x);
+		  mat3 rotMat = mat3(
+		    vec3(cos(theta), 0.0, sin(theta)),
+		    vec3(0.0, 1.0, 0.0),
+		    vec3(-sin(theta), 0.0, cos(theta))
+		  );
+		  
+		  // push outward
+		  vec3 offset = mix(vec3(0.0), direction.xyz * rotMat, 1.0 - animate);
+		  
+		  // scale triangles to their centroids
+		  vec3 tPos = mix(centroid.xyz, position.xyz, scale) + offset;
+		  
+		  gl_Position = projectionMatrix *
+		              modelViewMatrix *
+		              vec4(tPos, 1.0);
+		}
+	</script>
+	<script src="js/bookmarks.js"></script>
+	<script src="js/tray.js"></script>
+</head>
+<body style="background:#eee;">
+	<div id="appNavigation" class="noHandles">
+		<div class="button" id="close">x</div>
+		<div class="button" id="hide">-</div>
+		<div class="button" id="full">+</div>
+	</div>
+	<div id="toolbar">
+		<div id="urlNavigation" class="noHandles">
+			<div class="navButton" id="back">&#x279d;</div>
+			<div class="navButton" id="forward">&#x279d;</div>
+			<div class="navButton" id="reload">&#x21bb;</div>
+		</div>
+		<div id="urlQueryWrap">
+			<input type="text" id="urlQuery" placeholder="Search or Type a URL" class="noHandles" autocomplete="off" />
+		</div>
+		<div id="bookmarkPage" class="noHandles">★</div>
+		<div id="tabs" class="noHandles">
+			<ul>
+				<li class="init notactivated tabtarget">New Tab</li>
+			</ul>
+			<div id="addTabButton">+</div>
+		</div>
+		<div id="tabNav">
+			<div class="tabNavButton" id="tabBack">▶</div>
+			<div class="tabNavButton" id="tabForward">▶</div>
+		</div>
+
+		<div id="dragHandle"></div>
+		<div id="bookmarksBar" class="visible">
+			<ul class="bookmarksUl">
+			</ul>
+		</div>
+	</div>
+	<div id="introLogo"></div>
+	<div id="sessionNotification" class="hidden">
+		<div class="main">
+			<div>Restore Tabs from Previous Session?</div>
+			<div class="options">
+				<div class="option" id="no">no</div>
+				<div class="option" id="yes">yes</div>
+			</div>
+			
+		</div>
+	</div>
+
+</body>
+</html>
