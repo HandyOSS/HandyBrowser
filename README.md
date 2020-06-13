@@ -49,7 +49,9 @@ Why nw.js over electron? The lead-dev of this project has used nw.js extensively
 0. Build-in WebRTC Video/Audio chat + Screensharing
 
 ### Donate HNS to the HandyBrowser Team:
+
 ![alt text](./icons/qr.png)
+
 HNS: ```hs1qwfpd5ukdwdew7tn7vdgtk0luglgckp3klj44f8```
 
 
