@@ -10,6 +10,9 @@ class BookmarkManager{
 	}
 	checkForChromeBookmarks(){
 		let chromeBookmarksBase = process.env.HOME+'/Library/Application\ Support/Google/Chrome/';
+		if(process.platform == 'win32'){
+			chromeBookmarksBase = process.env.HOMEDRIVE+process.env.HOMEPATH+'/AppData/Local/Google/Chrome/User\ Data/';
+		}
 		let chromeBookmarksDefault = '/Default/Bookmarks';
 		let chromeBookmarksPath;
 		let dirList = fs.readdirSync(chromeBookmarksBase);
@@ -29,7 +32,33 @@ class BookmarkManager{
 		this.chromeBookmarksPath = chromeBookmarksPath;
 	}
 	createBookmarksMenu(){
-		let topMenu = new nw.Menu({type:'menubar'});
+		let menuType = process.platform == 'darwin' ? 'menubar' : 'contextmenu';
+		let topMenu = new nw.Menu({type:menuType});
+		this.mainMenu = new nw.Menu();
+		
+
+		let mapOption = nw.MenuItem({label:'Network Map',click:()=>{
+			this.showNetworkMap();
+		}});
+		if(process.platform == 'darwin'){
+			this.mainMenu.append(mapOption);
+		}
+		//showDonate()
+
+		let donateOption = nw.MenuItem({label:'Donate HNS 🤝',click:()=>{
+			this.showDonate();
+		}});
+		if(process.platform == 'darwin'){
+			this.mainMenu.append(donateOption);
+		}
+		this.bookmarksObj = {};
+		this.bookmarkFolder = process.env.HOME+'/Library/Application\ Support/HandyBrowser/Bookmarks';
+		if(process.platform == 'win32'){
+			this.bookmarkFolder = process.env.HOMEDRIVE+process.env.HOMEPATH+'/AppData/Local/HandyBrowser/User\ Data/Default/Bookmarks';
+		}
+		if (!fs.existsSync(this.bookmarkFolder)){
+	    fs.mkdirSync(this.bookmarkFolder);
+		}
 		this.bookmarksMenu = new nw.Menu();
 		let showBookmarksBar = localStorage.getItem('showBookmarksBar') != null ? localStorage.getItem('showBookmarksBar') : true;
 		let checkboxItem = new nw.MenuItem({label: 'Show Bookmarks Bar',checked:showBookmarksBar,type:'checkbox',click:(item)=>{
@@ -51,44 +80,50 @@ class BookmarkManager{
 		}})
 		this.bookmarksMenu.append(bookmarkManagerOption);
 
-		let mapOption = nw.MenuItem({label:'Network Map',click:()=>{
-			this.showNetworkMap();
-		}})
-		this.bookmarksMenu.append(mapOption);
-		
-		//showDonate()
-
-		let donateOption = nw.MenuItem({label:'Donate HNS 🤝',click:()=>{
-			this.showDonate();
-		}})
-		this.bookmarksMenu.append(donateOption);
-
-		this.bookmarksObj = {};
-		this.bookmarkFolder = process.env.HOME+'/Library/Application\ Support/HandyBrowser/Bookmarks';
-		if (!fs.existsSync(this.bookmarkFolder)){
-	    fs.mkdirSync(this.bookmarkFolder);
-		}
 		this.importFromLocal();
 		this.importFromChrome();
+		if(process.platform == 'darwin'){
+			let topItem = new nw.MenuItem({
+				label:'Bookmarks',
+				submenu:this.mainMenu
+			})
+			topMenu.append(
+				topItem
+	  	);
 
-		topMenu.append(
-			new nw.MenuItem({
+			topItem.submenu.append(new nw.MenuItem({label:'Bookmarks',submenu:this.bookmarksMenu}))
+		}
+		else{
+			topMenu.append(
+				new nw.MenuItem({
 					label:'Bookmarks',
 					submenu:this.bookmarksMenu
-  			}
-  		)
-  	);
-  	if(process.platform == 'darwin'){
-  		this.bookmarksMenu.createMacBuiltin("HandyBrowser");
-  	}
-  	nw.Window.get().menu = topMenu;
-  	let aboutIndexNum = 6;
-  	if(!this.hasChromeBookmarksPresent){
-  		aboutIndexNum = 5;
-  	}
-  	if(process.platform == 'darwin'){
-  		nw.Window.get().menu.items[0].submenu.items[aboutIndexNum].label = 'About';
-  	}
+				})
+			)
+		}
+
+		if(process.platform == 'win32'){
+			topMenu.append(mapOption);
+			topMenu.append(donateOption);
+		}
+  	
+	  	if(process.platform == 'darwin'){
+		  	this.mainMenu.createMacBuiltin("HandyBrowser");
+		  	nw.Window.get().menu = topMenu;
+		  }
+
+		if(process.platform == 'win32'){
+		  $('#winBookmarks',nw.Window.get().window.document).off('click').on('click',function(e){
+		  	let dim = $(this)[0].getBoundingClientRect();
+		  	console.log('dim',dim);
+		  	topMenu.popup(Math.floor(dim.left+dim.width), Math.floor(dim.top));
+		  	return false;
+		  }).show();
+		  	}
+	  	
+	  	if(process.platform == 'darwin'){
+	  		nw.Window.get().menu.items[0].submenu.items[3].label = 'About';
+	  	}
 	}
 	addEvents(){
 		$('#bookmarkPage').off('click').on('click',()=>{
@@ -173,7 +208,9 @@ class BookmarkManager{
 	showBookmarksManager(){
 		let localPath = process.env.HOME+'/Library/Application\ Support/HandyBrowser/Bookmarks/bookmarks.json';
 		let chromeBookmarksPath = this.chromeBookmarksPath 
-
+		if(process.platform == 'win32'){
+			localPath = process.env.HOMEDRIVE+process.env.HOMEPATH+'/AppData/Local/HandyBrowser/User\ Data/Default/Bookmarks/bookmarks.json';
+		}
 		let bookmarks = [];
 		let chromeBookmarks = [];
 		if(fs.existsSync(localPath)){
@@ -430,6 +467,9 @@ class BookmarkManager{
 	}
 	addNewBookmark(){
 		let localPath = process.env.HOME+'/Library/Application\ Support/HandyBrowser/Bookmarks/bookmarks.json';
+		if(process.platform == 'win32'){
+			localPath = process.env.HOMEDRIVE+process.env.HOMEPATH+'/AppData/Local/HandyBrowser/User\ Data/Default/Bookmarks/bookmarks.json';
+		}
 		let title = this.tray.activeTab.title == "" ? this.tray.activeTab.window.window.location.href : this.tray.activeTab.title;
 		let url = this.tray.activeTab.window.window.location.href;
 		let obj = {
@@ -557,6 +597,9 @@ class BookmarkManager{
 	}
 	importFromLocal(){
 		let localPath = process.env.HOME+'/Library/Application\ Support/HandyBrowser/Bookmarks/bookmarks.json';
+		if(process.platform == 'win32'){
+			localPath = process.env.HOMEDRIVE+process.env.HOMEPATH+'/AppData/Local/HandyBrowser/User\ Data/Default/Bookmarks/bookmarks.json';
+		}
 		let localBookmarkMenu = new nw.MenuItem({label:'HandyBrowser Bookmarks',submenu:new nw.Menu()})
 		localBookmarkMenu.submenu.append(new nw.MenuItem({label:'Add New Bookmark...',click:()=>{
 			this.addNewBookmark();

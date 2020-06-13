@@ -37,8 +37,8 @@ class bsApp{
     return (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
 	}
 	showTray(){
-		let w = screen.width;
-		let h = screen.height;
+		let w = screen.availWidth;
+		let h = screen.availHeight;
 		let x = 0;
 		let y = 0;
 		let hasState = false;
@@ -52,11 +52,20 @@ class bsApp{
 			hasState = true;
 		}
 		nw.App.setProxyConfig('127.0.0.1:5301');
+		let isResizable = true;
+		//only fullscreen support in windows
+		if(process.platform == 'win32'){
+			w = screen.availWidth;
+			x = screen.availLeft;
+			y = screen.availTop;
+			h = screen.availHeight;
+			isResizable = false;
+		}
 		nw.Window.open('./tray.html',{
 			width:w,
 			height:h,
 			frame:false,
-			resizable:true,
+			resizable:isResizable,
 			transparent:true,
 			x:x,
 			y:y

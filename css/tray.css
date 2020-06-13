@@ -1,5 +1,6 @@
 html,body{
 	background:#111;
+	overflow: hidden;
 }
 #introLogo{
 	background: #111; 
@@ -15,6 +16,23 @@ html,body{
   margin-left: 62px;
   padding-top: 5px;
   
+}
+#toolbar.windows{
+	margin-left:5px;
+}
+#winBookmarks{
+	float: left;
+    height: 22px;
+    width: 30px;
+    font-size: 24px;
+    cursor: pointer;
+    display: none;
+    color: #aaa;
+    background: #333;
+    padding: 3px 5px 4px 3px;
+    line-height: 22px;
+    margin: 0 3px 0;
+    margin-left: calc(40% + 7px);
 }
 #toolbar #dragHandle{
 	-webkit-app-region: drag;
@@ -86,6 +104,14 @@ html,body{
 	position:absolute;
 	z-index:101;
 }
+#appNavigation.windows{
+	float:right;
+	right:0px;
+	z-index:102;
+	left:auto;
+	width:56px;
+	padding:0;
+}
 #appNavigation .button{
 	width: 14px;
 	height:14px;
@@ -98,6 +124,24 @@ html,body{
 	color:rgba(0,0,0,0);
 	cursor:pointer;
 }
+#appNavigation.windows .button{
+	float:right;
+	width: 24px;
+	height: 24px;
+	line-height: 22px;
+	font-size:14px;
+	border-radius:0px;
+	margin: 0;
+	border: 1px solid #000;
+	color:rgba(0,0,0,1.0);
+}
+#appNavigation.windows .button:hover{
+	background:#777 !important;
+	color:rgba(210,210,210,1.0);
+}
+#appNavigation.windows .button#full{
+	display:none;
+}
 #appNavigation:hover .button{
 	color:rgba(0,0,0,0.75);
 }
@@ -106,6 +150,9 @@ html,body{
 }
 #appNavigation #hide{
 	background:#FFBD44;
+}
+#appNavigation.windows #close, #appNavigation.windows #hide{
+	background: #444;
 }
 #appNavigation #full{
 	background:#00CA4E;
@@ -120,6 +167,9 @@ html,body{
 	overflow:hidden;
 	position:relative;
 	z-index:1;
+}
+.windows #tabs{
+	margin-left:0px;
 }
 #tabs ul{
 	float:left;
@@ -271,6 +321,9 @@ html,body{
 	margin-left: -55px;
 	overflow:hidden;
 	display:none;
+}
+.windows #bookmarksBar{
+	margin-left: 0px;
 }
 #bookmarksBar.visible{
 	display:block;

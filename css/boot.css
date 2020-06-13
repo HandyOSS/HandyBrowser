@@ -3,6 +3,7 @@ html,body{
 	font-family: 'IBM Plex Mono', sans-serif;
 	color:#eee;
 	text-align:center;
+  	overflow:hidden;
 }
 .logo{
 	float:left;
@@ -15,13 +16,13 @@ html,body{
 	filter:invert(0.1);
 }
 .main{
-	width:calc(100% - 20px);
+	width:calc(100% - 30px);
 	height:calc(100% - 20px);
 
 	margin: 10px;
 	position:absolute;
 	z-index:1;
-	margin-top:120px;
+	margin-top:90px;
 
 }
 @font-face {

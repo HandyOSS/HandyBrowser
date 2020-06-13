@@ -8,9 +8,9 @@
 	<script src="bower_components/d3/d3.min.js"></script>
 	<script src="bower_components/numeral/numeral.js"></script>
 	<script src="bower_components/moment/moment.js"></script>
-	<script src="externals/three.js/three.min.js"></script>
+	<script src="bower_components/three.js/three.min.js"></script>
 	<script src="bower_components/Sortable/Sortable.min.js"></script>
-	<script src="bower_components/threejs-trackball-controls/TrackballControls.js"></script>
+	
 	<script type="shader/x-fragment" id="logoFragmentShader">
 		uniform float animate;
 		uniform float opacity;
@@ -53,7 +53,7 @@
 	<script src="js/bookmarks.js"></script>
 	<script src="js/tray.js"></script>
 </head>
-<body style="background:#eee;">
+<body>
 	<div id="appNavigation" class="noHandles">
 		<div class="button" id="close">x</div>
 		<div class="button" id="hide">-</div>
@@ -69,6 +69,7 @@
 			<input type="text" id="urlQuery" placeholder="Search or Type a URL" class="noHandles" autocomplete="off" />
 		</div>
 		<div id="bookmarkPage" class="noHandles">★</div>
+		<div id="winBookmarks">&#x1f56e;</div>
 		<div id="tabs" class="noHandles">
 			<ul>
 				<li class="init notactivated tabtarget">New Tab</li>
