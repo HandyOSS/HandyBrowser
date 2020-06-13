@@ -298,7 +298,7 @@ class Tray{
 			nw.App.unregisterGlobalHotKey(this._globalShortcuts[key]);
 			delete this._globalShortcuts[key];
 		}); //unregister all shortcuts
-		if(process.plarform == 'darwin'){
+		if(process.platform == 'darwin'){
 			nw.Window.get().setAlwaysOnTop(false);
 			if(typeof this.trayWindow != "undefined"){
 				setTimeout(()=>{

@@ -34,6 +34,31 @@ class BookmarkManager{
 	createBookmarksMenu(){
 		let menuType = process.platform == 'darwin' ? 'menubar' : 'contextmenu';
 		let topMenu = new nw.Menu({type:menuType});
+		this.mainMenu = new nw.Menu();
+		
+
+		let mapOption = nw.MenuItem({label:'Network Map',click:()=>{
+			this.showNetworkMap();
+		}});
+		if(process.platform == 'darwin'){
+			this.mainMenu.append(mapOption);
+		}
+		//showDonate()
+
+		let donateOption = nw.MenuItem({label:'Donate HNS 🤝',click:()=>{
+			this.showDonate();
+		}});
+		if(process.platform == 'darwin'){
+			this.mainMenu.append(donateOption);
+		}
+		this.bookmarksObj = {};
+		this.bookmarkFolder = process.env.HOME+'/Library/Application\ Support/HandyBrowser/Bookmarks';
+		if(process.platform == 'win32'){
+			this.bookmarkFolder = process.env.HOMEDRIVE+process.env.HOMEPATH+'/AppData/Local/HandyBrowser/User\ Data/Default/Bookmarks';
+		}
+		if (!fs.existsSync(this.bookmarkFolder)){
+	    fs.mkdirSync(this.bookmarkFolder);
+		}
 		this.bookmarksMenu = new nw.Menu();
 		let showBookmarksBar = localStorage.getItem('showBookmarksBar') != null ? localStorage.getItem('showBookmarksBar') : true;
 		let checkboxItem = new nw.MenuItem({label: 'Show Bookmarks Bar',checked:showBookmarksBar,type:'checkbox',click:(item)=>{
@@ -55,44 +80,35 @@ class BookmarkManager{
 		}})
 		this.bookmarksMenu.append(bookmarkManagerOption);
 
-		let mapOption = nw.MenuItem({label:'Network Map',click:()=>{
-			this.showNetworkMap();
-		}});
-		if(process.platform == 'darwin'){
-			this.bookmarksMenu.append(mapOption);
-		}
-		//showDonate()
-
-		let donateOption = nw.MenuItem({label:'Donate HNS 🤝',click:()=>{
-			this.showDonate();
-		}});
-		if(process.platform == 'darwin'){
-			this.bookmarksMenu.append(donateOption);
-		}
-		this.bookmarksObj = {};
-		this.bookmarkFolder = process.env.HOME+'/Library/Application\ Support/HandyBrowser/Bookmarks';
-		if(process.platform == 'win32'){
-			this.bookmarkFolder = process.env.HOMEDRIVE+process.env.HOMEPATH+'/AppData/Local/HandyBrowser/User\ Data/Default/Bookmarks';
-		}
-		if (!fs.existsSync(this.bookmarkFolder)){
-	    fs.mkdirSync(this.bookmarkFolder);
-		}
 		this.importFromLocal();
 		this.importFromChrome();
+		if(process.platform == 'darwin'){
+			let topItem = new nw.MenuItem({
+				label:'Bookmarks',
+				submenu:this.mainMenu
+			})
+			topMenu.append(
+				topItem
+	  	);
 
-		topMenu.append(
-			new nw.MenuItem({
+			topItem.submenu.append(new nw.MenuItem({label:'Bookmarks',submenu:this.bookmarksMenu}))
+		}
+		else{
+			topMenu.append(
+				new nw.MenuItem({
 					label:'Bookmarks',
 					submenu:this.bookmarksMenu
-  			})
-  		)
+				})
+			)
+		}
+
 		if(process.platform == 'win32'){
 			topMenu.append(mapOption);
 			topMenu.append(donateOption);
 		}
   	
 	  	if(process.platform == 'darwin'){
-		  	this.bookmarksMenu.createMacBuiltin("HandyBrowser");
+		  	this.mainMenu.createMacBuiltin("HandyBrowser");
 		  	nw.Window.get().menu = topMenu;
 		  }
 
@@ -104,12 +120,9 @@ class BookmarkManager{
 		  	return false;
 		  }).show();
 		  	}
-	  	let aboutIndexNum = 6;
-	  	if(!this.hasChromeBookmarksPresent){
-	  		aboutIndexNum = 5;
-	  	}
+	  	
 	  	if(process.platform == 'darwin'){
-	  		nw.Window.get().menu.items[0].submenu.items[aboutIndexNum].label = 'About';
+	  		nw.Window.get().menu.items[0].submenu.items[3].label = 'About';
 	  	}
 	}
 	addEvents(){
