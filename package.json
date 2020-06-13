@@ -8,7 +8,7 @@
     "resize":false,
     "position":"center",
     "height": 240,
-    "icon": "icons/app_256x256x32.png",
+    "icon": "icons/app_png.png",
     "chromium-args":"--allow-running-insecure-content --ignore-certificate-errors --ignore-urlfetcher-cert-requests --remember-cert-error-decisions"
   },
   "node-remote":{

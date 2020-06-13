@@ -188,6 +188,7 @@ html,body{
   height: calc(100% - 67px);
   overflow-y:scroll;
   background:rgba(255,255,255,0.1);
+  overflow-x:hidden;
 }
 .bookmarksManager .panel.chrome{
   border-right: 1px solid #555;

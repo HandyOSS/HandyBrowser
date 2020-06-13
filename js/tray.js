@@ -41,7 +41,21 @@ class Tray{
 		})*/
 		this.handleTrayResize();
 
-		nw.Window.get().setAlwaysOnTop(true);
+		//force windows fullscreen/non movable
+		if(process.platform == 'win32'){
+			$('#dragHandle').hide();
+			$('#appNavigation').addClass('windows');
+			$('#toolbar').addClass('windows');
+			setTimeout(()=>{
+				//deal with sizing overflow on windows, sheeesh..
+				this.bookmarks.createBookmarksMenu();
+			},10000)
+		}
+		
+		this.handleTrayResize();
+		if(process.platform == 'darwin'){
+			nw.Window.get().setAlwaysOnTop(true);
+		}
 		this.trayWindow.on('minimize',()=>{
 			this.isMinimized = true;
 		})
@@ -164,6 +178,8 @@ class Tray{
 	    this.trayWindow.height = h;
 			this.trayIsFull = true;
     	this.trayWindow.focus();
+    	this.shatterI = 0.7;
+    	this.shatterAnimation();
     	nw.Window.get().minimize();
 			
 		})
@@ -172,6 +188,10 @@ class Tray{
 	handleTrayResize(){
 		//let bmSi;
 		this.trayWindow.on('resize',(width,height)=>{
+			//disable non-fullscreen in windows
+      			if(process.platform == 'win32'){
+      				return false;
+      			}
 			this.resizeActive(false);
 			this.calcTabSize();
 			if(typeof this.bmSi != "undefined"){
@@ -184,7 +204,10 @@ class Tray{
 			
 		})
 		this.trayWindow.on('move',(width,height)=>{
-			console.log('ontryamove');
+			//disable non-fullscreen in windows
+      			if(process.platform == 'win32'){
+      				return false;
+      			}
 			if(this.trayIsFull){
 				this.shatterAnimation();
 			}
@@ -275,13 +298,14 @@ class Tray{
 			nw.App.unregisterGlobalHotKey(this._globalShortcuts[key]);
 			delete this._globalShortcuts[key];
 		}); //unregister all shortcuts
-		nw.Window.get().setAlwaysOnTop(false);
-		if(typeof this.trayWindow != "undefined"){
-			setTimeout(()=>{
-				this.trayWindow.setAlwaysOnTop(false);
-				this.trayWindow.blur();
-			},100)
-			
+		if(process.plarform == 'darwin'){
+			nw.Window.get().setAlwaysOnTop(false);
+			if(typeof this.trayWindow != "undefined"){
+				setTimeout(()=>{
+					this.trayWindow.setAlwaysOnTop(false);
+					this.trayWindow.blur();
+				},100)
+			}
 
 		}
 		console.log('deregistered',this._globalShortcuts,this.trayWindow);
@@ -291,9 +315,14 @@ class Tray{
 		let newTabCmd;
 		let closeTabCmd;
 		let showDevToolsCmd;
-		this.deregisterKeyboardShortcuts();
+		if(process.platform == 'darwin'){
+			this.deregisterKeyboardShortcuts();
+		}
 		this.appHasFocus = true;
-		nw.Window.get().setAlwaysOnTop(true);
+		
+		if(process.platform == 'darwin'){
+			nw.Window.get().setAlwaysOnTop(true);
+		}
 		if(process.platform == 'darwin'){
 			console.log('darwin');
 			newTabCmd = {
@@ -330,6 +359,21 @@ class Tray{
 			    console.log(msg);
 			  }
 			};
+			closeTabCmd = {
+			  key : "Ctrl+W",
+			  active : closeFunction,
+			  failed : function(msg) {
+			    // :(, fail to register the |key| or couldn't parse the |key|.
+			    console.log(msg);
+			  }
+			};
+			showDevToolsCmd = {
+				key : 'Ctrl+Shift+I',
+				active: showTools,
+				failed: function(msg) {
+					console.log(msg);
+				}
+			}
 			
 		}
 		let newTabShortcut = new nw.Shortcut(newTabCmd);
@@ -385,6 +429,8 @@ class Tray{
 	    _this.trayWindow.height = h;
 	    _this.trayIsFull = true;
 	    _this.trayWindow.focus();
+	    _this.shatterI = 0.7;
+	    _this.shatterAnimation();
 	    _this.isCreatingNewTab = true;
 	    if(typeof _this.activeWindow != "undefined"){
 	    	_this.activeWindow.hide();
@@ -446,7 +492,9 @@ class Tray{
 		    	h = state.height;
 		    }
 		    _this.trayWindow.height = h;
-      	_this.trayIsFull = true;
+      		    _this.trayIsFull = true;
+      		    _this.shatterI = 0.7;
+      		    _this.shatterAnimation();
 		    _this.trayWindow.focus();
 		    _this.isCreatingNewTab = true;
 		    if(typeof _this.activeWindow != "undefined"){
@@ -681,24 +729,34 @@ class Tray{
     	let xState = windowState == null ? screen.availLeft : windowState.x;
     	let yState = windowState == null ? screen.availTop : windowState.y;
     	//create new window
+        let isResizable = true;
+        //disable resize/non fullscreen in windows
+        if(process.platform == 'win32'){
+      	  isResizable = false;
+        }
       nw.Window.open(url,{
       	width:w,
       	height:h,
       	frame:false,
-      	resizable:true,
+      	resizable:isResizable,
       	show:false,
       	focus:true,
       },(win)=>{
       	//win.setShadow(false);
       	win.on('resize',(width,height)=>{
+      		//disable non-fullscreen in windows
+      		if(process.platform == 'win32'){
+      			return false;
+      		}
+      		this.windowJustResized = true;
       		let x = this.trayWindow.x;//win.x;
       		let y = this.trayWindow.y + ($('#toolbar').outerHeight()+5);//win.y;
-      		if(y - ($('#toolbar').height()+5) < 0){
-      			win.y = ($('#toolbar').height()+10	);
+      		if(y - ($('#toolbar').outerHeight()+5) < 0){
+      			win.y = ($('#toolbar').outerHeight()+5);
       			this.trayWindow.y = 0;
       		}
       		else{
-      			this.trayWindow.y = win.y - ($('#toolbar').height()+5);
+      			this.trayWindow.y = win.y - ($('#toolbar').outerHeight()+5);
       		}
       		this.trayWindow.x = win.x;
       		this.trayWindow.width = win.width;
@@ -746,7 +804,7 @@ class Tray{
 	      	let toHide = this.activeWindow;
 	      	setTimeout(()=>{
 	      		toHide.hide();
-	      	},100)
+	      	},400)
 	      	
 	      }
 	      this.trayWindow.height = $('#toolbar').outerHeight()+5;
@@ -758,10 +816,16 @@ class Tray{
 	      win.on('blur',()=>{
 	      	console.log('new tab window lost focus');
 	      	this.windowGetBlur(win);
+	      	if(process.platform == 'win32'){
+	      		this.trayWindow.setAlwaysOnTop(false);
+	      	}
 	      })
 	      win.on('focus',()=>{
 	      	console.log('new tab window has focus')
 	      	this.windowGetFocus(win);
+	      	if(process.platform == 'win32'){
+	      		this.trayWindow.setAlwaysOnTop(true);
+	      	}
 	      });
 
 	      this.isAddingNewTab = false;
