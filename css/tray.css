@@ -148,6 +148,24 @@ html,body{
 #appNavigation #close{
 	background:#FF605C;
 }
+#appNavigation.linux #close{
+	background: -webkit-linear-gradient(top, #f29879 0%,#e95420 63%,#e95420 100%);
+}
+#appNavigation.linux #close:hover{
+	background: -webkit-linear-gradient(top, #F8CCBC 0%,#e95420 63%,#f29879 100%);
+}
+
+#appNavigation.linux #full{
+	display:none;
+}
+#appNavigation.linux #hide{
+	background: -webkit-linear-gradient(top, #b7b7b7 0%,#848484 63%,#848484 100%);
+}
+
+#appNavigation.linux #hide:hover{
+	background: -webkit-linear-gradient(top, #dddddd 0%,#848484 63%,#b7b7b7 100%);
+}
+
 #appNavigation #hide{
 	background:#FFBD44;
 }
@@ -168,7 +186,7 @@ html,body{
 	position:relative;
 	z-index:1;
 }
-.windows #tabs{
+.windows #tabs, .linux #tabs{
 	margin-left:0px;
 }
 #tabs ul{

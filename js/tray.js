@@ -51,6 +51,15 @@ class Tray{
 				this.bookmarks.createBookmarksMenu();
 			},10000)
 		}
+		if(process.platform == 'linux'){
+			$('#dragHandle').hide();
+			$('#appNavigation').addClass('linux');
+			$('#toolbar').addClass('linux');
+			setTimeout(()=>{
+				//deal with sizing overflow on windows, sheeesh..
+				this.bookmarks.createBookmarksMenu();
+			},10000)
+		}
 		
 		this.handleTrayResize();
 		if(process.platform == 'darwin'){
@@ -255,7 +264,7 @@ class Tray{
 		state.isFull = state.isFull || $('.button#full').hasClass('isFull');
 		localStorage.setItem('windowState',JSON.stringify(state));
 	}
-	shatterAnimation(){
+	shatterAnimation(isLinuxInit){
 		this.logoMesh.material.wireframe = true;
 			//$('#nameList').addClass('showing');
 			let i = this.shatterI || 0.0;
@@ -283,7 +292,12 @@ class Tray{
 						this.logoMesh.material.uniforms.animate.value = 1.0;
 						this.logoMesh.material.uniforms.scale.value = 1.0;
 						this.animateLogo();
-						clearInterval(this.shatterInterval);;
+						clearInterval(this.shatterInterval);
+						if(isLinuxInit){
+							setTimeout(function(){
+							this.finishLogo();
+							},500)
+						}
 						
 					}
 					i -= 0.05;
@@ -816,14 +830,14 @@ class Tray{
 	      win.on('blur',()=>{
 	      	console.log('new tab window lost focus');
 	      	this.windowGetBlur(win);
-	      	if(process.platform == 'win32'){
+	      	if(process.platform == 'win32' || process.platform == 'linux'){
 	      		this.trayWindow.setAlwaysOnTop(false);
 	      	}
 	      })
 	      win.on('focus',()=>{
 	      	console.log('new tab window has focus')
 	      	this.windowGetFocus(win);
-	      	if(process.platform == 'win32'){
+	      	if(process.platform == 'win32' || process.platform == 'linux'){
 	      		this.trayWindow.setAlwaysOnTop(true);
 	      	}
 	      });
@@ -1188,7 +1202,16 @@ class Tray{
 			
 			function addLogoTransition(mesh){
 				var i = 0;
-				var si = setInterval(function(){
+				if(process.platform == 'linux'){
+					_this.shouldRenderLogo = false;
+					mesh.material.uniforms.animate.value = 0.0;
+					mesh.material.uniforms.scale.value = 0.0;
+					mesh.position.set(_this.camera.position.x+2.15,_this.camera.position.y + 0.1,_this.camera.position.z);
+					_this.shatterI = 1.0
+					_this.shatterAnimation(true);
+				}
+				else{
+					var si = setInterval(function(){
 					if(i >= 1.0){
 						i = 0;
 						mesh.material.uniforms.animate.value = 1.0;
@@ -1211,6 +1234,8 @@ class Tray{
 					mesh.position.set(_this.camera.position.x+2.15,_this.camera.position.y + 0.1,_this.camera.position.z);
 					//mesh.lookAt(_this.camera.position);
 				},21)	
+				}
+				
 			}
 			
 			_this.logoMesh = mesh;
