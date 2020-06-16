@@ -1316,7 +1316,7 @@ class Tray{
   		}
   		this._tabs[activeID].nameResource = d;
   		$('#miniLogo').off('click').on('click',()=>{
-  			this.showNameInfoPanel(this._tabs[activeID].nameResource.result,this._tabs[activeNowID].nameInfo.result);
+  			this.showNameInfoPanel(this._tabs[activeID].nameResource.result,this._tabs[activeID].nameInfo.result);
   		})
   	}
 	}
