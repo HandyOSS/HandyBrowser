@@ -12,6 +12,12 @@ const options = {
 };
 const proxyServer = new AnyProxy.ProxyServer(options);
 
-proxyServer.on('ready', () => { console.log('anyproxy is ready');/* */ });
-proxyServer.on('error', (e) => { console.log('proxy error',e); /* */ });
-proxyServer.start();
+try{
+	proxyServer.on('ready', () => { console.log('anyproxy is ready');/* */ });
+	proxyServer.on('error', (e) => { console.log('proxy error',e); /* */ });
+	proxyServer.start();
+}
+catch(e){
+	console.log('restart')
+	proxyServer.start();
+}

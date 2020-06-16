@@ -1,0 +1,53 @@
+{
+	"type":"folder",
+	"name":"HNS Resources",
+	"children":
+	[
+		{
+	    "type": "url",
+	    "name": "HandshakeTalk Telegram",
+	    "url": "http://t.me/HandshakeTalk"
+	  },
+	  {
+	    "type": "url",
+	    "name": "Namebase",
+	    "url": "https://www.namebase.io/"
+	  },
+	  {
+	    "type": "url",
+	    "name": "Bob Wallet",
+	    "url": "https://github.com/kyokan/bob-wallet/releases"
+	  },
+	  {
+	    "type": "url",
+	    "name": "hsd-dev.org",
+	    "url": "https://hsd-dev.org/"
+	  },
+	  {
+	    "type": "url",
+	    "name": "Week in Handshake",
+	    "url": "https://weekinhandshake.substack.com/"
+	  },
+	  {
+	    "type": "url",
+	    "name": "Blockchannel",
+	    "url": "https://medium.com/blockchannel/tagged/handshake"
+	  },
+	  {
+	    "type": "url",
+	    "name": "Webshake",
+	    "url": "https://webshake.tech/"
+	  },
+	  {
+	    "type": "url",
+	    "name": "DNS.Live",
+	    "url": "https://dns.live/"
+	  },
+	  {
+	    "type": "url",
+	    "name": "HNScan",
+	    "url": "http://HNScan.com"
+	  }
+
+	]
+}

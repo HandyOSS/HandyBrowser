@@ -657,7 +657,13 @@ class BookmarkManager{
 			
 		}
 		else{
-			this.tray.$bookmarksBar.removeClass('visible');
+			//this.tray.$bookmarksBar.removeClass('visible');
+			//no bookmarks, use/save local defaults and start over
+			let defaults = $.getJSON('./js/bookmarks_default.json',d=>{
+				fs.writeFileSync(localPath,JSON.stringify(defaults,null,2),'utf8');
+				this.importFromLocal();
+				return false;
+			})
 		}
 		this.bookmarksMenu.append(localBookmarkMenu);
 	}

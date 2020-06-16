@@ -88,16 +88,22 @@ module.exports = {
 					try{
 						this.downloadFile(icon.src,__dirname+'/favicon_cache/'+pathHash+'/favicon.ico',()=>{
 							const source = fs.readFileSync(__dirname+'/favicon_cache/'+pathHash+'/favicon.ico');
-							icoToPng(source, 32).then((png) => {
-								let b64String = 'data:image/png;base64,'+png.toString('base64')
-							  fs.writeFileSync(__dirname+'/favicon_cache/'+pathHash+'/favicon.txt',b64String,'utf8');
-							  //callback(b64String);
-							  
-							  resolve(b64String);
-							  
-							}).catch(err=>{
+							try{
+								icoToPng(source, 32).then((png) => {
+									let b64String = 'data:image/png;base64,'+png.toString('base64')
+								  fs.writeFileSync(__dirname+'/favicon_cache/'+pathHash+'/favicon.txt',b64String,'utf8');
+								  //callback(b64String);
+								  
+								  resolve(b64String);
+								  
+								}).catch(err=>{
+									resolve(failImage);
+								})
+							}
+							catch(icoE){
+								console.log('caught e');
 								resolve(failImage);
-							})
+							}
 
 						})
 					}
