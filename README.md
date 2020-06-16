@@ -71,11 +71,13 @@ $ Docker stop HandyBrowserHSD
 $ Docker rm HandyBrowserHSD
 $ Docker image rm handybrowser
 ```
-  - Custom "HNS Lock" that changes color between White [HNS]/Grey/Green [HTTPS] to notate how you're connecting over DNS.
 
 ### Project Roadmap [Donation Driven Development]
 
 0. Build-in WebRTC Video/Audio chat + Screensharing utilizing Handshake
+
+### HandyBrowser Support Telegram/Handshake Discussion:
+[🤝 HandshakeTalk Telegram](http://t.me/HandshakeTalk)
 
 ### Donate HNS to the HandyBrowser Team:
 
