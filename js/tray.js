@@ -295,8 +295,8 @@ class Tray{
 						this.animateLogo();
 						clearInterval(this.shatterInterval);
 						if(isLinuxInit){
-							setTimeout(function(){
-							this.finishLogo();
+							setTimeout(()=>{
+								this.finishLogo();
 							},500)
 						}
 						
@@ -446,6 +446,7 @@ class Tray{
 	    _this.trayWindow.focus();
 	    _this.shatterI = 0.7;
 	    _this.shatterAnimation();
+	    $('#miniLogo').removeClass('active').removeClass('secure');
 	    _this.isCreatingNewTab = true;
 	    if(typeof _this.activeWindow != "undefined"){
 	    	_this.activeWindow.hide();
@@ -484,6 +485,7 @@ class Tray{
 			$('#tabs li .closeTab').off('click').remove();
     	liElem.append('<div class="closeTab">x</div>')
     	$('.closeTab',liElem).off('click').on('click',()=>{
+    		console.log('closetab is clicked');
     		if(liElem.hasClass('notactivated')){
     			liElem.remove();
     			_this.focusOnTabAfterRemove();
@@ -518,6 +520,7 @@ class Tray{
 		  	_this.isAddingNewTab = true;
 		  }
 		}
+		//add H
 	}
 	focusOnTabAfterRemove(){
 		console.log('after rem tabs len, before',this._tabs.length);
@@ -542,6 +545,26 @@ class Tray{
   		this.activeWindow = activeTab.window;
   		this.activeTab = activeTab;
   		this.activeWindow.show(true);
+  		//add H icon styles
+  		if(typeof this.activeTab.nameResource != "undefined"){
+  			let d = this.activeTab.nameResource;
+	    	if(d.result){
+	    		console.log('name resource result isset',d.result)
+	    		if(d.result != null){
+	    			$('#miniLogo').addClass('active');
+	    			d.result.records.map(rec=>{
+	    				if(rec.type == 'DS'){
+	    					//is secure???
+	    					console.log('minilogo should be secure appearance')
+	    					$('#miniLogo').addClass('secure');
+	    				}
+	    			})
+	    		}
+	    		$('#miniLogo').off('click').on('click',()=>{
+	    			this.showNameInfoPanel(this.activeTab.nameResource,this.activeTab.nameInfo);
+	    		})
+	    	}
+  		}
   	}
   	else{
   		delete this.activeWindow;
@@ -1034,17 +1057,19 @@ class Tray{
       		this._tabs[activeNow.id].nameInfo = d.result;
       	}
       })
-      $('#miniLogo').removeClass('active').removeClass('secure').off('click');
       	
       $.post('http://x:'+guid+'@127.0.0.1:12937',JSON.stringify({method:"getnameresource",params:[tld]}),(d)=>{
-      	console.log('got tld resource rec',d);
-      	
+      	console.log('got tld resource rec',d,d.result);
+      	$('#miniLogo').removeClass('active').removeClass('secure').off('click');
+      
       	if(d.result){
+      		console.log('has result');
       		if(d.result != null){
       			$('#miniLogo').addClass('active');
       			d.result.records.map(rec=>{
       				if(rec.type == 'DS'){
       					//is secure???
+      					console.log('minilogo show secure')
       					$('#miniLogo').addClass('secure');
       				}
       			})
@@ -1062,25 +1087,28 @@ class Tray{
     	//this.activeTab.$el.html(this.activeTab.window.title);
     	activeNow.$el.prepend('<img class="favicon" src="'+activeNow.icon+'"/>')
   		this._tabs[activeNow.id].title = activeNow.window.title;	
+  		if(this._tabs[activeNow.id].nameResource){
+	    	$('#miniLogo').removeClass('active').removeClass('secure');
+	    	let d = this._tabs[activeNow.id].nameResource;
+	    	if(d.result){
+	    		console.log('name resource result isset',d.result)
+	    		if(d.result != null){
+	    			$('#miniLogo').addClass('active');
+	    			d.result.records.map(rec=>{
+	    				if(rec.type == 'DS'){
+	    					//is secure???
+	    					console.log('minilogo should be secure appearance')
+	    					$('#miniLogo').addClass('secure');
+	    				}
+	    			})
+	    		}
+	    		$('#miniLogo').off('click').on('click',()=>{
+	    			this.showNameInfoPanel(this._tabs[activeNow.id].nameResource,this._tabs[activeNow.id].nameInfo);
+	    		})
+	    	}
+	    }
     }
-    if(this._tabs[activeNow.id].nameResource){
-    	$('#miniLogo').removeClass('active').removeClass('secure');
-    	let d = this._tabs[activeNow.id].nameResource;
-    	if(d.result){
-    		if(d.result != null){
-    			$('#miniLogo').addClass('active');
-    			d.result.records.map(rec=>{
-    				if(rec.type == 'DS'){
-    					//is secure???
-    					$('#miniLogo').addClass('secure');
-    				}
-    			})
-    		}
-    		$('#miniLogo').off('click').on('click',()=>{
-    			this.showNameInfoPanel(this._tabs[activeNow.id].nameResource,this._tabs[activeNow.id].nameInfo);
-    		})
-    	}
-    }
+    
 	}
 	windowGetFocus(win){
 		this.initKeyboardShortcuts()

@@ -659,8 +659,10 @@ class BookmarkManager{
 		else{
 			//this.tray.$bookmarksBar.removeClass('visible');
 			//no bookmarks, use/save local defaults and start over
+			console.log('no bookmarks found');
 			let defaults = $.getJSON('./js/bookmarks_default.json',d=>{
-				fs.writeFileSync(localPath,JSON.stringify(defaults,null,2),'utf8');
+				console.log('wrote default bookmarks',d);
+				fs.writeFileSync(localPath,JSON.stringify(d,null,2),'utf8');
 				this.importFromLocal();
 				return false;
 			})
