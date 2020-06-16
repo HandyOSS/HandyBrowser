@@ -1,6 +1,6 @@
 ## HandyBrowser
 
-### Download Latest Prebuilt in [Releases](./releases)
+### Download Latest Prebuilt in [Releases](./releases) [Skips all the steps below]
 
 ### Building from Source
 
@@ -56,7 +56,7 @@ Why Nw.js over Electron? The lead-dev of this project has used Nw.js extensively
 
 ### HandyBrowser Install FAQS
 
-  - Before running HandyBrowser the first time, make sure you have Docker installed and running:
+  - Before running HandyBrowser the first time, make sure you have Docker installed and running [Note you don't need a Docker account, simply just the Docker service so we can install the dependencies for your Handshake node]:
 
 MacOS - https://docs.docker.com/docker-for-mac/release-notes/
 
