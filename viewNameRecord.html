@@ -1,0 +1,46 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="./css/viewNameRecord.css" />
+<script src="bower_components/jquery/dist/jquery.min.js"></script>
+<script>
+	function selectText(node) {
+	    node = document.getElementById(node);
+
+	    if (document.body.createTextRange) {
+	        const range = document.body.createTextRange();
+	        range.moveToElementText(node);
+	        range.select();
+	    } else if (window.getSelection) {
+	        const selection = window.getSelection();
+	        const range = document.createRange();
+	        range.selectNodeContents(node);
+	        selection.removeAllRanges();
+	        selection.addRange(range);
+	    } else {
+	        console.warn("Could not select text in node: Unsupported browser.");
+	    }
+	}
+	$(document).ready(()=>{
+		console.log('ready');
+		$('.selectMe').off('click').on('click',function(){
+			console.log('focus')
+			selectText($(this).attr('id'))
+		})
+	});
+</script>
+</head>
+<body>
+<div class="close">X</div>
+<div id="viewNameRecord">
+	<div class="preWrap">
+		<div class="label">Name Info</div>
+		<pre class="selectMe" id="nameInfo" readonly="readonly">abcd</pre>
+	</div>
+	<div class="preWrap">
+		<div class="label">Name Records</div>
+		<pre class="selectMe" id="nameRecords" readonly="readonly">abcd</pre>
+	</div>
+</div>
+
+</body>
+</html>

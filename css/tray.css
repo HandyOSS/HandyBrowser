@@ -54,7 +54,32 @@ html,body{
 	z-index:2;
 	left: 90px;
 }
+#miniLogo{
+	float: left;
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  margin: 7px 11px;
+  
+}
+#miniLogo.active,#miniLogo.secure{
+	cursor:pointer;
+}
+#miniLogo svg{
+	width:16px;
+	height:16px;
+}
+#miniLogo svg path{
+	fill:#555;
+}
+#miniLogo.active svg path{
+	fill:#ddd;
+}
+#miniLogo.secure svg path{
+	fill:#009900;
+}
 #urlQuery{
+	text-indent:20px;
 	float:left;
 	font-size:16px;
 	font-family:'IBM Plex Mono';
@@ -384,3 +409,4 @@ html,body{
 .bookmarkFolderUl{
 	display:none;
 }
+

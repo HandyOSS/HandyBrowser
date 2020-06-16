@@ -136,9 +136,9 @@ class BookmarkManager{
 		  }).show();
 		}
 	  	
-	  	if(process.platform == 'darwin'){
-	  		nw.Window.get().menu.items[0].submenu.items[3].label = 'About';
-	  	}
+  	if(process.platform == 'darwin'){
+  		nw.Window.get().menu.items[0].submenu.items[3].label = 'Options';
+  	}
 	}
 	addEvents(){
 		$('#bookmarkPage').off('click').on('click',()=>{
@@ -402,10 +402,10 @@ class BookmarkManager{
 					let s = $('.bookmarksManager .panel.chrome',win.window.document)[0];
 					new Sortable(s,sortOptsMainChrome);
 				}
-				if(bookmarks.length > 0){
+				//if(bookmarks.length > 0){
 					let s = $('.bookmarksManager .panel.local',win.window.document)[0];
 					new Sortable(s,sortOptsMain);
-				}
+				//}
 				
 				let dims = $('.bookmarksManager',win.window.document)[0].getBoundingClientRect();
 				$('.bookmarksManager',win.window.document).height($(win.window.document).height()-dims.top-20)
