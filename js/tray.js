@@ -460,6 +460,7 @@ class Tray{
 		function closeFunction(){
 			console.log('closeFunction called')
 			if(typeof _this.activeTab != "undefined"){
+				console.log('close tab by id',_this.activeTab.id,_this._tabs.map(t=>{return t.id;}));
 				_this.activeTab.window.close();
 				_this.activeTab.$el.remove();
 				_this._tabs = _this._tabs.filter(tab=>{
@@ -545,25 +546,12 @@ class Tray{
   		this.activeWindow = activeTab.window;
   		this.activeTab = activeTab;
   		this.activeWindow.show(true);
+  		$('#urlQuery').val(activeTab.url);
+  		$('#miniLogo').removeClass('active').removeClass('secure')
   		//add H icon styles
   		if(typeof this.activeTab.nameResource != "undefined"){
   			let d = this.activeTab.nameResource;
-	    	if(d.result){
-	    		console.log('name resource result isset',d.result)
-	    		if(d.result != null){
-	    			$('#miniLogo').addClass('active');
-	    			d.result.records.map(rec=>{
-	    				if(rec.type == 'DS'){
-	    					//is secure???
-	    					console.log('minilogo should be secure appearance')
-	    					$('#miniLogo').addClass('secure');
-	    				}
-	    			})
-	    		}
-	    		$('#miniLogo').off('click').on('click',()=>{
-	    			this.showNameInfoPanel(this.activeTab.nameResource,this.activeTab.nameInfo);
-	    		})
-	    	}
+  			this.update_H_Icon(d,this.activeTab.id);
   		}
   	}
   	else{
@@ -724,6 +712,7 @@ class Tray{
 		        if(val.indexOf('http') != 0){
 		        	val = 'http://'+val;
 		        }
+		        $('#sessionNotification').hide();
 		       	this.addNewTab(val);
 		        //$('#urlQuery').val(val);
 		        
@@ -873,7 +862,7 @@ class Tray{
 	      	window:win,
 	      	title:'',
 	      	$el: $newLI || $('#tabs ul li').eq(tabNumID),
-	      	id: tabIndex || (this._tabs.length-1 == -1 ? 0 : this._tabs.length-1)/*$('#tabs ul li').length*/
+	      	id: tabIndex || this._tabs.length//(this._tabs.length-1 == -1 ? 0 : this._tabs.length-1)/*$('#tabs ul li').length*/
 	      };
 	      tabData.$el.removeClass('tabtarget').removeClass('notactivated').removeClass('init');
 	      
@@ -885,6 +874,8 @@ class Tray{
 	      		//this.activeWindow.close();
 	      		tabData.window.close();
 	      		tabData.$el.remove();
+	      		console.log('close tab by id',tabData.id,this._tabs.map(t=>{return t.id;}));
+				
 	      		this._tabs = this._tabs.filter(tab=>{
 	      			return tab.id != tabData.id;
 	      		});
@@ -924,7 +915,13 @@ class Tray{
 		      		}
 		      	})
 		      },200)
-
+	      	//add H logo things
+	      	$('#miniLogo').removeClass('active').removeClass('secure');
+			    	
+	      	if(tabData.nameResource){
+			    	let d = tabData.nameResource;
+			    	this.update_H_Icon(d,tabData.id);
+			    }
 	      	
 	      })
 	      
@@ -1054,15 +1051,15 @@ class Tray{
       $.post('http://x:'+guid+'@127.0.0.1:12937',JSON.stringify({method:"getnameinfo",params:[tld]}),(d)=>{
       	console.log('got tld info',d);
       	if(d.result){
-      		this._tabs[activeNow.id].nameInfo = d.result;
+      		this._tabs[activeNow.id].nameInfo = d;
       	}
       })
       	
       $.post('http://x:'+guid+'@127.0.0.1:12937',JSON.stringify({method:"getnameresource",params:[tld]}),(d)=>{
       	console.log('got tld resource rec',d,d.result);
       	$('#miniLogo').removeClass('active').removeClass('secure').off('click');
-      
-      	if(d.result){
+      	this.update_H_Icon(d,activeNow.id);
+      	/*if(d.result){
       		console.log('has result');
       		if(d.result != null){
       			$('#miniLogo').addClass('active');
@@ -1074,11 +1071,11 @@ class Tray{
       				}
       			})
       		}
-      		this._tabs[activeNow.id].nameResource = d.result;
+      		this._tabs[activeNow.id].nameResource = d;
       		$('#miniLogo').off('click').on('click',()=>{
-	    			this.showNameInfoPanel(this._tabs[activeNow.id].nameResource,this._tabs[activeNow.id].nameInfo);
+	    			this.showNameInfoPanel(this._tabs[activeNow.id].nameResource.result,this._tabs[activeNow.id].nameInfo.result);
 	    		})
-      	}
+      	}*/
       	
       })
     }
@@ -1090,22 +1087,7 @@ class Tray{
   		if(this._tabs[activeNow.id].nameResource){
 	    	$('#miniLogo').removeClass('active').removeClass('secure');
 	    	let d = this._tabs[activeNow.id].nameResource;
-	    	if(d.result){
-	    		console.log('name resource result isset',d.result)
-	    		if(d.result != null){
-	    			$('#miniLogo').addClass('active');
-	    			d.result.records.map(rec=>{
-	    				if(rec.type == 'DS'){
-	    					//is secure???
-	    					console.log('minilogo should be secure appearance')
-	    					$('#miniLogo').addClass('secure');
-	    				}
-	    			})
-	    		}
-	    		$('#miniLogo').off('click').on('click',()=>{
-	    			this.showNameInfoPanel(this._tabs[activeNow.id].nameResource,this._tabs[activeNow.id].nameInfo);
-	    		})
-	    	}
+	    	this.update_H_Icon(d,activeNow.id);
 	    }
     }
     
@@ -1317,6 +1299,26 @@ class Tray{
 	}
 	hideLoading(){
 		$('#loading').hide();
+	}
+	update_H_Icon(d,activeID){
+		$('#miniLogo').removeClass('active').removeClass('secure').off('click');
+		if(d.result){
+  		console.log('has result');
+  		if(d.result != null){
+  			$('#miniLogo').addClass('active');
+  			d.result.records.map(rec=>{
+  				if(rec.type == 'DS'){
+  					//is secure???
+  					console.log('minilogo show secure')
+  					$('#miniLogo').addClass('secure');
+  				}
+  			})
+  		}
+  		this._tabs[activeID].nameResource = d;
+  		$('#miniLogo').off('click').on('click',()=>{
+  			this.showNameInfoPanel(this._tabs[activeID].nameResource.result,this._tabs[activeNowID].nameInfo.result);
+  		})
+  	}
 	}
 	initUrlBarLogo(){
 		$.get('./icons/logo_min.svg',(d)=>{
