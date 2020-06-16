@@ -99,6 +99,10 @@ class bsApp{
 			console.log('checker error',d.toString('utf8'));
 			$('.main').html('ERROR, DOCKER NOT PRESENT. PLEASE INSTALL OR START DOCKER.')
 		})
+		checker.on('error',d=>{
+			console.log('checker errored out');
+			$('.main').html('ERROR, DOCKER NOT PRESENT. PLEASE INSTALL OR START DOCKER.')
+		})
 		checker.on('close',d=>{
 			//checker is done, lets look around
 			console.log('checker is done');

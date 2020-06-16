@@ -1,0 +1,119 @@
+
+@font-face {
+  font-family: "Nitti Light";
+  font-weight: normal;
+  src: url('../fonts/nitti-light-v500.eot') format('embedded-opentype'),
+       url('../fonts/nitti-light-v500.woff') format('woff');
+}
+
+@font-face {
+  font-family: "Nitti Light";
+  font-weight: bold;
+  src: url('../fonts/nitti-medium-v500.eot') format('embedded-opentype'),
+       url('../fonts/nitti-medium-v500.woff') format('woff'),
+       url('../fonts/nitti-medium-v500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-weight: 400;
+  src: url('../fonts/IBMPlexMono-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: italic;
+  font-weight: 400;
+  src: url('../fonts/IBMPlexMono-Italic.ttf');
+}
+
+
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: italic;
+  font-weight: 600;
+  src: url('../fonts/IBMPlexMono-SemiBoldItalic.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-weight: 400;
+  src: url('../fonts/IBMPlexSans-Regular.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: italic;
+  font-weight: 400;
+  src: url('../fonts/IBMPlexSans-Italic.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-weight: 600;
+  src: url('../fonts/IBMPlexSans-SemiBold.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: italic;
+  font-weight: 600;
+  src: url('../fonts/IBMPlexSans-SemiBoldItalic.ttf');
+}
+
+html,body{
+	margin:0;
+	background:rgba(0,0,0,0.8);
+	text-align:center;
+	font-family: "IBM Plex Mono";
+	color:#eee;
+}
+#viewNameRecord{
+	margin:0 auto;
+
+}
+.preWrap{
+  width:50%;
+  float:left;
+  height:100%;
+  text-align: left;
+}
+.preWrap .label{
+  padding:4px 0 0px 10px
+}
+pre{
+	background: rgba(255,255,255,0.3);
+  padding: 5px 10px;
+  border: none;
+  outline: none;
+  font-family: "IBM Plex Mono";
+  text-align: center;
+  color: #eee;
+  overflow-y: scroll;
+  height: calc(100% - 50px);
+  width: calc(100% - 40px);
+  text-align: left;
+  margin: 5px 0 0 10px;
+}
+
+.close{
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  /* padding: 5px; */
+  text-align: center;
+  cursor: pointer;
+  background: rgba(255,255,255,0.5);
+  border: 1px solid #333;
+  width: 15px;
+  height: 15px;
+  z-index: 25;
+  line-height: 15px;
+  color: #fff;
+  transition: all 0.1s linear;
+  font-size: 12px;
+}
+.close:hover{
+  background: rgba(255,255,255,0.7);
+}

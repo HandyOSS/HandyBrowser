@@ -17,6 +17,7 @@ class Tray{
 		this.initKeyboardShortcuts();
 		this.trayWindow = nw.Window.get();
 		this.trayWindow.setShadow(false);
+		this.initUrlBarLogo();
 		/*this.trayWindow.on('document-start',()=>{
 			if(window.localStorage.getItem('windowState') != null){
 				let state = JSON.parse(window.localStorage.getItem('windowState'));
@@ -46,6 +47,15 @@ class Tray{
 			$('#dragHandle').hide();
 			$('#appNavigation').addClass('windows');
 			$('#toolbar').addClass('windows');
+			setTimeout(()=>{
+				//deal with sizing overflow on windows, sheeesh..
+				this.bookmarks.createBookmarksMenu();
+			},10000)
+		}
+		if(process.platform == 'linux'){
+			$('#dragHandle').hide();
+			$('#appNavigation').addClass('linux');
+			$('#toolbar').addClass('linux');
 			setTimeout(()=>{
 				//deal with sizing overflow on windows, sheeesh..
 				this.bookmarks.createBookmarksMenu();
@@ -255,7 +265,7 @@ class Tray{
 		state.isFull = state.isFull || $('.button#full').hasClass('isFull');
 		localStorage.setItem('windowState',JSON.stringify(state));
 	}
-	shatterAnimation(){
+	shatterAnimation(isLinuxInit){
 		this.logoMesh.material.wireframe = true;
 			//$('#nameList').addClass('showing');
 			let i = this.shatterI || 0.0;
@@ -283,7 +293,12 @@ class Tray{
 						this.logoMesh.material.uniforms.animate.value = 1.0;
 						this.logoMesh.material.uniforms.scale.value = 1.0;
 						this.animateLogo();
-						clearInterval(this.shatterInterval);;
+						clearInterval(this.shatterInterval);
+						if(isLinuxInit){
+							setTimeout(function(){
+							this.finishLogo();
+							},500)
+						}
 						
 					}
 					i -= 0.05;
@@ -816,14 +831,14 @@ class Tray{
 	      win.on('blur',()=>{
 	      	console.log('new tab window lost focus');
 	      	this.windowGetBlur(win);
-	      	if(process.platform == 'win32'){
+	      	if(process.platform == 'win32' || process.platform == 'linux'){
 	      		this.trayWindow.setAlwaysOnTop(false);
 	      	}
 	      })
 	      win.on('focus',()=>{
 	      	console.log('new tab window has focus')
 	      	this.windowGetFocus(win);
-	      	if(process.platform == 'win32'){
+	      	if(process.platform == 'win32' || process.platform == 'linux'){
 	      		this.trayWindow.setAlwaysOnTop(true);
 	      	}
 	      });
@@ -975,74 +990,7 @@ class Tray{
     	this.setTabInfoOnLoad(url,this.activeTab);
     	if(typeof this.activeTab != "undefined"){
     		delete this.activeTab.icon;
-    		/*setTimeout(()=>{
-    			console.log('active win',this.activeWindow);
-    			let title = this.activeWindow.cWindow.tabs[0].title;
-    			if(title == this.activeTab.$el.html()){
-    				title = this.activeWindow.window.document.title;
-    			}
-    			if(title == '' || typeof title == 'undefined'){
-    				title = url;
-    			}
-    			this.activeTab.$el.html(title);
-    			console.log('url from win',this.activeWindow.window.document.location)
-    			if(typeof this.activeWindow.window.document.location.href != "undefined"){
-		      	$('#urlQuery').val(this.activeWindow.window.document.location.href);
-		      }
-    		},1000)*/
-    		//setTimeout(()=>{
-    		/*delete this.activeTab.icon;
     		
-	      this.activeTab.window.on('document-start',()=>{
-		    	console.log('started loading document 0',this.activeWindow.window.document.location.href)
-		    	if(typeof this.activeWindow.window.document.location.href != "undefined"){
-		      	$('#urlQuery').val(this.activeWindow.window.document.location.href);
-		      	this.activeTab.url = this.activeWindow.window.document.location.href
-		      }
-		    	if(typeof this.activeTab.fetchingIcon == "undefined" && typeof this.activeTab.icon == "undefined"){
-		    		this.activeTab.fetchingIcon = true;
-			    	$.getJSON('http://__handybrowser_getfavicon__/'+encodeURIComponent(this.activeWindow.window.document.location.href),(d)=>{
-			      	this.activeTab.icon = d.icon;
-			      	delete this.activeTab.fetchingIcon;
-			      	this.activeTab.$el.html(this.activeTab.window.title);
-			      	this.activeTab.$el.prepend('<img class="favicon" src="'+d.icon+'"/>')
-		      		this._tabs[this.activeTab.id].title = this.activeTab.window.title;
-			      })
-			    }
-		    })
-    		this.activeTab.window.on('loaded',()=>{
-		      
-		      //$(this.activeWindow.window).on('load',()=>{
-	      	console.log('loaded');
-		      if(typeof this.activeWindow.window.document.location.href != "undefined"){
-		      	$('#urlQuery').val(this.activeWindow.window.document.location.href);
-		      	this.activeTab.url = this.activeWindow.window.document.location.href
-		      }
-		      //this.activeWindow.title = this.activeWindow.title;
-		      console.log('setting title???')
-		      if(this.activeTab.window.title == ''){
-		      	this.activeTab.window.title = url;
-		      }
-		      //if(this._tabs.length == 0){
-		      	//update the default tab name and add events
-		      if(typeof this.activeTab.icon == "undefined"){
-			      $.getJSON('http://__handybrowser_getfavicon__/'+encodeURIComponent(this.activeTab.url),(d)=>{
-			      	this.activeTab.$el.html(this.activeTab.window.title);
-			      	this.activeTab.$el.prepend('<img class="favicon" src="'+d.icon+'"/>')
-		      		this._tabs[this.activeTab.id].title = this.activeTab.window.title;
-			      })
-			    }
-			    else{
-			    	this.activeTab.$el.html(this.activeTab.window.title);
-		      	this.activeTab.$el.prepend('<img class="favicon" src="'+this.activeTab.icon+'"/>')
-	      		this._tabs[this.activeTab.id].title = this.activeTab.window.title;
-			    }
-	      	
-		      //}
-		    	//});
-		      
-		    //},1000);
-		  	});*/
     	}
     }
 	}
@@ -1074,12 +1022,64 @@ class Tray{
     		console.log('active now id',activeNow.id)
     		this._tabs[activeNow.id].title = activeNow.window.title;
       })
+      let guid = localStorage.getItem('guid');
+      let tld = activeNow.window.window.location.origin;
+      tld = tld.split('://')[1];
+      tld = tld.split('.').pop();
+      console.log('should fetch tld now',tld);
+
+      $.post('http://x:'+guid+'@127.0.0.1:12937',JSON.stringify({method:"getnameinfo",params:[tld]}),(d)=>{
+      	console.log('got tld info',d);
+      	if(d.result){
+      		this._tabs[activeNow.id].nameInfo = d.result;
+      	}
+      })
+      $('#miniLogo').removeClass('active').removeClass('secure').off('click');
+      	
+      $.post('http://x:'+guid+'@127.0.0.1:12937',JSON.stringify({method:"getnameresource",params:[tld]}),(d)=>{
+      	console.log('got tld resource rec',d);
+      	
+      	if(d.result){
+      		if(d.result != null){
+      			$('#miniLogo').addClass('active');
+      			d.result.records.map(rec=>{
+      				if(rec.type == 'DS'){
+      					//is secure???
+      					$('#miniLogo').addClass('secure');
+      				}
+      			})
+      		}
+      		this._tabs[activeNow.id].nameResource = d.result;
+      		$('#miniLogo').off('click').on('click',()=>{
+	    			this.showNameInfoPanel(this._tabs[activeNow.id].nameResource,this._tabs[activeNow.id].nameInfo);
+	    		})
+      	}
+      	
+      })
     }
     else if(typeof activeNow.icon != "undefined"){
     	console.log('icon isset already');
     	//this.activeTab.$el.html(this.activeTab.window.title);
     	activeNow.$el.prepend('<img class="favicon" src="'+activeNow.icon+'"/>')
   		this._tabs[activeNow.id].title = activeNow.window.title;	
+    }
+    if(this._tabs[activeNow.id].nameResource){
+    	$('#miniLogo').removeClass('active').removeClass('secure');
+    	let d = this._tabs[activeNow.id].nameResource;
+    	if(d.result){
+    		if(d.result != null){
+    			$('#miniLogo').addClass('active');
+    			d.result.records.map(rec=>{
+    				if(rec.type == 'DS'){
+    					//is secure???
+    					$('#miniLogo').addClass('secure');
+    				}
+    			})
+    		}
+    		$('#miniLogo').off('click').on('click',()=>{
+    			this.showNameInfoPanel(this._tabs[activeNow.id].nameResource,this._tabs[activeNow.id].nameInfo);
+    		})
+    	}
     }
 	}
 	windowGetFocus(win){
@@ -1188,7 +1188,16 @@ class Tray{
 			
 			function addLogoTransition(mesh){
 				var i = 0;
-				var si = setInterval(function(){
+				if(process.platform == 'linux'){
+					_this.shouldRenderLogo = false;
+					mesh.material.uniforms.animate.value = 0.0;
+					mesh.material.uniforms.scale.value = 0.0;
+					mesh.position.set(_this.camera.position.x+2.15,_this.camera.position.y + 0.1,_this.camera.position.z);
+					_this.shatterI = 1.0
+					_this.shatterAnimation(true);
+				}
+				else{
+					var si = setInterval(function(){
 					if(i >= 1.0){
 						i = 0;
 						mesh.material.uniforms.animate.value = 1.0;
@@ -1211,6 +1220,8 @@ class Tray{
 					mesh.position.set(_this.camera.position.x+2.15,_this.camera.position.y + 0.1,_this.camera.position.z);
 					//mesh.lookAt(_this.camera.position);
 				},21)	
+				}
+				
 			}
 			
 			_this.logoMesh = mesh;
@@ -1278,6 +1289,55 @@ class Tray{
 	}
 	hideLoading(){
 		$('#loading').hide();
+	}
+	initUrlBarLogo(){
+		$.get('./icons/logo_min.svg',(d)=>{
+			console.log('data',$('svg',d));
+			$('#miniLogo').append($('svg',d));
+		})
+	}
+	showNameInfoPanel(nameResource,nameInfo){
+		console.log('show name info panel',nameResource,nameInfo);
+		let state = localStorage.getItem('windowState');
+		let x = 0;
+		let y = 0;
+		let w = screen.availWidth;
+		let h = screen.availHeight;
+
+		if(state != null){
+			state = JSON.parse(state);
+			x = state.x;
+			y = state.y;
+			w = state.width;
+			h = state.height;
+		}
+		
+		nw.Window.open('./viewNameRecord.html',{
+			width:w,
+    	height:h,
+    	frame:false,
+    	resizable:false,
+    	show:true,
+    	transparent:true,
+    	x:x,
+    	y:y
+		},(win)=>{
+			win.focus();
+			win.x = x;
+			win.y = y;
+			
+			win.on('loaded',()=>{
+				$('pre#nameRecords',win.window.document).text(JSON.stringify(nameResource,null,2));
+				$('pre#nameInfo',win.window.document).text(JSON.stringify(nameInfo,null,2));
+				$('.close',win.window.document).on('click',()=>{
+					win.close();
+				})
+			});
+			win.on('blur',()=>{
+				win.close();
+			})
+
+		});
 	}
 	beforeQuit(){
 		if(this._tabs.length > 0){
