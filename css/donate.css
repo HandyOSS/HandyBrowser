@@ -61,10 +61,11 @@
   font-weight: 600;
   src: url('../fonts/IBMPlexSans-SemiBoldItalic.ttf');
 }
-
+html{
+  background:rgba(0,0,0,0.9);
+}
 html,body{
 	margin:0;
-	background:rgba(0,0,0,0.8);
 	text-align:center;
 	font-family: "IBM Plex Mono";
 	color:#eee;

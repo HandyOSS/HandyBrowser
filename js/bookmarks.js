@@ -165,13 +165,13 @@ class BookmarkManager{
 		this.tray.bookmarkManagerIsShowing = true;
 		nw.Window.open('./networkMap.html',{
 			width:w,
-    	height:h,
-    	frame:false,
-    	resizable:false,
-    	show:true,
-    	transparent:true,
-    	x:x,
-    	y:y
+	    	height:h,
+	    	frame:false,
+	    	resizable:false,
+	    	show:true,
+	    	transparent:true,
+	    	x:x,
+	    	y:y
 		},(win)=>{
 			win.focus();
 			win.x = x;
@@ -201,13 +201,13 @@ class BookmarkManager{
 		this.tray.bookmarkManagerIsShowing = true;
 		nw.Window.open('./donate.html',{
 			width:w,
-    	height:h,
-    	frame:false,
-    	resizable:false,
-    	show:true,
-    	transparent:true,
-    	x:x,
-    	y:y
+	    	height:h,
+	    	frame:false,
+	    	resizable:false,
+	    	show:true,
+	    	transparent:true,
+	    	x:x,
+	    	y:y
 		},(win)=>{
 			win.focus();
 			win.x = x;
@@ -261,18 +261,19 @@ class BookmarkManager{
 		this.tray.bookmarkManagerIsShowing = true;
 		nw.Window.open('./bookmarkManager.html',{
 			width:w,
-    	height:h,
-    	frame:false,
-    	resizable:false,
-    	show:true,
-    	transparent:true,
-    	x:x,
-    	y:y
+	    	height:h,
+	    	frame:false,
+	    	resizable:false,
+	    	show:true,
+	    	transparent:true,
+	    	x:x,
+	    	y:y
 		},(win)=>{
 			win.focus();
 			win.x = x;
 			win.y = y;
 			win.on('loaded',()=>{
+				win.focus();
 				$('.bookmarksManager',win.window.document).addClass('showing');
 				const _this = this;
 				chromeBookmarks.map(bm=>{
@@ -524,18 +525,19 @@ class BookmarkManager{
 		this.tray.bookmarkManagerIsShowing = true;
 		nw.Window.open('./bookmarkManager.html',{
 			width:w,
-    	height:h,
-    	frame:false,
-    	resizable:false,
-    	show:true,
-    	transparent:true,
-    	x:x,
-    	y:y
+	    	height:h,
+	    	frame:false,
+	    	resizable:false,
+	    	show:true,
+	    	transparent:true,
+	    	x:x,
+	    	y:y
 		},(win)=>{
 			win.focus();
 			win.x = x;
 			win.y = y;
 			win.on('loaded',()=>{
+				win.focus();
 				//populate select vals
 				let folderNames = bmData.filter(d=>{
 					return d.type == 'folder';
@@ -834,18 +836,19 @@ class BookmarkManager{
 		this.tray.bookmarkManagerIsShowing = true;
 		nw.Window.open('./bookmarkManager.html',{
 			width:w,
-    	height:h,
-    	frame:false,
-    	resizable:false,
-    	show:true,
-    	transparent:true,
-    	x:x,
-    	y:y
+	    	height:h,
+	    	frame:false,
+	    	resizable:false,
+	    	show:true,
+	    	transparent:true,
+	    	x:x,
+	    	y:y
 		},(win)=>{
 			win.focus();
 			win.x = x;
 			win.y = y;
 			win.on('loaded',()=>{
+				win.focus();
 				//onload
 				$('.bookmarkListContent .title',win.window.document).html(name);
 				$('.bookmarkListContent .listContainer',win.window.document).html($childUl);

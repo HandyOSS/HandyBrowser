@@ -215,9 +215,6 @@ html,body{
 	background: -webkit-linear-gradient(top, #F8CCBC 0%,#e95420 63%,#f29879 100%);
 }
 
-#appNavigation.linux #full{
-	display:none;
-}
 #appNavigation.linux #hide, #appNavigation.linux #full{
 	background: -webkit-linear-gradient(top, #b7b7b7 0%,#848484 63%,#848484 100%);
 }

@@ -29,6 +29,10 @@ class bsApp{
 		this.serviceName = this.resolver == 'hsd' ? 'HSD' : 'HNSD';
 		
 		this.checkDockerSupport(true);
+		if(process.platform == 'linux'){
+			//write linux .desktop file proper
+			this.writeLinuxDesktopRunner();
+		}
 	}
 	getGuid(){
 		function S4() {
@@ -313,6 +317,18 @@ class bsApp{
 
 		
 		//TODO: make notication button to show logs
+	}
+	writeLinuxDesktopRunner(){
+		let runnerPath = nw.App.getStartPath()+'/HandyBrowser.desktop';
+		let runnerText = fs.readFileSync(runnerPath,'utf8');
+		let lines = runnerText.split('\n').map(line=>{
+			if(line.indexOf('Icon=') == 0){
+				//target line, update icon w abs path
+				return `Icon=${global.__dirname}/icons/app_png.png`;
+			}
+			else return line;
+		})
+		fs.writeFileSync(runnerPath,lines.join('\n'),'utf8');
 	}
 
 }
