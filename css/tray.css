@@ -17,6 +17,18 @@ html,body{
   padding-top: 5px;
   
 }
+#contentPanel{
+	position:absolute;
+	width:100%;
+	height: calc(100% - 62px);
+	z-index:100;
+	top:62px;
+}
+#contentPanel webview{
+	width:100%;
+	height:100%;
+	float:left;
+}
 #toolbar.windows{
 	margin-left:5px;
 }
@@ -223,6 +235,7 @@ html,body{
 	/*min-width: calc(100% - 25px);*/
 
 }
+
 #tabs li, #addTabButton{
 	float:left;
 	padding: 0px 5px;
@@ -236,6 +249,24 @@ html,body{
   overflow: hidden;
   text-overflow: ellipsis;
   position:relative;
+}
+#tabs.addAbsolute{
+	box-shadow:inset 9px 0px 10px #000;
+	background:rgba(31,31,31,0.9);
+}
+#tabs.atZero{
+	background:none !important;
+	box-shadow:none !important;
+}
+#tabs.addAbsolute #addTabButton{
+	position:absolute;
+	top:0;
+	right:0;
+	box-shadow: -5px 0px 10px #111;
+	background:rgba(51,51,51,0.9);
+}
+#tabs.addAbsolute #addTabButton.isZero{
+	box-shadow: none !important;
 }
 #tabs li .closeTab{
   float: right;

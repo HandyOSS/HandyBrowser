@@ -9,10 +9,10 @@
     "position":"center",
     "height": 240,
     "icon": "icons/app_png.png",
-    "chromium-args":"--allow-running-insecure-content --ignore-certificate-errors --ignore-urlfetcher-cert-requests --remember-cert-error-decisions"
+    "chromium-args":"--allow-running-insecure-content --ignore-certificate-errors --ignore-urlfetcher-cert-requests --remember-cert-error-decisions --proxy-server=127.0.0.1:5301"
   },
   "node-remote":{
     "scheme":"file"
   },
-  "chromium-args":"--allow-running-insecure-content --ignore-certificate-errors --ignore-urlfetcher-cert-requests --remember-cert-error-decisions"
+  "chromium-args":"--allow-running-insecure-content --ignore-certificate-errors --ignore-urlfetcher-cert-requests --remember-cert-error-decisions --proxy-server=127.0.0.1:5301"
 }

@@ -16,8 +16,8 @@ class Tray{
 		this.initEvents();
 		this.initKeyboardShortcuts();
 		this.trayWindow = nw.Window.get();
-		this.trayWindow.setShadow(false);
 		this.initUrlBarLogo();
+
 		/*this.trayWindow.on('document-start',()=>{
 			if(window.localStorage.getItem('windowState') != null){
 				let state = JSON.parse(window.localStorage.getItem('windowState'));
@@ -63,9 +63,7 @@ class Tray{
 		}
 		
 		this.handleTrayResize();
-		if(process.platform == 'darwin'){
-			nw.Window.get().setAlwaysOnTop(true);
-		}
+		
 		this.trayWindow.on('minimize',()=>{
 			this.isMinimized = true;
 		})
@@ -75,10 +73,6 @@ class Tray{
 
 	    this.trayWindow.focus();
 	    this.activeWindow.show(true);
-	    setTimeout(()=>{
-	    	this.trayWindow.height = $('#toolbar').outerHeight()+5;
-      	this.trayIsFull = false;
-	    },100)
 		})
 		this.trayWindow.on('focus',()=>{
 			console.log('tray is focused')
@@ -118,16 +112,10 @@ class Tray{
 				let newy = 100;
 				let newWidth = screen.availWidth - 200;
 				let newHeight = screen.availHeight - 200;
-				if(!this.trayIsFull){
-					this.trayWindow.moveTo(newx,newy);
-					let winHeight = winH - ($('#toolbar').outerHeight()+10);
-					this.activeWindow.moveTo(newx,newY+$('#toolbar').outerHeight()+10);
-					this.activeWindow.resizeTo(newWidth,winHeight)
-				}
-				else{
-					this.trayWindow.moveTo(newx,newy);
-					this.trayWindow.resizeTo(newWidth,newHeight);
-				}
+				
+				this.trayWindow.moveTo(newx,newy);
+				this.trayWindow.resizeTo(newWidth,newHeight);
+				
 				let winState = {
 					x:newx,
 					y:newy,
@@ -153,17 +141,10 @@ class Tray{
 				
 				window.localStorage.setItem('windowState',JSON.stringify(state))
 				console.log('window state',state);
-				if(!this.trayIsFull){
-					this.trayWindow.moveTo(state.x,state.y);
-					this.trayWindow.width = state.width;
-					let winHeight = state.height - ($('#toolbar').outerHeight()+10);
-					this.activeWindow.moveTo(state.x,state.y+$('#toolbar').outerHeight()+10);
-					this.activeWindow.resizeTo(state.width,winHeight)
-				}
-				else{
-					this.trayWindow.moveTo(state.x,state.y);
-					this.trayWindow.resizeTo(state.width,state.height);
-				}
+				
+				this.trayWindow.moveTo(state.x,state.y);
+				this.trayWindow.resizeTo(state.width,state.height);
+				
 				if(state.isFull){
 					$('.button#full').addClass('isFull');
 				}
@@ -173,9 +154,9 @@ class Tray{
 			}
 		})
 		$('.button#hide').off('click').on('click',()=>{
-			this._tabs.map(tab=>{
+			/*this._tabs.map(tab=>{
 				tab.window.hide();
-			})
+			})*/
 			this.deregisterKeyboardShortcuts();
 			
 			let state = localStorage.getItem('windowState');
@@ -186,7 +167,7 @@ class Tray{
 	    }
 	    
 	    this.trayWindow.height = h;
-			this.trayIsFull = true;
+			//this.trayIsFull = true;
     	this.trayWindow.focus();
     	this.shatterI = 0.7;
     	this.shatterAnimation();
@@ -198,10 +179,10 @@ class Tray{
 	handleTrayResize(){
 		//let bmSi;
 		this.trayWindow.on('resize',(width,height)=>{
-			//disable non-fullscreen in windows
-      			if(process.platform == 'win32'){
-      				return false;
-      			}
+			
+			let h = this.trayWindow.height;
+			let logoMarginTop = (h-$('#introLogo canvas').height()) / 2;
+			$('#introLogo canvas').css('margin-top',logoMarginTop);
 			this.resizeActive(false);
 			this.calcTabSize();
 			if(typeof this.bmSi != "undefined"){
@@ -210,14 +191,12 @@ class Tray{
 			}
 			this.bmSi = setTimeout(()=>{
 				this.bookmarks.generateBookmarksMenu(this.bookmarks._localBookmarksData);
+				this.calcTabSize();
 			},400)
 			
 		})
 		this.trayWindow.on('move',(width,height)=>{
-			//disable non-fullscreen in windows
-      			if(process.platform == 'win32'){
-      				return false;
-      			}
+			
 			if(this.trayIsFull){
 				this.shatterAnimation();
 			}
@@ -232,22 +211,10 @@ class Tray{
 		let w = this.trayWindow.width;
 		let x = this.trayWindow.x;
 		let trayHeight = this.trayWindow.height;
-		if(!this.trayIsFull){
-			this.trayWindow.height = h;
-			this.trayWindow.y = y;
-			if(typeof this.activeWindow != "undefined"){
-				let awH = y + h;
-				console.log('size activeWindow to ',awH,this.activeWindow.height,this.activeWindow.y)
-				
-				if(!isMove){
-					this.activeWindow.height = (this.activeWindow.height + this.activeWindow.y)-awH;//(this.activeWindow.y) > awH ? 
-					this.activeWindow.width = w;
-				}
-				this.activeWindow.y = awH;
-				this.activeWindow.x = x;
-				trayHeight = this.activeWindow.height + h;
-				console.log('sized activeWindow to ',awH,this.activeWindow.height,this.activeWindow.y)
-			}
+		if(!isMove){
+			$('#contentPanel').css({
+				height:'calc(100% - '+($('#toolbar').outerHeight()+5)+'px)'
+			})
 		}
 		
 		//set state
@@ -313,7 +280,7 @@ class Tray{
 			nw.App.unregisterGlobalHotKey(this._globalShortcuts[key]);
 			delete this._globalShortcuts[key];
 		}); //unregister all shortcuts
-		if(process.platform == 'darwin'){
+		/*if(process.platform == 'darwin'){
 			nw.Window.get().setAlwaysOnTop(false);
 			if(typeof this.trayWindow != "undefined"){
 				setTimeout(()=>{
@@ -322,7 +289,7 @@ class Tray{
 				},100)
 			}
 
-		}
+		}*/
 		console.log('deregistered',this._globalShortcuts,this.trayWindow);
 	}
 	initKeyboardShortcuts(){
@@ -335,9 +302,9 @@ class Tray{
 		}
 		this.appHasFocus = true;
 		
-		if(process.platform == 'darwin'){
+		/*if(process.platform == 'darwin'){
 			nw.Window.get().setAlwaysOnTop(true);
-		}
+		}*/
 		if(process.platform == 'darwin'){
 			console.log('darwin');
 			newTabCmd = {
@@ -421,7 +388,7 @@ class Tray{
 			//if(_this._tabs.length > 0){
 			_this.isAddingNewTab = true;
 			$('#tabs ul li').removeClass('tabtarget');
-      $li = $('<li class="notactivated tabtarget">New Tab</li>')
+      $li = $('<li class="notactivated tabtarget"><span class="faviconWrap"></span><span class="pageTitle">New Tab</span></li>')
       $('#tabs ul').append($li);
       $li.off('mouseenter').on('mouseenter',function(){
       	emptyMouseEnter($(this));
@@ -461,7 +428,7 @@ class Tray{
 			console.log('closeFunction called')
 			if(typeof _this.activeTab != "undefined"){
 				console.log('close tab by id',_this.activeTab.id,_this._tabs.map(t=>{return t.id;}));
-				_this.activeTab.window.close();
+				_this.activeTab.window[0].remove();
 				_this.activeTab.$el.remove();
 				_this._tabs = _this._tabs.filter(tab=>{
     			return tab.id != _this.activeTab.id;
@@ -476,7 +443,7 @@ class Tray{
 		}
 		function showTools(){
 			if(typeof _this.activeTab != "undefined"){
-				_this.activeTab.window.showDevTools();
+				_this.activeTab.window[0].showDevTools(true);
 			}
 			else{
 				_this.trayWindow.showDevTools();
@@ -510,9 +477,9 @@ class Tray{
 		    	h = state.height;
 		    }
 		    _this.trayWindow.height = h;
-      		    _this.trayIsFull = true;
-      		    _this.shatterI = 0.7;
-      		    _this.shatterAnimation();
+		    _this.trayIsFull = true;
+		    _this.shatterI = 0.7;
+		    _this.shatterAnimation();
 		    _this.trayWindow.focus();
 		    _this.isCreatingNewTab = true;
 		    if(typeof _this.activeWindow != "undefined"){
@@ -528,7 +495,7 @@ class Tray{
 		if($('#tabs li').length == 0){
 			// no tab elems, remove hanging tabs
 			this._tabs.map(tab=>{
-				tab.window.close();
+				tab.window[0].remove();
 			})
 			this._tabs = [];
 			$('#addTabButton').trigger('click');
@@ -545,7 +512,7 @@ class Tray{
   		console.log('active tab isset',activeTab);
   		this.activeWindow = activeTab.window;
   		this.activeTab = activeTab;
-  		this.activeWindow.show(true);
+  		this.activeWindow.show();
   		$('#urlQuery').val(activeTab.url);
   		$('#miniLogo').removeClass('active').removeClass('secure')
   		//add H icon styles
@@ -589,8 +556,15 @@ class Tray{
 		let marginLeft = 0;
 		console.log('new Width',newW,pxw,marginLeft)
 		if(Math.ceil(newW) > $('#tabs').width()){
-			marginLeft = Math.ceil($('#tabs').width() - ($('#tabs ul').width() + $('#addTabButton').outerWidth()+1));
+			marginLeft = Math.ceil($('#tabs').width() - ($('#tabs ul').width() + Math.ceil($('#addTabButton').outerWidth())+1));
   		
+  	}
+
+  	if(marginLeft < 0){
+  		$('#tabs').addClass('addAbsolute');
+  	}
+  	else{
+  		$('#tabs').removeClass('addAbsolute');
   	}
   	$('#tabs ul').css('margin-left',marginLeft)
 
@@ -599,8 +573,21 @@ class Tray{
   	if(Math.ceil(newW) > $('#tabs').width()){
   		natDimensions = $('#tabs')[0].getBoundingClientRect();
   	}
-		xEnd = natDimensions.x + natDimensions.width + $('#addTabButton').outerWidth()+10;
+  	if(Math.ceil(newW) > $('#tabs').width()){
+  		xEnd = natDimensions.x + natDimensions.width
+  	}
+  	else{
+  		xEnd = natDimensions.x + natDimensions.width + Math.ceil($('#addTabButton').outerWidth())+1;
+  	}
+		
 		let totalX = $('body').width() - xEnd;
+		console.log('newW',newW,'tabs.width',$('#tabs').width());
+		console.log('marginLeft',marginLeft)
+		console.log('totalX',totalX);
+		console.log('tabs ul dims',natDimensions);
+		console.log('xEnd',xEnd);
+		console.log('body width',$('body').width());
+
 		$('#dragHandle').css('width',totalX);
 		if($('#bookmarksBar').hasClass('visible')){
 			$('#dragHandle').addClass('bookmarksBarShowing');
@@ -608,7 +595,7 @@ class Tray{
 		else{
 			$('#dragHandle').removeClass('bookmarksBarShowing');
 		}
-
+		
 		return false;
 
 		/*let ulWidth = $('#tabs ul').width();
@@ -647,7 +634,7 @@ class Tray{
   	}*/
 	}
 	initEvents(){
-		
+		$('#urlQuery').focus();
 		let winState = window.localStorage.getItem('windowState');
 		if(winState != null){
 			winState = JSON.parse(winState);
@@ -708,6 +695,7 @@ class Tray{
 		$("#urlQuery").on('keyup', (e) => {
 		    if (e.keyCode === 13) {
 		        // Do something
+		        $('#urlQuery').blur();
 		        let val = $('#urlQuery').val();
 		        if(val.indexOf('http') != 0){
 		        	val = 'http://'+val;
@@ -722,17 +710,60 @@ class Tray{
 		});
 		$('.navButton#back').on('click',()=>{
 			if(typeof this.activeWindow != "undefined"){
-				this.activeWindow.window.history.back();
+				this.activeWindow[0].back()
 			}
 		})
 		$('.navButton#forward').on('click',()=>{
 			if(typeof this.activeWindow != "undefined"){
-				this.activeWindow.window.history.back();
+				this.activeWindow[0].forward()
 			}
 		})
 		$('.navButton#reload').on('click',()=>{
 			if(typeof this.activeWindow != "undefined"){
-				this.activeWindow.window.location.reload();
+				this.activeWindow[0].reload()
+			}
+		})
+
+		$('#tabs').on('mousewheel',(e)=>{
+			console.log('wheel',e);
+			let deltaX = e.originalEvent.deltaX;
+			console.log('deltaX',deltaX);
+			if($('#tabs ul').width() > $('#tabs').width()){
+				//move margins around
+				let ml = parseFloat($('#tabs ul').css('margin-left').split('px')[0])
+				let visibleX = $('#tabs').width();
+				if( (ml + deltaX <= 0) ){
+					$('#tabs').addClass('addAbsolute');
+					if(($('#tabs ul').width() + (ml + deltaX) >= visibleX - Math.ceil($('#addTabButton').outerWidth()+1))){
+						console.log('tab width comp',$('#tabs ul').width() + (ml + deltaX) ,'>', visibleX + Math.ceil($('#addTabButton').outerWidth()+1))
+						ml += deltaX;
+						$('#tabs ul').css('margin-left',ml+'px');
+						$('#addTabButton').removeClass('isZero');
+					}
+					else{
+						if($('#tabs ul').width() + Math.ceil($('#addTabButton').outerWidth()+1) <= visibleX){
+							$('#tabs').removeClass('addAbsolute');
+						}
+						else{
+							$('#addTabButton').addClass('isZero');
+						}
+					}
+					$('#tabs').removeClass('atZero');
+
+				}
+				else{
+					if(ml < 0){
+						$('#tabs').addClass('addAbsolute');
+						$('#tabs').removeClass('atZero');
+					}
+					else if(Math.abs(ml) <= 5){
+						$('#tabs').addClass('atZero');
+					}
+					else{
+						$('#tabs').removeClass('addAbsolute');
+						$('#tabs').removeClass('atZero');
+					}
+				}
 			}
 		})
 	}
@@ -761,6 +792,148 @@ class Tray{
         if(process.platform == 'win32'){
       	  isResizable = false;
         }
+
+      //append new webview
+      
+      $('#contentPanel').css({
+      	top:$('#toolbar').outerHeight()+5,
+      	height: 'calc(100% - '+($('#toolbar').outerHeight()+5)+'px)',
+      	width:'100%'
+      });
+      let $webview = $('<webview src="'+url+'" id="tab'+(tabIndex || this._tabs.length)+'" partition="persist:handybrowser"></webview>')
+      $('#contentPanel').append($webview);
+      $('#contentPanel').find('webview:not(#'+$webview.attr('id')+')').hide();
+
+      /*update tab data*/
+      let tabNumID = $('#tabs ul li').index($('li.tabtarget'))//this.isAddingNewTab ? $('#tabs ul li').length-1 : this._tabs.length;
+      let tabData = {
+      	url:url,
+      	window:$webview,
+      	title:'',
+      	$el: $newLI || $('#tabs ul li').eq(tabNumID),
+      	id: tabIndex || this._tabs.length//(this._tabs.length-1 == -1 ? 0 : this._tabs.length-1)/*$('#tabs ul li').length*/
+      };
+      this.activeWindow = $webview;
+      this.trayIsFull = false;
+      console.log('set webview events');
+      //webview events
+      $webview[0].onnewwindow = (e)=>{
+      	let newURL = e.targetUrl;
+      	console.log('nav to new window',newURL);
+
+			  this.isAddingNewTab = true;
+			  $('#tabs ul li').removeClass('tabtarget');
+	      let $li = $('<li class="notactivated tabtarget"><span class="faviconWrap"></span><span class="pageTitle">New Tab</span></li>')
+	      $('#tabs ul').append($li);
+			  this.addNewTab(newURL);
+				
+      }
+      let isFirstResult = true;
+      $webview[0].onloadstart = (e)=>{
+      	console.log('onload start',isFirstResult,e);
+      	if(e.isTopLevel){
+      		console.log('istoplevel')
+      		isFirstResult = false;
+      		tabData.url = e.url;
+      		this.setTabInfoOnLoad(tabData.url,tabData,false);
+      	}
+      	
+      	//load tab favicon and tld info
+      }
+      $webview[0].onloadredirect = (e)=>{
+      	console.log('on loadreirect',e);
+      	if(tabData.url == e.oldUrl){
+    			tabData.url = e.newUrl;
+    		}
+    		this.setTabInfoOnLoad(tabData.url,tabData,false);
+    	
+      }
+      $webview[0].oncontentload = (e)=>{
+      	console.log('on contentload',e);
+      }
+      $webview[0].onloadstop = (e)=>{
+      	console.log('onload stop',e);
+
+      	$webview[0].executeScript({
+	        code: `document.title`
+	      }, result => {
+	      	//if(data[1] == tabData.url){
+      		tabData.title = result[0];
+	      	//set tab title
+	      	this.setTabInfoOnLoad(tabData.url,tabData,true);
+	      	//}
+	      	
+
+	      });
+      }
+      //tabdata events
+	    tabData.$el.removeClass('tabtarget').removeClass('notactivated').removeClass('init');  
+      tabData.$el.off('mouseenter').on('mouseenter',()=>{
+      	$('#tabs li .closeTab').remove();
+      	tabData.$el.append('<div class="closeTab">x</div>')
+      	$('.closeTab',tabData.$el).off('click').on('click',()=>{
+      		console.log('closetab');
+      		//this.activeWindow.close();
+      		tabData.window.remove();
+      		tabData.$el.remove();
+      		console.log('close tab by id',tabData.id,this._tabs.map(t=>{return t.id;}));
+			
+      		this._tabs = this._tabs.filter(tab=>{
+      			return tab.id != tabData.id;
+      		});
+      		this.calcTabSize();
+      		this.focusOnTabAfterRemove();
+      	})	
+      }).on('mouseleave',()=>{
+      	$('.closeTab',tabData.$el).remove();
+      })
+      tabData.$el.off('click').on('click',()=>{
+      	console.log('on click of tab');
+      	let id = tabData.window.attr('id');
+      	tabData.window.show();
+      	$('#contentPanel webview:not(#'+id+')').hide()
+      	//move/resize too
+      	let windowState = window.localStorage.getItem('windowState');
+				if(windowState != null){
+					windowState = JSON.parse(windowState);
+				}
+			
+	    	$('#contentPanel').css({
+	    		top:($('#toolbar').outerHeight()+5),
+	    		height:'calc(100% - '+($('#toolbar').outerHeight()+5)+'+px)'
+	    	})
+      	
+      	$('#urlQuery').val(tabData.url);
+
+      	//add H logo things
+      	$('#miniLogo').removeClass('active').removeClass('secure');
+		    	
+      	if(tabData.nameResource){
+		    	let d = tabData.nameResource;
+		    	this.update_H_Icon(d,tabData.id);
+		    }
+      	
+      })
+      
+      this.activeTab = tabData;
+      this._tabs.push(tabData);
+      /*
+			win.on('navigation',(frame,url,policy)=>{
+				console.log('navigation happened',url);
+				$('#bookmarkPage').removeClass('clicked')
+				delete this.activeTab.icon;
+				$('#urlQuery').val(url);
+	      this.activeTab.url = url;
+	      this.setTabInfoOnLoad(url,tabData);
+
+		    
+			})
+      */
+      return false;
+
+/***********************
+DEPRECATE THIS STUFF!!!!
+***********************/
       nw.Window.open(url,{
       	width:w,
       	height:h,
@@ -902,7 +1075,6 @@ class Tray{
 	      	this.activeWindow = tabData.window;
 	      	this.activeTab = tabData;
 	      	this.isCreatingNewTab = false;
-	      	this.trayWindow.height = $('#toolbar').outerHeight()+5;
 	      	this.trayIsFull = false;
 	      	this.trayWindow.focus();
 	      	if(typeof this.activeWindow.window.document.location.href != "undefined"){
@@ -984,7 +1156,7 @@ class Tray{
 				  console.log('opened new tab?',clickedUrl);
 				  this.isAddingNewTab = true;
 				  $('#tabs ul li').removeClass('tabtarget');
-		      let $li = $('<li class="notactivated tabtarget">New Tab</li>')
+		      let $li = $('<li class="notactivated tabtarget"><span class="faviconWrap"></span><span class="pageTitle">New Tab</span></li>')
 		      $('#tabs ul').append($li);
 				  this.addNewTab(clickedUrl);
 				});
@@ -1001,7 +1173,15 @@ class Tray{
 			});
     }
     else{
-    	this.activeWindow.window.location.href = url;
+    	$('span.faviconWrap',this.activeTab.$el).html('');
+    	this.activeWindow.attr('src',url);
+    	this.activeTab.url = url;
+    	delete this.activeTab.icon;
+    	delete this.activeTab.nameResource;
+    	delete this.activeTab.nameInfo;
+    	$('#miniLogo').removeClass('active').removeClass('secure');
+
+    	/*this.activeWindow.window.location.href = url;
     	this.activeTab.window.on('loading',()=>{
     		console.log('on loading');
     	})
@@ -1011,40 +1191,37 @@ class Tray{
     	if(typeof this.activeTab != "undefined"){
     		delete this.activeTab.icon;
     		
-    	}
+    	}*/
     }
 	}
-	setTabInfoOnLoad(url,activeNow){
-		console.log('setTabInfoOnLoad',activeNow.id,activeNow.window.title);
-    if(typeof this.activeWindow.window.document.location.href != "undefined" && this.activeWindow.window.document.location.href == url){
-    	if(!$('#urlQuery').is(":focus")){
-    		$('#urlQuery').val(this.activeWindow.window.document.location.href);
-    	}
-    	activeNow.url = this.activeWindow.window.document.location.href
+	setTabInfoOnLoad(url,activeNow,shouldSetTitle){
+		console.log('setTabInfoOnLoad',activeNow.id,activeNow.title);
+    if(!$('#urlQuery').is(":focus") && !shouldSetTitle){
+  		$('#urlQuery').val(url);
+  	}
+  	if(shouldSetTitle){
+  		let title = activeNow.title == '' ? activeNow.url : activeNow.title;
+    	activeNow.$el.find('span.pageTitle').html(title);
     }
-    //this.activeWindow.title = this.activeWindow.title;
-    console.log('setting title???')
-    if(activeNow.window.title == ''){
-    	activeNow.window.title = url;
-    }
-    activeNow.$el.html(activeNow.window.title);
+    
     
     if(typeof activeNow.fetchingIcon == "undefined" && typeof activeNow.icon == "undefined"){
   		activeNow.fetchingIcon = true;
-  		console.log('get icon',this.activeWindow.window.document.location.href)
-  		let toLoad = typeof url != "undefined" ? url : this.activeWindow.window.document.location.href;
+  		console.log('get icon',url)
+  		let toLoad = typeof url != "undefined" ? url : activeNow.url;
     	
     	$.getJSON('http://__handybrowser_getfavicon__/'+encodeURIComponent(toLoad),(d)=>{
       	activeNow.icon = d.icon;
       	delete activeNow.fetchingIcon;
       	//this.activeTab.$el.html(this.activeTab.window.title);
-      	activeNow.$el.prepend('<img class="favicon" src="'+d.icon+'"/>')
+      	activeNow.$el.find('span.faviconWrap').html('<img class="favicon" src="'+d.icon+'"/>')
     		console.log('active now id',activeNow.id)
-    		this._tabs[activeNow.id].title = activeNow.window.title;
+    		//this._tabs[activeNow.id].title = activeNow.window.title;
       })
       let guid = localStorage.getItem('guid');
-      let tld = activeNow.window.window.location.origin;
+      let tld = activeNow.url;
       tld = tld.split('://')[1];
+      tld = tld.split('/')[0];
       tld = tld.split('.').pop();
       console.log('should fetch tld now',tld);
 
@@ -1059,31 +1236,14 @@ class Tray{
       	console.log('got tld resource rec',d,d.result);
       	$('#miniLogo').removeClass('active').removeClass('secure').off('click');
       	this.update_H_Icon(d,activeNow.id);
-      	/*if(d.result){
-      		console.log('has result');
-      		if(d.result != null){
-      			$('#miniLogo').addClass('active');
-      			d.result.records.map(rec=>{
-      				if(rec.type == 'DS'){
-      					//is secure???
-      					console.log('minilogo show secure')
-      					$('#miniLogo').addClass('secure');
-      				}
-      			})
-      		}
-      		this._tabs[activeNow.id].nameResource = d;
-      		$('#miniLogo').off('click').on('click',()=>{
-	    			this.showNameInfoPanel(this._tabs[activeNow.id].nameResource.result,this._tabs[activeNow.id].nameInfo.result);
-	    		})
-      	}*/
       	
       })
     }
     else if(typeof activeNow.icon != "undefined"){
     	console.log('icon isset already');
     	//this.activeTab.$el.html(this.activeTab.window.title);
-    	activeNow.$el.prepend('<img class="favicon" src="'+activeNow.icon+'"/>')
-  		this._tabs[activeNow.id].title = activeNow.window.title;	
+    	activeNow.$el.find('span.faviconWrap').html('<img class="favicon" src="'+activeNow.icon+'"/>')
+  		//this._tabs[activeNow.id].title = activeNow.window.title;	
   		if(this._tabs[activeNow.id].nameResource){
 	    	$('#miniLogo').removeClass('active').removeClass('secure');
 	    	let d = this._tabs[activeNow.id].nameResource;
