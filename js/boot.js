@@ -326,6 +326,13 @@ class bsApp{
 				//target line, update icon w abs path
 				return `Icon=${global.__dirname}/icons/app_png.png`;
 			}
+			else if(line.indexOf('Path=') == 0){
+				//update path
+				return `Path=${nw.App.getStartPath()}`;
+			}
+			else if(line.indexOf('Exec=') == 0){
+				return `Exec=${nw.App.getStartPath()}/HandyBrowser`;
+			}
 			else return line;
 		})
 		fs.writeFileSync(runnerPath,lines.join('\n'),'utf8');
