@@ -275,9 +275,9 @@ class bsApp{
 				console.log('hsd connected hsd')
 				let toClose = nw.Window.get();
 				this.showTray();
-				setTimeout(()=>{
+				/*setTimeout(()=>{
 					toClose.close();
-				},1000)
+				},1000)*/
 				
 			}
 			
@@ -320,6 +320,11 @@ class bsApp{
 	}
 	writeLinuxDesktopRunner(){
 		let runnerPath = nw.App.getStartPath()+'/HandyBrowser.desktop';
+		let execPath = nw.App.getStartPath();
+		if(global.__dirname.indexOf('package.nw') >= 0){
+			execPath = global.__dirname.split('/').slice(0,-1).join('/');
+			runnerPath = execPath+'/HandyBrowser.desktop';
+		}
 		let runnerText = fs.readFileSync(runnerPath,'utf8');
 		let lines = runnerText.split('\n').map(line=>{
 			if(line.indexOf('Icon=') == 0){
@@ -328,10 +333,10 @@ class bsApp{
 			}
 			else if(line.indexOf('Path=') == 0){
 				//update path
-				return `Path=${nw.App.getStartPath()}`;
+				return `Path=${execPath}`;
 			}
 			else if(line.indexOf('Exec=') == 0){
-				return `Exec=${nw.App.getStartPath()}/HandyBrowser`;
+				return `Exec=${execPath}/HandyBrowser`;
 			}
 			else return line;
 		})
