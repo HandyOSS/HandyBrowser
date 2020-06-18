@@ -1,5 +1,7 @@
 ## HandyBrowser
 
+![alt text](./icons/app_png.png)
+
 ### Download Latest Prebuilt in [Releases](./releases) [Skips all the steps below]
 
 ### Building from Source
@@ -38,7 +40,7 @@ Why Nw.js over Electron? The lead-dev of this project has used Nw.js extensively
   - Imports Bookmarks locally from Google Chrome
   - Bookmark Manager and Bookmarks Bar
   - Network map for Handshake nodes; allows browser users to see the network grow globally as new browser users come online.
-  - Custom "HNS Lock" that changes color between White [HNS]/Dark Grey[DNS]/Green [HTTPS+HNS] to notate how you're connecting over DNS.
+  - Custom "HNS Lock" that changes color between White [HNS]/Dark Grey[DNS]/Green [DNSSEC+HNS] to notate how you're connecting over DNS.
   - Video playback support, enjoy YouTube and Netflix.
   - Donate modal for the HandyBrowser team.
   
@@ -54,6 +56,8 @@ Why Nw.js over Electron? The lead-dev of this project has used Nw.js extensively
 
 4. Figure out how to get Chrome extensions working. They are most certainly supported in nw.js.
 
+5. Syncing indicator for the dockerized HSD node, ability to quickly nuke the node for troubleshooting purposes.
+
 ### HandyBrowser Install FAQS
 
   - Before running HandyBrowser the first time, make sure you have Docker installed and running [Note you don't need a Docker account, simply just the Docker service so we can install the dependencies for your Handshake node]:
@@ -64,12 +68,13 @@ Windows - https://docs.docker.com/docker-for-windows/release-notes/
 
 Linux - https://docs.docker.com/engine/install/
 
+  - The initial setup prompt for HSD should take 3-4minutes [this will change with the HNSD light client], and only needs to be done once. When you restart the app in the future it won’t need to occur, and the app will automatically start syncing your browser up-to-date.
   - Your firewall may prompt you a couple of times for permissions the first time you run the browser, be sure to accept those. We need them to make the browser work.
   - If you have any trouble with your Docker node not loading, enter these commands in your terminal, and run the browser once more:
   ```sh
-$ Docker stop HandyBrowserHSD
-$ Docker rm HandyBrowserHSD
-$ Docker image rm handybrowser
+$ docker stop HandyBrowserHSD
+$ docker rm HandyBrowserHSD
+$ docker image rm handybrowser
 ```
 
 ### Project Roadmap [Donation Driven Development]
