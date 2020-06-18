@@ -36,15 +36,24 @@ html,body{
 	float: left;
     height: 22px;
     width: 30px;
-    font-size: 24px;
+    font-size: 14px;
     cursor: pointer;
     display: none;
     color: #aaa;
     background: #333;
-    padding: 3px 5px 4px 3px;
-    line-height: 22px;
-    margin: 0 3px 0;
-    margin-left: calc(40% + 7px);
+    padding: 2px 0px 2px 0px;
+    line-height: 4px;
+    margin: 2px 3px 0;
+    margin-left: calc(40% + 5px);
+    text-align: center;
+    border-radius: 25px;
+}
+#winBookmarks:hover{
+	background:rgba(255,255,255,0.2);
+}
+#winBookmarks .dot{
+	float:left;
+	width:100%;
 }
 #toolbar #dragHandle{
 	-webkit-app-region: drag;
@@ -146,7 +155,7 @@ html,body{
 	right:0px;
 	z-index:102;
 	left:auto;
-	width:56px;
+	width:105px;
 	padding:0;
 }
 #appNavigation .button{
@@ -173,10 +182,24 @@ html,body{
 	color:rgba(0,0,0,1.0);
 }
 #appNavigation.windows .button:hover{
-	background:#777 !important;
+	background: rgba(255,255,255,0.2) !important;
 	color:rgba(210,210,210,1.0);
 }
 #appNavigation.windows .button#full{
+	position:relative;
+}
+#appNavigation.windows .button#full .max{
+	position: absolute;
+    width: 100%;
+    height: 100%;
+    line-height: 22px;
+    font-size: 12px;
+}
+#appNavigation.windows .button#full .m1{
+	top: -3px;
+    left: 2px;
+}
+#appNavigation.windows .button#full:not(.isFull) .m1{
 	display:none;
 }
 #appNavigation:hover .button{
@@ -195,22 +218,30 @@ html,body{
 #appNavigation.linux #full{
 	display:none;
 }
-#appNavigation.linux #hide{
+#appNavigation.linux #hide, #appNavigation.linux #full{
 	background: -webkit-linear-gradient(top, #b7b7b7 0%,#848484 63%,#848484 100%);
 }
 
-#appNavigation.linux #hide:hover{
+#appNavigation.linux #hide:hover, #appNavigation.linux #full:hover{
 	background: -webkit-linear-gradient(top, #dddddd 0%,#848484 63%,#b7b7b7 100%);
 }
 
 #appNavigation #hide{
 	background:#FFBD44;
 }
-#appNavigation.windows #close, #appNavigation.windows #hide{
-	background: #444;
+#appNavigation.windows #close, #appNavigation.windows #hide, #appNavigation.windows #full, #appNavigation.windows #move{
+	background:rgba(255,255,255,0.1);
+	color:#ccc;
 }
 #appNavigation #full{
 	background:#00CA4E;
+}
+#appNavigation.windows #move{
+	-webkit-app-region: drag;
+	cursor:move;
+	line-height: 25px;
+    vertical-align: middle;
+    font-size: 14px;
 }
 
 #tabs{
@@ -222,6 +253,9 @@ html,body{
 	overflow:hidden;
 	position:relative;
 	z-index:1;
+}
+.windows #tabs{
+	width:calc(55% - 140px);
 }
 .windows #tabs, .linux #tabs{
 	margin-left:0px;

@@ -54,13 +54,13 @@ class bsApp{
 		nw.App.setProxyConfig('127.0.0.1:5301');
 		let isResizable = true;
 		//only fullscreen support in windows
-		if(process.platform == 'win32'){
+		/*if(process.platform == 'win32'){
 			w = screen.availWidth;
 			x = screen.availLeft;
 			y = screen.availTop;
 			h = screen.availHeight;
 			isResizable = false;
-		}
+		}*/
 		nw.Window.open('./tray.html',{
 			width:w,
 			height:h,

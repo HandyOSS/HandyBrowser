@@ -44,7 +44,14 @@ class Tray{
 
 		//force windows fullscreen/non movable
 		if(process.platform == 'win32'){
+			let $full = $('#appNavigation #full');
+			$full.prev('.button').before($full);
+			$('#appNavigation').append('<div class="button" id="move">✥</div>');
+			$('#appNavigation .button#full').html('<div class="max m0">🗖</div><div class="max m1">🗖</div>');
 			$('#dragHandle').hide();
+		}
+		if(process.platform == 'win32'){
+			//$('#dragHandle').hide();
 			$('#appNavigation').addClass('windows');
 			$('#toolbar').addClass('windows');
 			setTimeout(()=>{
@@ -53,7 +60,7 @@ class Tray{
 			},10000)
 		}
 		if(process.platform == 'linux'){
-			$('#dragHandle').hide();
+			//$('#dragHandle').hide();
 			$('#appNavigation').addClass('linux');
 			$('#toolbar').addClass('linux');
 			setTimeout(()=>{
@@ -182,6 +189,7 @@ class Tray{
 			
 			let h = this.trayWindow.height;
 			let logoMarginTop = (h-$('#introLogo canvas').height()) / 2;
+			logoMarginTop += $('#toolbar').outerHeight()+5;
 			$('#introLogo canvas').css('margin-top',logoMarginTop);
 			this.resizeActive(false);
 			this.calcTabSize();
@@ -213,7 +221,8 @@ class Tray{
 		let trayHeight = this.trayWindow.height;
 		if(!isMove){
 			$('#contentPanel').css({
-				height:'calc(100% - '+($('#toolbar').outerHeight()+5)+'px)'
+				height:'calc(100% - '+($('#toolbar').outerHeight()+5)+'px)',
+				top: ($('#toolbar').outerHeight()+5)
 			})
 		}
 		
@@ -558,27 +567,27 @@ class Tray{
 		if(Math.ceil(newW) > $('#tabs').width()){
 			marginLeft = Math.ceil($('#tabs').width() - ($('#tabs ul').width() + Math.ceil($('#addTabButton').outerWidth())+1));
   		
-  	}
+	  	}
 
-  	if(marginLeft < 0){
-  		$('#tabs').addClass('addAbsolute');
-  	}
-  	else{
-  		$('#tabs').removeClass('addAbsolute');
-  	}
-  	$('#tabs ul').css('margin-left',marginLeft)
+	  	if(marginLeft < 0){
+	  		$('#tabs').addClass('addAbsolute');
+	  	}
+	  	else{
+	  		$('#tabs').removeClass('addAbsolute');
+	  	}
+	  	$('#tabs ul').css('margin-left',marginLeft)
 
-  	let natDimensions = $('#tabs ul')[0].getBoundingClientRect();
-  	let xEnd;
-  	if(Math.ceil(newW) > $('#tabs').width()){
-  		natDimensions = $('#tabs')[0].getBoundingClientRect();
-  	}
-  	if(Math.ceil(newW) > $('#tabs').width()){
-  		xEnd = natDimensions.x + natDimensions.width
-  	}
-  	else{
-  		xEnd = natDimensions.x + natDimensions.width + Math.ceil($('#addTabButton').outerWidth())+1;
-  	}
+	  	let natDimensions = $('#tabs ul')[0].getBoundingClientRect();
+	  	let xEnd;
+	  	if(Math.ceil(newW) > $('#tabs').width()){
+	  		natDimensions = $('#tabs')[0].getBoundingClientRect();
+	  	}
+	  	if(Math.ceil(newW) > $('#tabs').width()){
+	  		xEnd = natDimensions.x + natDimensions.width
+	  	}
+	  	else{
+	  		xEnd = natDimensions.x + natDimensions.width + Math.ceil($('#addTabButton').outerWidth())+1;
+	  	}
 		
 		let totalX = $('body').width() - xEnd;
 		console.log('newW',newW,'tabs.width',$('#tabs').width());
@@ -727,6 +736,9 @@ class Tray{
 		$('#tabs').on('mousewheel',(e)=>{
 			console.log('wheel',e);
 			let deltaX = e.originalEvent.deltaX;
+			if(process.platform == 'win32'){
+				deltaX = e.originalEvent.deltaY/10;
+			}
 			console.log('deltaX',deltaX);
 			if($('#tabs ul').width() > $('#tabs').width()){
 				//move margins around
@@ -740,6 +752,7 @@ class Tray{
 						$('#tabs ul').css('margin-left',ml+'px');
 						$('#addTabButton').removeClass('isZero');
 					}
+
 					else{
 						if($('#tabs ul').width() + Math.ceil($('#addTabButton').outerWidth()+1) <= visibleX){
 							$('#tabs').removeClass('addAbsolute');
@@ -752,6 +765,10 @@ class Tray{
 
 				}
 				else{
+					if(ml + deltaX > 0){
+						$('#tabs ul').css('margin-left','0px');
+						ml = 0;
+					}
 					if(ml < 0){
 						$('#tabs').addClass('addAbsolute');
 						$('#tabs').removeClass('atZero');
@@ -789,9 +806,9 @@ class Tray{
     	//create new window
         let isResizable = true;
         //disable resize/non fullscreen in windows
-        if(process.platform == 'win32'){
+        /*if(process.platform == 'win32'){
       	  isResizable = false;
-        }
+        }*/
 
       //append new webview
       
