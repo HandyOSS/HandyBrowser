@@ -275,9 +275,9 @@ class bsApp{
 				console.log('hsd connected hsd')
 				let toClose = nw.Window.get();
 				this.showTray();
-				/*setTimeout(()=>{
+				setTimeout(()=>{
 					toClose.close();
-				},1000)*/
+				},1000)
 				
 			}
 			
