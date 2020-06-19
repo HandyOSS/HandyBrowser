@@ -482,12 +482,11 @@ input:focus,select:focus{
 }
 #bookmarkPage{
   position: absolute;
-  left: calc(40% + 71px);
+  left: calc(40% + 69px);
   z-index: 10;
-  top: 1px;
+  top: 8px;
   color: #888;
   cursor: pointer;
-  font-size: 24px;
 }
 #bookmarkPage:not(.clicked):hover{
 	color:#ccc;
