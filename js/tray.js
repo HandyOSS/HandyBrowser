@@ -17,7 +17,10 @@ class Tray{
 		this.initKeyboardShortcuts();
 		this.trayWindow = nw.Window.get();
 		this.initUrlBarLogo();
-
+		setTimeout(()=>{
+			this.checkNodeStatusTimer();
+		},30000)
+		
 		/*this.trayWindow.on('document-start',()=>{
 			if(window.localStorage.getItem('windowState') != null){
 				let state = JSON.parse(window.localStorage.getItem('windowState'));
@@ -1326,33 +1329,7 @@ class Tray{
 				$('#modal').hide();
 			});
 		})
-		/*
-		nw.Window.open('./viewNameRecord.html',{
-			width:w,
-    	height:h,
-    	frame:false,
-    	resizable:false,
-    	show:true,
-    	transparent:true,
-    	x:x,
-    	y:y
-		},(win)=>{
-			win.focus();
-			win.x = x;
-			win.y = y;
-			
-			win.on('loaded',()=>{
-				$('pre#nameRecords',win.window.document).text(JSON.stringify(nameResource,null,2));
-				$('pre#nameInfo',win.window.document).text(JSON.stringify(nameInfo,null,2));
-				$('.close',win.window.document).on('click',()=>{
-					win.close();
-				})
-			});
-			win.on('blur',()=>{
-				win.close();
-			})
-
-		});*/
+		
 	}
 	beforeQuit(){
 		if(this._tabs.length > 0){
@@ -1368,4 +1345,101 @@ class Tray{
 		return;	
 	}
 
+	getHSDNodeStatus(){
+
+		let guid = localStorage.getItem('guid');
+		return new Promise((resolve,reject)=>{
+			//get peers height
+			$.post('http://x:'+guid+'@127.0.0.1:12937',JSON.stringify({method:"getpeerinfo",params:[]}),(d)=>{
+	    	let maxHeight = 0;
+	    	if(d.result){
+	    		d.result.map(peer=>{
+	    			let heightCompare = peer.bestheight == -1 ? peer.startingheight : peer.bestheight;
+	    			maxHeight = Math.max(heightCompare,maxHeight);
+	    		})
+	    	}
+	    	//get my height
+	    	$.post('http://x:'+guid+'@127.0.0.1:12937',JSON.stringify({method:"getinfo",params:[]}),(d)=>{
+		    	let myHeight = 0;
+		    	if(d.result){
+		    		myHeight = d.result.blocks;
+		    	}
+		    	resolve({peerHeight:maxHeight,myHeight:myHeight});
+		    })
+		    .fail(()=>{
+		    	reject({error:'not connected'});
+		    })
+	    }).fail(()=>{
+	    	reject({error:'not connected'});
+	    })
+	  });
+	}
+	checkNodeStatusTimer(){
+		if(typeof this.nodeStatusInterval != "undefined"){
+			clearInterval(this.nodeStatusInterval);
+			delete this.nodeStatusInterval;
+		}
+		this.nodeStatusInterval = setInterval(()=>{
+			this.getHSDNodeStatus().then((d)=>{
+
+	  		let h = 0;
+	  		let p = 0;
+	  		let syncStatus = 'Not Synced';
+	  		let symbol = '⚪ ';
+	  		if(Math.abs(d.myHeight - d.peerHeight) <= 2){
+	  			//close to height
+	  			symbol = '🟢 ';
+	  			syncStatus = 'Synced ['+d.myHeight+']'
+	  		}
+	  		else{	
+
+	  			syncStatus += ' ['+h+':'+p+']';
+	  		}
+	  		h = d.myHeight;
+	  		p = d.peerHeight;
+	  		if(process.platform == 'darwin'){
+	  			nw.Window.get().menu.items[0].submenu.items.map((item,i)=>{
+	  				if(item.label.indexOf('HNS Node') >= 0){
+	  					//update label;
+	  					nw.Window.get().menu.items[0].submenu.items[i].label = symbol+'HNS Node: '+syncStatus;
+	  				}
+	  			})
+		  	}
+		  	else{
+		  		if(typeof this.popupMenu != "undefined"){
+		  			this.popupMenu.items.map((item,i)=>{
+		  				if(item.label.indexOf('HNS Node') >= 0){
+		  					//update label;
+		  					this.popupMenu.items[i].label = symbol+'HNS Node: '+syncStatus;
+		  				}
+		  			})
+		  		}
+		  	}
+	  		
+	  	}).catch(e=>{
+	  		
+	  		if(process.platform == 'darwin'){
+	  			nw.Window.get().menu.items[0].submenu.items.map((item,i)=>{
+	  				if(item.label.indexOf('HNS Node') >= 0){
+	  					//update label;
+	  					nw.Window.get().menu.items[0].submenu.items[i].label = '🔴 HNS Node Not Responding';
+	  				}
+	  			})
+		  	}
+		  	else{
+		  		if(typeof this.popupMenu != "undefined"){
+		  			this.popupMenu.items.map((item,i)=>{
+		  				if(item.label.indexOf('HNS Node') >= 0){
+		  					//update label;
+		  					this.popupMenu.items[i].label = '🔴 HNS Node Not Responding';
+		  				}
+		  			})
+		  		}
+		  	}
+	  	});
+			/*if(process.platform == 'darwin'){
+	  		nw.Window.get().menu.items[0].submenu.items[3].label = 'Options';
+	  	}*/
+		},10000)
+	}
 }

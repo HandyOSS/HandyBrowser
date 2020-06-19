@@ -427,7 +427,13 @@ input:focus,select:focus{
 #sessionNotification.hidden{
 	display:none;
 }
-#sessionNotification{
+#restartDockerNotification{
+	display:none;
+	line-height: 100px;
+	vertical-align: middle;
+	text-align:center;
+}
+#sessionNotification, #restartDockerNotification{
 	float:left;
 	width:400px;
 	height:100px;

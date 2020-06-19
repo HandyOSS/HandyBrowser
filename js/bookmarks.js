@@ -62,6 +62,7 @@ class BookmarkManager{
 		if(process.platform == 'darwin'){
 			this.mainMenu.append(donateOption);
 		}
+
 		this.bookmarksObj = {};
 		this.bookmarkFolder = process.env.HOME+'/Library/Application\ Support/HandyBrowser/Bookmarks';
 		if(process.platform == 'win32'){
@@ -120,25 +121,73 @@ class BookmarkManager{
 			topMenu.append(mapOption);
 			topMenu.append(donateOption);
 		}
+		let restartDockerOption = nw.MenuItem({label:'Restart Docker HSD',click:()=>{
+			this.restartDocker();
+		}});
+  	this.tray.getHSDNodeStatus().then((d)=>{
+
+  		let h = 0;
+  		let p = 0;
+  		let syncStatus = 'Not Synced';
+  		let iconPath = './img/grey_dot.png';
+  		let symbol = '⚪ ';
+  		if(Math.abs(d.myHeight - d.peerHeight) <= 2){
+  			//close to height
+  			symbol = '🟢 ';
+  			iconPath = './img/green_dot.png';
+  			syncStatus = 'Synced ['+d.myHeight+']'
+  		}
+  		else{	
+
+  			syncStatus += ' ['+h+':'+p+']';
+  		}
+  		h = d.myHeight;
+  		p = d.peerHeight;
+  		if(process.platform == 'darwin'){
+  			this.mainMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}))
+  			this.mainMenu.append(restartDockerOption);
+  		}
+  		else{
+  			topMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}))
+  			topMenu.append(restartDockerOption)
+  		}
+  	}).catch(e=>{
+  		if(process.platform == 'darwin'){
+  			this.mainMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}))
+  			this.mainMenu.append(restartDockerOption);
+  		}
+  		else{
+  			topMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}));
+  			topMenu.append(restartDockerOption)
+  		}
+  	});
   	
-	  	if(process.platform == 'darwin'){
-		  	this.mainMenu.createMacBuiltin("HandyBrowser");
-		  	nw.Window.get().menu = topMenu;
+		
+	  /*if(process.platform == 'darwin'){
+	  	this.mainMenu.createMacBuiltin("HandyBrowser");
+	  	nw.Window.get().menu = topMenu;
+		}*/
+		if(process.platform == 'darwin'){
+	  	this.mainMenu.createMacBuiltin("HandyBrowser");
+	  	nw.Window.get().menu = topMenu;
 		}
+		else{
+			this.tray.popupMenu = topMenu;
+		}
+		if(process.platform == 'darwin'){
+  		nw.Window.get().menu.items[0].submenu.items[3].label = 'Options';
+  	}
 		
 
 		if(process.platform == 'win32' || process.platform == 'linux'){
 		  $('#winBookmarks',nw.Window.get().window.document).off('click').on('click',function(e){
 		  	let dim = $(this)[0].getBoundingClientRect();
-		  	console.log('dim',dim);
 		  	topMenu.popup(Math.floor(dim.left+dim.width), Math.floor(dim.top));
 		  	return false;
 		  }).show();
 		}
 	  	
-  	if(process.platform == 'darwin'){
-  		nw.Window.get().menu.items[0].submenu.items[3].label = 'Options';
-  	}
+  	
 	}
 	addEvents(){
 		$('#bookmarkPage').off('click').on('click',()=>{
@@ -212,7 +261,6 @@ class BookmarkManager{
 				$('#modal').hide();
 			})
 			$('#modal .selectMe').off('click').on('click',function(){
-				console.log('focus')
 				$(this).focus();
 				$(this).select();
 			})
@@ -232,18 +280,15 @@ class BookmarkManager{
 		let chromeBookmarks = [];
 		if(fs.existsSync(localPath)){
 			bookmarks = JSON.parse(fs.readFileSync(localPath,'utf8'));
-			console.log('local bookmarks',bookmarks)
 		}
 
 		if(this.hasChromeBookmarksPresent){
 			let cbookmarks = JSON.parse(fs.readFileSync(chromeBookmarksPath,'utf8'));
 			chromeBookmarks = cbookmarks.roots['bookmark_bar'].children || [];
-			console.log('chrome bookmarks',chromeBookmarks);
 		}
 		let bmId = 0;
 		
-		console.log('local bookmarks data',bookmarks)
-
+		
 		let state = localStorage.getItem('windowState');
 		let x = 0;
 		let y = 0;
@@ -304,7 +349,6 @@ class BookmarkManager{
 				})
 				$li.data(bm);
 				if(listType == 'local')
-				console.log('list item',$parent[0],$li[0],$li.data());
 				
 				if(bm.type == 'folder'){
 					let $listArea = $('<div class="listArea"></div>');
@@ -322,7 +366,7 @@ class BookmarkManager{
 						})
 						$li2.data(child);
 						if(listType == 'local')
-						console.log('child li',$li2[0],$li[0],$li2.data())
+						
 						$listArea.append($li2);
 
 						if(child.type == 'folder' && child.children){
@@ -405,7 +449,6 @@ class BookmarkManager{
 					processElement($(this));
 				});*/
 				processElement($('.bookmarksManager .panel.local',$('#modal')));
-				console.log('bookmarksd',newBookmarkData);
 				//save bookmarks data
 				fs.writeFileSync(localPath,JSON.stringify(newBookmarkData),'utf8');
 				//win.close();
@@ -448,7 +491,6 @@ class BookmarkManager{
 								newBookmarkData.push(item);
 							}
 							else{
-								console.log('push to children',item,parentItem);
 								parentItem.children.push(item);
 							}
 							
@@ -553,7 +595,6 @@ class BookmarkManager{
 					//push at top level
 					obj.type = 'url';
 					bmData.push(obj);
-					console.log('was no folder set',obj,bmData);
 				}
 				else{
 					//is folder
@@ -572,16 +613,14 @@ class BookmarkManager{
 						}
 						return isMatch;
 					});
-					console.log('folder already exists???',existingFolder,bmData);
+					
 					if(!existingFolder){
 						
 						obj.children.push(childObj);
 						bmData.push(obj);
-						console.log('push to bmdata then',bmData);
 					}
 					
 				}
-				console.log('pre write bmdata',bmData)
 				
 				$('#modal').hide();
 				fs.writeFileSync(localPath,JSON.stringify(bmData,null,2),'utf8');
@@ -634,9 +673,7 @@ class BookmarkManager{
 		else{
 			//this.tray.$bookmarksBar.removeClass('visible');
 			//no bookmarks, use/save local defaults and start over
-			console.log('no bookmarks found');
 			let defaults = $.getJSON('./js/bookmarks_default.json',d=>{
-				console.log('wrote default bookmarks',d);
 				fs.writeFileSync(localPath,JSON.stringify(d,null,2),'utf8');
 				this.importFromLocal();
 				return false;
@@ -652,7 +689,6 @@ class BookmarkManager{
 		if(this.hasChromeBookmarksPresent){
 			let chromeBookmarkMenu = new nw.MenuItem({label:'Chrome Bookmarks',submenu:new nw.Menu()})
 			let bookmarks = JSON.parse(fs.readFileSync(chromeBookmarksPath,'utf8'));
-			console.log('chrome bookmarks',bookmarks)
 			Object.keys(bookmarks.roots).map(key=>{
 				let bm = bookmarks.roots[key];
 				if(bm.type == 'folder'){
@@ -695,7 +731,6 @@ class BookmarkManager{
 		if(typeof bookmarks == "undefined"){
 			bookmarks = {};
 		}
-		console.log('gen bookmarks menu',bookmarks);
 		let shouldShow = localStorage.getItem('showBookmarksBar');
 		if(shouldShow != null){
 			if(shouldShow){
@@ -723,13 +758,11 @@ class BookmarkManager{
 				let liDims = $('li',this.tray.$bookmarksBar).last()[0].getBoundingClientRect();
 				liW = liDims.left + liDims.width+ 130;
 			}
-			console.log('li X',liW,barWidth)
 			if(bm.type == 'folder'){
 				//let bmFolder = new nw.MenuItem({label:bm.name,submenu:new nw.Menu()});
 				
 				let $li = $('<li class="folder"><span class="folder">&#x1F4C1;</span>'+bm.name+'</li>');
 				
-				console.log('bm folder data',bm);
 				if(bm.children.length > 0){
 					//import this folder
 					//this.recurseChromeChildren(bm,bmFolder);
@@ -742,7 +775,6 @@ class BookmarkManager{
 
 				if(liW > barWidth){
 					//time to truncate
-					console.log('truncate pls')
 					$truncatedUl.append($li);
 				}
 				else{
@@ -771,7 +803,6 @@ class BookmarkManager{
 				})
 				if(liW > barWidth){
 					//time to truncate
-					console.log('truncate pls')
 					$truncatedUl.append($li)
 				}
 				else{
@@ -818,9 +849,7 @@ class BookmarkManager{
 			})
 			let nativeW = $('.bookmarkListContent',$('#modal')).width();
 			let posX = pos.x;
-			console.log('posx projection',posX,$('.bookmarkListContent',$('#modal')).width(),posX+$('.bookmarkListContent',$('#modal')).width(),'><',w );
 			if(pos.x + $('.bookmarkListContent',$('#modal')).width() > w){
-				console.log('dd w',$('.bookmarkListContent',$('#modal')).width())
 				$('.bookmarkListContent',$('#modal')).css('width',$('.bookmarkListContent',$('#modal')).width());
 				posX = w - ($('.bookmarkListContent',$('#modal')).width()+20);
 			}
@@ -875,7 +904,6 @@ class BookmarkManager{
 			}
 			
 			if(child.children){
-				console.log('recurse again',child);
 				//import this folder
 				//this.recurseChromeChildren(bm,bmFolder);
 				this.recurseIntoBookmarkBarFolder(child,li);
@@ -909,5 +937,62 @@ class BookmarkManager{
 		  	activeWin.hide();
 		  },1000);
 		}
+	}
+	restartDocker(){
+		$('#restartDockerNotification').html('Restarting HSD Container');
+		$('#restartDockerNotification').show();
+		let hasError = false;
+		let s = spawn('docker',['restart','HandyBrowserHSD']);
+		s.stdout.on('data',d=>{})
+		s.stderr.on('data',d=>{
+			hasError = true;
+			$('#restartDockerNotification').html('Error Restarting HSD Container')
+		})
+		s.on('close',()=>{
+			if(!hasError){
+				//$('#restartDockerNotification').html('Successfully Restarted');
+				//restart hsd then
+				this.restartHSD();
+			}
+			/*setTimeout(()=>{
+				$('#restartDockerNotification').hide();
+			},2000);*/
+		})
+	}
+	restartHSD(){
+		let guid = localStorage.getItem('guid');
+		let hsdProcess = spawn('docker',['exec','-i','HandyBrowserHSD','sh','-c','"./run.hns.resolver.sh\ '+guid+'"'],{shell:true})
+		let hsdLogged = false;
+		//let hsdLogs = '';
+		hsdProcess.stdout.on('data',d=>{
+			//console.log('hsd data',d.toString('utf8'));
+			if(!hsdLogged){
+				hsdLogged = true;
+				$('#restartDockerNotification').html('Restarted HSD');
+				setTimeout(()=>{
+					$('#restartDockerNotification').hide();
+				},2000);
+				setTimeout(()=>{
+					this.createBookmarksMenu(); // sync for menus
+				},10000)
+				
+			}
+			
+				
+			//TODO: log things/notify here
+
+			//this.pushToLogs(d.toString('utf8'),'stdout','hsd');
+
+
+		})
+		hsdProcess.stderr.on('data',d=>{
+			console.log('error restart',d.toString('utf8'));
+			$('#restartDockerNotification').html('Error Restarting HSD');
+		})
+		hsdProcess.on('close',d=>{
+			setTimeout(()=>{
+				$('#restartDockerNotification').hide();
+			},2000);
+		});
 	}
 }
