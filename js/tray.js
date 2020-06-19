@@ -1384,6 +1384,8 @@ class Tray{
 
 	  		let h = 0;
 	  		let p = 0;
+	  		h = d.myHeight;
+	  		p = d.peerHeight;
 	  		let syncStatus = 'Not Synced';
 	  		let symbol = '⚪ ';
 	  		if(Math.abs(d.myHeight - d.peerHeight) <= 2){
@@ -1395,8 +1397,7 @@ class Tray{
 
 	  			syncStatus += ' ['+h+':'+p+']';
 	  		}
-	  		h = d.myHeight;
-	  		p = d.peerHeight;
+	  		
 	  		if(process.platform == 'darwin'){
 	  			nw.Window.get().menu.items[0].submenu.items.map((item,i)=>{
 	  				if(item.label.indexOf('HNS Node') >= 0){

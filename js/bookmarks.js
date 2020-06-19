@@ -128,6 +128,8 @@ class BookmarkManager{
 
   		let h = 0;
   		let p = 0;
+  		h = d.myHeight;
+  		p = d.peerHeight;
   		let syncStatus = 'Not Synced';
   		let iconPath = './img/grey_dot.png';
   		let symbol = '⚪ ';
@@ -141,8 +143,7 @@ class BookmarkManager{
 
   			syncStatus += ' ['+h+':'+p+']';
   		}
-  		h = d.myHeight;
-  		p = d.peerHeight;
+  		
   		if(process.platform == 'darwin'){
   			this.mainMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}))
   			this.mainMenu.append(restartDockerOption);
