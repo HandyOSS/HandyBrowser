@@ -57,7 +57,7 @@ class Tray{
 			setTimeout(()=>{
 				//deal with sizing overflow on windows, sheeesh..
 				this.bookmarks.createBookmarksMenu();
-			},10000)
+			},5000)
 		}
 		if(process.platform == 'linux'){
 			//$('#dragHandle').hide();
@@ -66,7 +66,13 @@ class Tray{
 			setTimeout(()=>{
 				//deal with sizing overflow on windows, sheeesh..
 				this.bookmarks.createBookmarksMenu();
-			},10000)
+			},5000)
+		}
+		if(process.platform == 'darwin'){
+			setTimeout(()=>{
+				//deal with sizing overflow on windows, sheeesh..
+				this.bookmarks.createBookmarksMenu();
+			},5000)
 		}
 		
 		this.handleTrayResize();
@@ -396,8 +402,9 @@ class Tray{
 		function activeFunction(){
 			//if(_this._tabs.length > 0){
 			_this.isAddingNewTab = true;
+			$('#bookmarkPage').removeClass('clicked');
 			$('#tabs ul li').removeClass('tabtarget');
-      $li = $('<li class="notactivated tabtarget"><span class="faviconWrap"></span><span class="pageTitle">New Tab</span></li>')
+      $li = $('<li class="notactivated tabtarget"><span class="faviconWrap rippleDisabled"><div class="lds-ripple"><div></div><div></div></div></span><span class="pageTitle">New Tab</span></li>')
       $('#tabs ul').append($li);
       $li.off('mouseenter').on('mouseenter',function(){
       	emptyMouseEnter($(this));
@@ -704,6 +711,7 @@ class Tray{
 		$("#urlQuery").on('keyup', (e) => {
 		    if (e.keyCode === 13) {
 		        // Do something
+		        $('#bookmarkPage').removeClass('clicked');
 		        $('#urlQuery').blur();
 		        let val = $('#urlQuery').val();
 		        if(val.indexOf('http') != 0){
@@ -830,6 +838,7 @@ class Tray{
       	$el: $newLI || $('#tabs ul li').eq(tabNumID),
       	id: tabIndex || this._tabs.length//(this._tabs.length-1 == -1 ? 0 : this._tabs.length-1)/*$('#tabs ul li').length*/
       };
+      tabData.$el.find('.faviconWrap').removeClass('rippleDisabled');
       this.activeWindow = $webview;
       this.trayIsFull = false;
       console.log('set webview events');
@@ -837,10 +846,10 @@ class Tray{
       $webview[0].onnewwindow = (e)=>{
       	let newURL = e.targetUrl;
       	console.log('nav to new window',newURL);
-
+      	$('#bookmarkPage').removeClass('clicked');
 			  this.isAddingNewTab = true;
 			  $('#tabs ul li').removeClass('tabtarget');
-	      let $li = $('<li class="notactivated tabtarget"><span class="faviconWrap"></span><span class="pageTitle">New Tab</span></li>')
+	      let $li = $('<li class="notactivated tabtarget"><span class="faviconWrap"><div class="lds-ripple"><div></div><div></div></div></span><span class="pageTitle">New Tab</span></li>')
 	      $('#tabs ul').append($li);
 			  this.addNewTab(newURL);
 				
@@ -908,6 +917,7 @@ class Tray{
       	console.log('on click of tab');
       	let id = tabData.window.attr('id');
       	tabData.window.show();
+      	$('#bookmarkPage').removeClass('clicked')
       	$('#contentPanel webview:not(#'+id+')').hide()
       	//move/resize too
       	let windowState = window.localStorage.getItem('windowState');
@@ -934,264 +944,12 @@ class Tray{
       
       this.activeTab = tabData;
       this._tabs.push(tabData);
-      /*
-			win.on('navigation',(frame,url,policy)=>{
-				console.log('navigation happened',url);
-				$('#bookmarkPage').removeClass('clicked')
-				delete this.activeTab.icon;
-				$('#urlQuery').val(url);
-	      this.activeTab.url = url;
-	      this.setTabInfoOnLoad(url,tabData);
-
-		    
-			})
-      */
-      return false;
-
-/***********************
-DEPRECATE THIS STUFF!!!!
-***********************/
-      nw.Window.open(url,{
-      	width:w,
-      	height:h,
-      	frame:false,
-      	resizable:isResizable,
-      	show:false,
-      	focus:true,
-      },(win)=>{
-      	//win.setShadow(false);
-      	win.on('resize',(width,height)=>{
-      		//disable non-fullscreen in windows
-      		if(process.platform == 'win32'){
-      			return false;
-      		}
-      		this.windowJustResized = true;
-      		let x = this.trayWindow.x;//win.x;
-      		let y = this.trayWindow.y + ($('#toolbar').outerHeight()+5);//win.y;
-      		if(y - ($('#toolbar').outerHeight()+5) < 0){
-      			win.y = ($('#toolbar').outerHeight()+5);
-      			this.trayWindow.y = 0;
-      		}
-      		else{
-      			this.trayWindow.y = win.y - ($('#toolbar').outerHeight()+5);
-      		}
-      		this.trayWindow.x = win.x;
-      		this.trayWindow.width = win.width;
-
-      	})
-      	win.on('enter-fullscreen',()=>{
-      		//for facebook/react cases where we cant call events on elements that dont technically exist anymore on update events.......
-      		let si = setInterval(()=>{
-      			//console.log('entered fullscreen',win.window.document.fullscreenElement);
-      			if(!win.window.document.fullscreenElement){
-      				clearInterval(si);
-		      		console.log('window left fullscreen');
-		      		win.x = this.trayWindow.x;
-			      	win.y = this.trayWindow.y + $('#toolbar').outerHeight()+5;
-			      	win.width = w;
-			      	win.height = h;
-			      }
-      		},500);
-      	})
-      	/*win.on('restore',()=>{
-      		//if(!win.window.document.fullscreenElement){
-	      		console.log('window left fullscreen');
-	      		//setTimeout(()=>{
-		      		win.x = 0;
-			      	win.y = $('#toolbar').outerHeight()+28;
-			      	win.width = screen.width;
-			      	win.height = screen.height-($('#toolbar').height()+5);
-			      //},100);
-		      //}
-      	})*/
-      	win.window.document.addEventListener('fullscreenchange',()=>{
-      		if(!win.window.document.fullscreenElement){
-	      		console.log('window left fullscreen');
-	      		win.x = this.trayWindow.x;
-		      	win.y = this.trayWindow.y + $('#toolbar').outerHeight()+5;
-		      	win.width = w;
-		      	win.height = h;
-		      }
-      	})
-      	console.log('win isset',win);
-				win.x = xState;
-	      win.y = this.trayWindow.y + ($('#toolbar').outerHeight()+5)//yState;//$('#toolbar').outerHeight()+28;
-	      win.show(true);
-	      if(typeof this.activeWindow != "undefined"){
-	      	let toHide = this.activeWindow;
-	      	setTimeout(()=>{
-	      		toHide.hide();
-	      	},400)
-	      	
-	      }
-	      this.trayWindow.height = $('#toolbar').outerHeight()+5;
-	      $('#sessionNotification').addClass('hidden');
-	      this.trayIsFull = false;
-	      this.activeWindow = win;
-	      win.isTab = true;
-	      this.initKeyboardShortcuts();
-	      win.on('blur',()=>{
-	      	console.log('new tab window lost focus');
-	      	this.windowGetBlur(win);
-	      	if(process.platform == 'win32' || process.platform == 'linux'){
-	      		this.trayWindow.setAlwaysOnTop(false);
-	      	}
-	      })
-	      win.on('focus',()=>{
-	      	console.log('new tab window has focus')
-	      	this.windowGetFocus(win);
-	      	if(process.platform == 'win32' || process.platform == 'linux'){
-	      		this.trayWindow.setAlwaysOnTop(true);
-	      	}
-	      });
-
-	      this.isAddingNewTab = false;
-	      let tabNumID = $('#tabs ul li').index($('li.tabtarget'))//this.isAddingNewTab ? $('#tabs ul li').length-1 : this._tabs.length;
-	      let tabData = {
-	      	url:url,
-	      	window:win,
-	      	title:'',
-	      	$el: $newLI || $('#tabs ul li').eq(tabNumID),
-	      	id: tabIndex || this._tabs.length//(this._tabs.length-1 == -1 ? 0 : this._tabs.length-1)/*$('#tabs ul li').length*/
-	      };
-	      tabData.$el.removeClass('tabtarget').removeClass('notactivated').removeClass('init');
-	      
-	      tabData.$el.off('mouseenter').on('mouseenter',()=>{
-	      	$('#tabs li .closeTab').remove();
-	      	tabData.$el.append('<div class="closeTab">x</div>')
-	      	$('.closeTab',tabData.$el).off('click').on('click',()=>{
-	      		console.log('closetab');
-	      		//this.activeWindow.close();
-	      		tabData.window.close();
-	      		tabData.$el.remove();
-	      		console.log('close tab by id',tabData.id,this._tabs.map(t=>{return t.id;}));
-				
-	      		this._tabs = this._tabs.filter(tab=>{
-	      			return tab.id != tabData.id;
-	      		});
-	      		this.focusOnTabAfterRemove();
-	      	})	
-	      }).on('mouseleave',()=>{
-	      	$('.closeTab',tabData.$el).remove();
-	      })
-	      tabData.$el.off('click').on('click',()=>{
-	      	console.log('on click of tab');
-	      	tabData.window.show(true);
-	      	//move/resize too
-	      	let windowState = window.localStorage.getItem('windowState');
-					if(windowState != null){
-						windowState = JSON.parse(windowState);
-					}
-				
-		    	let w = windowState == null ? screen.availWidth : windowState.width;
-		    	let h = windowState == null ? screen.availHeight-($('#toolbar').outerHeight()+5) : windowState.height-($('#toolbar').outerHeight()+5);// - ($('#toolbar').outerHeight()+28);
-		    	let x = windowState == null ? screen.availLeft : windowState.x;
-		    	let y = windowState == null ? screen.availTop+($('#toolbar').outerHeight()+5) : windowState.y+($('#toolbar').outerHeight()+5);
-			    tabData.window.resizeTo(w,h);
-			    tabData.window.moveTo(x,y);
-	      	this.activeWindow = tabData.window;
-	      	this.activeTab = tabData;
-	      	this.isCreatingNewTab = false;
-	      	this.trayIsFull = false;
-	      	this.trayWindow.focus();
-	      	if(typeof this.activeWindow.window.document.location.href != "undefined"){
-		      	$('#urlQuery').val(this.activeWindow.window.document.location.href);
-		      }
-	      	setTimeout(()=>{
-		      	this._tabs.map(tab=>{
-		      		if(tab.id != tabData.id){
-		      			tab.window.hide();
-		      		}
-		      	})
-		      },200)
-	      	//add H logo things
-	      	$('#miniLogo').removeClass('active').removeClass('secure');
-			    	
-	      	if(tabData.nameResource){
-			    	let d = tabData.nameResource;
-			    	this.update_H_Icon(d,tabData.id);
-			    }
-	      	
-	      })
-	      
-	      this.activeTab = tabData;
-	      this._tabs.push(tabData);
-		      //set title on tab now
-      	/*setTimeout(()=>{
-		      
-		      if(typeof win.window.document.location.href != "undefined"){
-		      	$('#urlQuery').val(win.window.document.location.href);
-
-		      }
-		      tabData.title = win.title;
-		      console.log('setting title???',tabData.title,win.window)
-		      if(tabData.title == ''){
-		      	tabData.title = url;
-		      }
-		      //if(this._tabs.length == 0){
-		      	//update the default tab name and add events
-		      	tabData.$el.html(tabData.title);
-		      	this._tabs[tabData.id].title = tabData.title;
-		      //}
-		      
-		    },1000);*/
-		    
-		    
-		    win.on('document-start',()=>{
-		    	delete this.activeTab.icon;
-		    	console.log('on document-start')
-		      this.setTabInfoOnLoad(win.window.document.location.href,tabData);
-		  	});
-		  	
-		  	/*this.activeTab.window.on('document-end',()=>{
-		  		console.log('on document-end')
-		  		setTimeout(()=>{
-		  			this.activeTab.window.on('document-start',()=>{
-				    	console.log('on document-start')
-				      this.setTabInfoOnLoad(url);
-				  	});
-		  		},100)
-		  	})*/
-		  	win.on('loaded',()=>{
-		  		delete tabData.icon;
-		  		console.log('on document-loaded')
-		  		$('body',tabData.window.window.document).on('mouseenter',()=>{
-						//this.trayWindow.focus();
-						if(!this.appHasFocus){
-							return false;
-						}
-						tabData.window.focus();
-					});
-		      this.setTabInfoOnLoad(win.window.document.location.href,tabData);
-		  	});
-
-		    win.on('new-win-policy', (frame, clickedUrl, policy) => {
-				  // do not open the window
-				  policy.ignore();
-				  // and open it in external browser
-				  //nw.Shell.openExternal(url);
-				  console.log('opened new tab?',clickedUrl);
-				  this.isAddingNewTab = true;
-				  $('#tabs ul li').removeClass('tabtarget');
-		      let $li = $('<li class="notactivated tabtarget"><span class="faviconWrap"></span><span class="pageTitle">New Tab</span></li>')
-		      $('#tabs ul').append($li);
-				  this.addNewTab(clickedUrl);
-				});
-				win.on('navigation',(frame,url,policy)=>{
-					console.log('navigation happened',url);
-					$('#bookmarkPage').removeClass('clicked')
-					delete this.activeTab.icon;
-					$('#urlQuery').val(url);
-		      this.activeTab.url = url;
-		      this.setTabInfoOnLoad(url,tabData);
-
-			    
-				})
-			});
+      
     }
     else{
-    	$('span.faviconWrap',this.activeTab.$el).html('');
+    	$('span.faviconWrap',this.activeTab.$el).html('<div class="lds-ripple"><div></div><div></div></div>');
     	this.activeWindow.attr('src',url);
+
     	this.activeTab.url = url;
     	delete this.activeTab.icon;
     	delete this.activeTab.nameResource;
@@ -1212,7 +970,7 @@ DEPRECATE THIS STUFF!!!!
     }
 	}
 	setTabInfoOnLoad(url,activeNow,shouldSetTitle){
-		console.log('setTabInfoOnLoad',activeNow.id,activeNow.title);
+		console.log('setTabInfoOnLoad',activeNow.id,activeNow.title,shouldSetTitle);
     if(!$('#urlQuery').is(":focus") && !shouldSetTitle){
   		$('#urlQuery').val(url);
   	}
@@ -1239,7 +997,15 @@ DEPRECATE THIS STUFF!!!!
       let tld = activeNow.url;
       tld = tld.split('://')[1];
       tld = tld.split('/')[0];
-      tld = tld.split('.').pop();
+      tld = tld.split('.');
+      console.log('tld after split',tld);
+      if(tld[tld.length-1] == ''){
+      	//it's blank, probably http://tld./ format
+      	tld = tld[tld.length-2];
+      }
+      else{
+      	tld = tld[tld.length-1];
+      }
       console.log('should fetch tld now',tld);
 
       $.post('http://x:'+guid+'@127.0.0.1:12937',JSON.stringify({method:"getnameinfo",params:[tld]}),(d)=>{
@@ -1518,7 +1284,49 @@ DEPRECATE THIS STUFF!!!!
 			w = state.width;
 			h = state.height;
 		}
+		fs.readFile('./viewNameRecord.html','utf8',(err,snippet)=>{
+			$('#modal').html($(snippet));
+
+			$('pre#nameRecords',$('#modal')).text(JSON.stringify(nameResource,null,2));
+			$('pre#nameInfo',$('#modal')).text(JSON.stringify(nameInfo,null,2));
+			switch(process.platform){
+		  	case 'win32':
+		  		$('#modalNav').addClass('windows');
+		  		$('.preWrap').addClass('windows');
+		  	break;
+		  	case 'linux':
+		  		$('#modalNav').addClass('linux');
+		  	break;
+		  }
+		  $('#modal').show();
+			$('#modal #closeMap').on('click',()=>{
+				$('#modal').hide();
+			})
+			function selectText(node) {
+		    node = document.getElementById(node);
+		    if (document.body.createTextRange) {
+	        const range = document.body.createTextRange();
+	        range.moveToElementText(node);
+	        range.select();
+		    } else if (window.getSelection) {
+	        const selection = window.getSelection();
+	        const range = document.createRange();
+	        range.selectNodeContents(node);
+	        selection.removeAllRanges();
+	        selection.addRange(range);
+		    } else {
+		        console.warn("Could not select text in node: Unsupported browser.");
+		    }
+			}
+			$('#modal .selectMe').off('click').on('click',function(){
+				selectText($(this).attr('id'))
+			})
 		
+			$('#modal .close').off('click').on('click',()=>{
+				$('#modal').hide();
+			});
+		})
+		/*
 		nw.Window.open('./viewNameRecord.html',{
 			width:w,
     	height:h,
@@ -1544,7 +1352,7 @@ DEPRECATE THIS STUFF!!!!
 				win.close();
 			})
 
-		});
+		});*/
 	}
 	beforeQuit(){
 		if(this._tabs.length > 0){

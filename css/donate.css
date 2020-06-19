@@ -1,86 +1,14 @@
-
-@font-face {
-  font-family: "Nitti Light";
-  font-weight: normal;
-  src: url('../fonts/nitti-light-v500.eot') format('embedded-opentype'),
-       url('../fonts/nitti-light-v500.woff') format('woff');
-}
-
-@font-face {
-  font-family: "Nitti Light";
-  font-weight: bold;
-  src: url('../fonts/nitti-medium-v500.eot') format('embedded-opentype'),
-       url('../fonts/nitti-medium-v500.woff') format('woff'),
-       url('../fonts/nitti-medium-v500.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: "IBM Plex Mono";
-  font-weight: 400;
-  src: url('../fonts/IBMPlexMono-Regular.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: "IBM Plex Mono";
-  font-style: italic;
-  font-weight: 400;
-  src: url('../fonts/IBMPlexMono-Italic.ttf');
-}
-
-
-
-@font-face {
-  font-family: "IBM Plex Mono";
-  font-style: italic;
-  font-weight: 600;
-  src: url('../fonts/IBMPlexMono-SemiBoldItalic.ttf');
-}
-
-@font-face {
-  font-family: "IBM Plex Sans";
-  font-weight: 400;
-  src: url('../fonts/IBMPlexSans-Regular.ttf');
-}
-
-@font-face {
-  font-family: "IBM Plex Sans";
-  font-style: italic;
-  font-weight: 400;
-  src: url('../fonts/IBMPlexSans-Italic.ttf');
-}
-
-@font-face {
-  font-family: "IBM Plex Sans";
-  font-weight: 600;
-  src: url('../fonts/IBMPlexSans-SemiBold.ttf');
-}
-
-@font-face {
-  font-family: "IBM Plex Sans";
-  font-style: italic;
-  font-weight: 600;
-  src: url('../fonts/IBMPlexSans-SemiBoldItalic.ttf');
-}
-html{
-  background:rgba(0,0,0,0.9);
-}
-html,body{
-	margin:0;
-	text-align:center;
-	font-family: "IBM Plex Mono";
-	color:#eee;
-}
 #donate{
 	margin:10% auto;
-
-
+  text-align: center;
+  color:#eee;
 }
 .donateLabel{
 	font-size: 24px;
 	font-weight:600;
 	margin: 10px 0;
 }
-input{
+#donate input{
 	background:rgba(255,255,255,0.3);
 	padding: 2px 5px;
 	border:none;
@@ -89,22 +17,4 @@ input{
 	text-align: center;
 	color:#eee;
 }
-.close{
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  /* padding: 5px; */
-  text-align: center;
-  cursor: pointer;
-  background: rgba(255,255,255,0.5);
-  border: 1px solid #333;
-  width: 25px;
-  height: 25px;
-  z-index: 25;
-  line-height: 25px;
-  color: #fff;
-  transition: all 0.1s linear;
-}
-.close:hover{
-  background: rgba(255,255,255,0.7);
-}
+

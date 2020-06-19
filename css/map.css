@@ -1,93 +1,111 @@
-@font-face {
-  font-family: "Nitti Light";
-  font-weight: normal;
-  src: url('../fonts/nitti-light-v500.eot') format('embedded-opentype'),
-       url('../fonts/nitti-light-v500.woff') format('woff');
-}
-
-@font-face {
-  font-family: "Nitti Light";
-  font-weight: bold;
-  src: url('../fonts/nitti-medium-v500.eot') format('embedded-opentype'),
-       url('../fonts/nitti-medium-v500.woff') format('woff'),
-       url('../fonts/nitti-medium-v500.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: "IBM Plex Mono";
-  font-weight: 400;
-  src: url('../fonts/IBMPlexMono-Regular.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: "IBM Plex Mono";
-  font-style: italic;
-  font-weight: 400;
-  src: url('../fonts/IBMPlexMono-Italic.ttf');
-}
-
-
-
-@font-face {
-  font-family: "IBM Plex Mono";
-  font-style: italic;
-  font-weight: 600;
-  src: url('../fonts/IBMPlexMono-SemiBoldItalic.ttf');
-}
-
-@font-face {
-  font-family: "IBM Plex Sans";
-  font-weight: 400;
-  src: url('../fonts/IBMPlexSans-Regular.ttf');
-}
-
-@font-face {
-  font-family: "IBM Plex Sans";
-  font-style: italic;
-  font-weight: 400;
-  src: url('../fonts/IBMPlexSans-Italic.ttf');
-}
-
-@font-face {
-  font-family: "IBM Plex Sans";
-  font-weight: 600;
-  src: url('../fonts/IBMPlexSans-SemiBold.ttf');
-}
-
-@font-face {
-  font-family: "IBM Plex Sans";
-  font-style: italic;
-  font-weight: 600;
-  src: url('../fonts/IBMPlexSans-SemiBoldItalic.ttf');
-}
-html,body{
-  margin:0;
-  font-family: "IBM Plex Mono";
-}
 #map{
   float:left;
   width:100%;
   height:100%;
+  font-family: "IBM Plex Mono";
 }
-#closeMap{
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  /* padding: 5px; */
+#modalNav{
+  float:left;
+  width: 55px;
+  height: auto;
+  top:0px;
+  left:0px;
+  padding: 2px 5px;
+  position:absolute;
+  z-index:101;
+  background:rgba(0,0,0,0.6);
+  border-radius:0px 0px 7px;
+}
+#modalNav.windows{
+  float:right;
+  right:0px;
+  z-index:102;
+  left:auto;
+  width:78px;
+  padding:0;
+  border-radius: none;
+}
+
+#modalNav .optionButton{
+  width: 14px;
+  height:14px;
+  border-radius:14px;
+  font-size:12px;
+  line-height: 12px;
   text-align: center;
-  cursor: pointer;
-  background: rgba(0,0,0,0.7);
-  border: 1px solid #333;
-  width: 25px;
-  height: 25px;
-  z-index: 25;
-  line-height: 25px;
-  color: #fff;
-  transition: all 0.1s linear;
+  float:left;
+  margin: 11px 2px;
+  color:rgba(51,51,51,0.6);
+  cursor:pointer;
 }
-#closeMap:hover{
-  background: rgba(0,0,0,0.9);
+#modalNav.windows .optionButton{
+  float:right;
+  width: 24px;
+  height: 24px;
+  line-height: 22px;
+  font-size:14px;
+  border-radius:0px;
+  margin: 0;
+  border: 1px solid #000;
+  color:rgba(0,0,0,1.0);
 }
+
+#modalNav.linux .notActive, #modalNav:not(.windows) .notActive{
+  background: -webkit-linear-gradient(top, #b7b7b7 0%,#848484 63%,#848484 100%);
+  opacity:0.5;
+  cursor:default;
+}
+
+#closeMap{
+  width: 14px;
+  height:14px;
+  border-radius:14px;
+  font-size:12px;
+  line-height: 12px;
+  text-align: center;
+  float:left;
+  margin: 11px 2px;
+  color:rgba(51,51,51,0.6);
+  cursor:pointer;
+  background:#FF605C;
+}
+
+#closeMap.windows{
+  float:right;
+  width: 24px;
+  height: 24px;
+  line-height: 22px;
+  font-size:14px;
+  border-radius:0px;
+  margin: 0;
+  border: 1px solid #000;
+  color:rgba(0,0,0,1.0);
+  background:rgba(51,51,51,0.8);
+  color:#ccc;
+  top:0;
+  right:0;
+}
+#modalNav.windows .optionButton{
+  background:rgba(255,255,255,0.1);
+  color:#ccc;
+}
+#modalNav.windows .optionButton.notActive{
+  opacity:0.25;
+  cursor:default;
+}
+#closeMap.windows:hover{
+  background: rgba(91,91,91,0.8) !important;
+  color:rgba(210,210,210,1.0);
+}
+
+#modalNav.linux #closeMap{
+  background: -webkit-linear-gradient(top, #f29879 0%,#e95420 63%,#e95420 100%);
+}
+#modalNav.linux #closeMap:hover{
+  background: -webkit-linear-gradient(top, #F8CCBC 0%,#e95420 63%,#f29879 100%);
+}
+
+
 /*.mapPopup{
   background:rgba(255,255,255,0.9);
   padding:10px;

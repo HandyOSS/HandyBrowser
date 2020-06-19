@@ -1,9 +1,10 @@
-html,body{
+/*html,body{
 	padding:0;
 	margin:0;
 	background:rgba(0,0,0,0);
 	font-family: "IBM Plex Mono";
 }
+*/
 .backgroundImage{
 	float:left;
 	width:100%;
@@ -12,7 +13,6 @@ html,body{
 	left:0px;
 	z-index:0;
 	position: absolute;
-	background:rgba(0,0,0,0.5);
 }
 .content, .bookmarkListContent, .bookmarksManager{
   z-index: 1;
@@ -30,6 +30,7 @@ html,body{
   background-repeat: no-repeat;
   background-position: bottom center;
   background-size: auto 100%;
+  font-family:"IBM Plex Mono";
 }
 .bookmarkListContent{
   width: auto;
@@ -70,6 +71,7 @@ html,body{
   float:left;
   height:auto;
   overflow-y:scroll;
+  width:100%;
 }
 .bookmarkListContent ul{
   list-style-type: none;
@@ -251,68 +253,4 @@ html,body{
 .bookmarksManager .panel .folder input{
   margin-left:2px;
   cursor:move;
-}
-
-
-@font-face {
-	font-family: "Nitti Light";
-	font-weight: normal;
-	src: url('../fonts/nitti-light-v500.eot') format('embedded-opentype'),
-       url('../fonts/nitti-light-v500.woff') format('woff');
-}
-
-@font-face {
-	font-family: "Nitti Light";
-	font-weight: bold;
-	src: url('../fonts/nitti-medium-v500.eot') format('embedded-opentype'),
-       url('../fonts/nitti-medium-v500.woff') format('woff'),
-       url('../fonts/nitti-medium-v500.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: "IBM Plex Mono";
-  font-weight: 400;
-  src: url('../fonts/IBMPlexMono-Regular.ttf') format('truetype');
-}
-
-@font-face {
-  font-family: "IBM Plex Mono";
-  font-style: italic;
-  font-weight: 400;
-  src: url('../fonts/IBMPlexMono-Italic.ttf');
-}
-
-
-
-@font-face {
-  font-family: "IBM Plex Mono";
-  font-style: italic;
-  font-weight: 600;
-  src: url('../fonts/IBMPlexMono-SemiBoldItalic.ttf');
-}
-
-@font-face {
-  font-family: "IBM Plex Sans";
-  font-weight: 400;
-  src: url('../fonts/IBMPlexSans-Regular.ttf');
-}
-
-@font-face {
-  font-family: "IBM Plex Sans";
-  font-style: italic;
-  font-weight: 400;
-  src: url('../fonts/IBMPlexSans-Italic.ttf');
-}
-
-@font-face {
-  font-family: "IBM Plex Sans";
-  font-weight: 600;
-  src: url('../fonts/IBMPlexSans-SemiBold.ttf');
-}
-
-@font-face {
-  font-family: "IBM Plex Sans";
-  font-style: italic;
-  font-weight: 600;
-  src: url('../fonts/IBMPlexSans-SemiBoldItalic.ttf');
 }

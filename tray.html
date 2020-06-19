@@ -2,15 +2,22 @@
 <head>
 	<meta charset="utf-8">
 	<title>HandyBrowser</title>
-	<link rel="stylesheet" type="text/css" href="css/main.css" />
+	
 	<link rel="stylesheet" type="text/css" href="css/tray.css" />
+	<link rel="stylesheet" type="text/css" href="css/bookmarkManager.css" />
+	<link rel="stylesheet" type="text/css" href="./css/map.css" />
+	<link rel="stylesheet" type="text/css" href="./css/donate.css" />
+	<link rel="stylesheet" type="text/css" href="./css/viewNameRecord.css" />
+	<link rel="stylesheet" type="text/css" href="https://api.tiles.mapbox.com/mapbox-gl-js/v1.2.1/mapbox-gl.css" />
 	<script src="bower_components/jquery/dist/jquery.min.js"></script>
 	<script src="bower_components/d3/d3.min.js"></script>
 	<script src="bower_components/numeral/numeral.js"></script>
 	<script src="bower_components/moment/moment.js"></script>
 	<script src="bower_components/three.js/three.min.js"></script>
 	<script src="bower_components/Sortable/Sortable.min.js"></script>
-	
+	<script src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.2.1/mapbox-gl.js"></script>
+	<script src="./js/map.js"></script>
+
 	<script type="shader/x-fragment" id="logoFragmentShader">
 		uniform float animate;
 		uniform float opacity;
@@ -78,7 +85,9 @@
 		<div id="tabs" class="noHandles">
 			<ul>
 				<li class="init notactivated tabtarget">
-					<span class="faviconWrap"></span>
+					<span class="faviconWrap rippleDisabled">
+						<div class="lds-ripple"><div></div><div></div></div>
+					</span>
 					<span class="pageTitle">New Tab</span>
 				</li>
 			</ul>
@@ -107,6 +116,6 @@
 			
 		</div>
 	</div>
-
+	<div id="modal"></div>
 </body>
 </html>

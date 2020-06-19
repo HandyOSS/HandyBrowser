@@ -163,26 +163,24 @@ class BookmarkManager{
 			h = state.height;
 		}
 		this.tray.bookmarkManagerIsShowing = true;
-		nw.Window.open('./networkMap.html',{
-			width:w,
-	    	height:h,
-	    	frame:false,
-	    	resizable:false,
-	    	show:true,
-	    	transparent:true,
-	    	x:x,
-	    	y:y
-		},(win)=>{
-			win.focus();
-			win.x = x;
-			win.y = y;
-			win.on('loaded',()=>{
-				$('#closeMap',win.window.document).on('click',()=>{
-					win.close();
-				})
-			});
-
+		fs.readFile('./networkMap.html','utf8',(err,snippet)=>{
+			$('#modal').html($(snippet))
+		  switch(process.platform){
+		  	case 'win32':
+		  		$('#modalNav').addClass('windows');
+		  	break;
+		  	case 'linux':
+		  		$('#modalNav').addClass('linux');
+		  	break;
+		  }
+			$('#modal').show();
+			this.mapApp = new NetworkMap();
+			$('#closeMap',$('#modal')).on('click',()=>{
+				$('#modal').hide().html('');
+				delete this.mapApp;
+			})
 		});
+		
 	}
 	showDonate(){
 		let state = localStorage.getItem('windowState');
@@ -199,26 +197,27 @@ class BookmarkManager{
 			h = state.height;
 		}
 		this.tray.bookmarkManagerIsShowing = true;
-		nw.Window.open('./donate.html',{
-			width:w,
-	    	height:h,
-	    	frame:false,
-	    	resizable:false,
-	    	show:true,
-	    	transparent:true,
-	    	x:x,
-	    	y:y
-		},(win)=>{
-			win.focus();
-			win.x = x;
-			win.y = y;
-			win.on('loaded',()=>{
-				$('.close',win.window.document).on('click',()=>{
-					win.close();
-				})
-			});
-
-		});
+		fs.readFile('./donate.html','utf8',(err,snippet)=>{
+			$('#modal').html($(snippet));
+			switch(process.platform){
+		  	case 'win32':
+		  		$('#modalNav').addClass('windows');
+		  	break;
+		  	case 'linux':
+		  		$('#modalNav').addClass('linux');
+		  	break;
+		  }
+		  $('#modal').show();
+			$('#modal #closeMap').on('click',()=>{
+				$('#modal').hide();
+			})
+			$('#modal .selectMe').off('click').on('click',function(){
+				console.log('focus')
+				$(this).focus();
+				$(this).select();
+			})
+		})
+		
 	}
 	showBookmarksManager(){
 		let localPath = process.env.HOME+'/Library/Application\ Support/HandyBrowser/Bookmarks/bookmarks.json';
@@ -259,230 +258,221 @@ class BookmarkManager{
 			h = state.height;
 		}
 		this.tray.bookmarkManagerIsShowing = true;
-		nw.Window.open('./bookmarkManager.html',{
-			width:w,
-	    	height:h,
-	    	frame:false,
-	    	resizable:false,
-	    	show:true,
-	    	transparent:true,
-	    	x:x,
-	    	y:y
-		},(win)=>{
-			win.focus();
-			win.x = x;
-			win.y = y;
-			win.on('loaded',()=>{
-				win.focus();
-				$('.bookmarksManager',win.window.document).addClass('showing');
-				const _this = this;
-				chromeBookmarks.map(bm=>{
-					processBookmark(bm,$('.bookmarksManager .panel.chrome',win.window.document),'chrome')
-				});
-				if(chromeBookmarks.length == 0){
-					$('.panel.chrome',win.window.document).hide();
-					$('.panel.local',win.window.document).css('width','100%');
-					$('.bookmarksManager',win.window.document).css({
-						width:'50%',
-						left:'25%'
-					})
-					$('.bookmarksManager .subtitle',win.window.document).eq(0).hide();
-					$('.bookmarksManager .subtitle',win.window.document).eq(1).css({
-						width: 'calc(100% - 10px)'
-					})
-				}
-				bookmarks.map(bm=>{
-					processBookmark(bm,$('.bookmarksManager .panel.local',win.window.document),'local');
-				});
-				function processBookmark(bm,$parent,listType){
-					let fid = '';
-					let sortOpts = {
-						group:'localItem',
-						fallbackOnBody: true
-					};
-					if(listType == 'chrome'){
-						sortOpts.group = {
-							name:'localItem',
-							pull:'clone',
-							put:'false'
-						}
-						sortOpts.sort = false;
-					}
-					if(typeof _this.faviconData[encodeURIComponent(bm.url)] != "undefined"){
-						fid = _this.faviconData[encodeURIComponent(bm.url)];
-					}
-					let pre = bm.type == 'folder' ? '<span class="folderIcon">&#x1F4C1;</span>' : '<img src="'+fid+'" />'
-					let $li = $('<div class="'+bm.type+' localItem">'+pre+'<input type="text" value="'+bm.name+'" /><div class="delete">x</div></div>');
-					$('.delete',$li).on('click',()=>{
-						$li.remove();
-					})
-					$li.data(bm);
-					if(listType == 'local')
-					console.log('list item',$parent[0],$li[0],$li.data());
-					
-					if(bm.type == 'folder'){
-						let $listArea = $('<div class="listArea"></div>');
-						$li.append($listArea);
-						bm.children.map(child=>{
-							let fid2 = '';
-							if(typeof _this.faviconData[encodeURIComponent(child.url)] != "undefined"){
-								fid2 = _this.faviconData[encodeURIComponent(child.url)];
-							}
-							let pre2 = child.type == 'folder' ? '<span class="folderIcon">&#x1F4C1;</span>' : '<img src="'+fid2+'" />'
-							let $li2 = $('<div class="'+child.type+' localItem">'+pre2+'<input type="text" value="'+child.name+'" /><div class="delete">x</div></div>');
-							
-							$('.delete',$li2).on('click',()=>{
-								$li2.remove();
-							})
-							$li2.data(child);
-							if(listType == 'local')
-							console.log('child li',$li2[0],$li[0],$li2.data())
-							$listArea.append($li2);
-
-							if(child.type == 'folder' && child.children){
-								let $listArea2 = $('<div class="listArea"></div>');
-								$li2.append($listArea2);
-								child.children.map(child=>{
-									processBookmark(child,$listArea2,listType);
-								})
-
-								new Sortable($listArea2[0],sortOpts);
-							}
-							//mouse events
-							if(listType == 'local'){
-								$('input',$li2).on('mouseenter',function(){
-									$('.panel .delete',win.window.document).hide();
-									let dim2 = $(this).position();
-									$(this).siblings('.delete').css({
-										left: dim2.left + $(this).width() - 3,// - $('.delete',$li2).outerWidth(),
-										top: dim2.top+ 3
-									});
-									$(this).siblings('.delete').show()
-								}).on('mouseleave',function(e){
-									if(!$(e.relatedTarget).hasClass("delete")){
-										$(this).siblings('.delete').hide()
-									}
-								})
-							}
-						});
-						new Sortable($('.listArea',$li)[0],sortOpts);
-					};
-					$parent.append($li);
-					//mouse event on parent
-					if(listType == 'local'){
-						$('input',$li).on('mouseenter',function(){
-							$('.panel .delete',win.window.document).hide();
-							let dim = $(this).position()
-							$(this).siblings('.delete').css({
-								left: dim.left + $(this).width() - 3,// - $('.delete',$li).outerWidth(),
-								top: dim.top+ 3
-							});
-							$(this).siblings('.delete').show()
-						}).on('mouseleave',function(e){
-							if(!$(e.relatedTarget).hasClass("delete")){
-								$(this).siblings('.delete').hide()
-							}
-						})
-					}
-				}
-				let sortOptsMain = {
+		fs.readFile('./bookmarkManager.html','utf8',(err,snippet)=>{
+			$('#modal').html($(snippet));
+			$('.bookmarksManager',$('#modal')).addClass('showing');
+			const _this = this;
+			chromeBookmarks.map(bm=>{
+				processBookmark(bm,$('.bookmarksManager .panel.chrome',$('#modal')),'chrome')
+			});
+			if(chromeBookmarks.length == 0){
+				$('.panel.chrome',$('#modal')).hide();
+				$('.panel.local',$('#modal')).css('width','100%');
+				$('.bookmarksManager',$('#modal')).css({
+					width:'50%',
+					left:'25%'
+				})
+				$('.bookmarksManager .subtitle',$('#modal')).eq(0).hide();
+				$('.bookmarksManager .subtitle',$('#modal')).eq(1).css({
+					width: 'calc(100% - 10px)'
+				})
+			}
+			bookmarks.map(bm=>{
+				processBookmark(bm,$('.bookmarksManager .panel.local',$('#modal')),'local');
+			});
+			function processBookmark(bm,$parent,listType){
+				let fid = '';
+				let sortOpts = {
 					group:'localItem',
 					fallbackOnBody: true
 				};
-				let sortOptsMainChrome = {
-					group:{
+				if(listType == 'chrome'){
+					sortOpts.group = {
 						name:'localItem',
 						pull:'clone',
-						put:false
-					},
-					sort:false
-					
+						put:'false'
+					}
+					sortOpts.sort = false;
 				}
-				
-				if(chromeBookmarks.length > 0){
-					let s = $('.bookmarksManager .panel.chrome',win.window.document)[0];
-					new Sortable(s,sortOptsMainChrome);
+				if(typeof _this.faviconData[encodeURIComponent(bm.url)] != "undefined"){
+					fid = _this.faviconData[encodeURIComponent(bm.url)];
 				}
-				//if(bookmarks.length > 0){
-					let s = $('.bookmarksManager .panel.local',win.window.document)[0];
-					new Sortable(s,sortOptsMain);
-				//}
+				let pre = bm.type == 'folder' ? '<span class="folderIcon">&#x1F4C1;</span>' : '<img src="'+fid+'" />'
+				let $li = $('<div class="'+bm.type+' localItem">'+pre+'<input type="text" value="'+bm.name+'" /><div class="delete">x</div></div>');
+				$('.delete',$li).on('click',()=>{
+					$li.remove();
+				})
+				$li.data(bm);
+				if(listType == 'local')
+				console.log('list item',$parent[0],$li[0],$li.data());
 				
-				let dims = $('.bookmarksManager',win.window.document)[0].getBoundingClientRect();
-				$('.bookmarksManager',win.window.document).height($(win.window.document).height()-dims.top-20)
-				
-
-				$('.bookmarksManager .save',win.window.document).on('click',()=>{
-					let newBookmarkData = [];
-					/*$('.bookmarksManager .panel > .localItem',win.window.document).each(function(){
-						console.log('this data',$(this).data())
-						processElement($(this));
-					});*/
-					processElement($('.bookmarksManager .panel.local',win.window.document));
-					console.log('bookmarksd',newBookmarkData);
-					//save bookmarks data
-					fs.writeFileSync(localPath,JSON.stringify(newBookmarkData),'utf8');
-					win.close();
-					this.tray.bookmarkManagerIsShowing = false;
-					this.createBookmarksMenu();
-					
-					function processElement($el,parentItem){
-						//process new bookmarks data
-						if($el.hasClass('folder')){
-							$el = $el.children('.listArea');
+				if(bm.type == 'folder'){
+					let $listArea = $('<div class="listArea"></div>');
+					$li.append($listArea);
+					bm.children.map(child=>{
+						let fid2 = '';
+						if(typeof _this.faviconData[encodeURIComponent(child.url)] != "undefined"){
+							fid2 = _this.faviconData[encodeURIComponent(child.url)];
 						}
-						//console.log('child',selector,$el[0]);
+						let pre2 = child.type == 'folder' ? '<span class="folderIcon">&#x1F4C1;</span>' : '<img src="'+fid2+'" />'
+						let $li2 = $('<div class="'+child.type+' localItem">'+pre2+'<input type="text" value="'+child.name+'" /><div class="delete">x</div></div>');
+						
+						$('.delete',$li2).on('click',()=>{
+							$li2.remove();
+						})
+						$li2.data(child);
+						if(listType == 'local')
+						console.log('child li',$li2[0],$li[0],$li2.data())
+						$listArea.append($li2);
+
+						if(child.type == 'folder' && child.children){
+							let $listArea2 = $('<div class="listArea"></div>');
+							$li2.append($listArea2);
+							child.children.map(child=>{
+								processBookmark(child,$listArea2,listType);
+							})
+
+							new Sortable($listArea2[0],sortOpts);
+						}
+						//mouse events
+						if(listType == 'local'){
+							$('input',$li2).on('mouseenter',function(){
+								$('.panel .delete',$('#modal')).hide();
+								let dim2 = $(this).position();
+								$(this).siblings('.delete').css({
+									left: dim2.left + $(this).width() - 3,// - $('.delete',$li2).outerWidth(),
+									top: dim2.top+ 3
+								});
+								$(this).siblings('.delete').show()
+							}).on('mouseleave',function(e){
+								if(!$(e.relatedTarget).hasClass("delete")){
+									$(this).siblings('.delete').hide()
+								}
+							})
+						}
+					});
+					new Sortable($('.listArea',$li)[0],sortOpts);
+				};
+				$parent.append($li);
+				//mouse event on parent
+				if(listType == 'local'){
+					$('input',$li).on('mouseenter',function(){
+						$('.panel .delete',$('#modal')).hide();
+						let dim = $(this).position()
+						$(this).siblings('.delete').css({
+							left: dim.left + $(this).width() - 3,// - $('.delete',$li).outerWidth(),
+							top: dim.top+ 3
+						});
+						$(this).siblings('.delete').show()
+					}).on('mouseleave',function(e){
+						if(!$(e.relatedTarget).hasClass("delete")){
+							$(this).siblings('.delete').hide()
+						}
+					})
+				}
+			}
+			let sortOptsMain = {
+				group:'localItem',
+				fallbackOnBody: true
+			};
+			let sortOptsMainChrome = {
+				group:{
+					name:'localItem',
+					pull:'clone',
+					put:false
+				},
+				sort:false
+				
+			}
+			
+			if(chromeBookmarks.length > 0){
+				let s = $('#modal .bookmarksManager .panel.chrome')[0];
+				new Sortable(s,sortOptsMainChrome);
+			}
+			//if(bookmarks.length > 0){
+				let s = $('#modal .bookmarksManager .panel.local')[0];
+				new Sortable(s,sortOptsMain);
+			//}
+			
+			let dims = $('.bookmarksManager',$('#modal'))[0].getBoundingClientRect();
+			$('.bookmarksManager',$('#modal')).height(this.tray.trayWindow.height-dims.top-20)
+			
+
+			$('.bookmarksManager .save',$('#modal')).on('click',()=>{
+				let newBookmarkData = [];
+				/*$('.bookmarksManager .panel > .localItem',$('#modal')).each(function(){
+					console.log('this data',$(this).data())
+					processElement($(this));
+				});*/
+				processElement($('.bookmarksManager .panel.local',$('#modal')));
+				console.log('bookmarksd',newBookmarkData);
+				//save bookmarks data
+				fs.writeFileSync(localPath,JSON.stringify(newBookmarkData),'utf8');
+				//win.close();
+				$('#modal').hide();
+				this.tray.bookmarkManagerIsShowing = false;
+				this.createBookmarksMenu();
+				
+				function processElement($el,parentItem){
+					//process new bookmarks data
+					if($el.hasClass('folder')){
+						$el = $el.children('.listArea');
+					}
+					//console.log('child',selector,$el[0]);
+						
+					$el.children('.localItem').each(function(){
+						let data = $(this).data();
+						let type = $(this).hasClass('folder') ? 'folder' : 'url'
+						let name = $(this).find('input').eq(0).val();
+						let url = data['url'];
+						//console.log('item data',type,name,url);
+						let item = {
+							type:type,
+							name:name,
+							url:url
+						};
+						if(type == 'folder'){
+							//get children
+							item.children = [];
 							
-						$el.children('.localItem').each(function(){
-							let data = $(this).data();
-							let type = $(this).hasClass('folder') ? 'folder' : 'url'
-							let name = $(this).find('input').eq(0).val();
-							let url = data['url'];
-							//console.log('item data',type,name,url);
-							let item = {
-								type:type,
-								name:name,
-								url:url
-							};
-							if(type == 'folder'){
-								//get children
-								item.children = [];
-								
-								processElement($(this),item);
-								if(typeof parentItem != "undefined"){
-									parentItem.children.push(item)
-								}
-								else{
-									newBookmarkData.push(item);
-								}
+							processElement($(this),item);
+							if(typeof parentItem != "undefined"){
+								parentItem.children.push(item)
 							}
 							else{
-								if(typeof parentItem == "undefined"){
-									newBookmarkData.push(item);
-								}
-								else{
-									console.log('push to children',item,parentItem);
-									parentItem.children.push(item);
-								}
-								
+								newBookmarkData.push(item);
 							}
-						});
-						/*if(typeof parentItem != "undefined"){
-							console.log('push to new bookmarks top',parentItem)
-							newBookmarkData.push(parentItem);
-						}*/
-					}
-				})
-				$('.bookmarksManager .cancel',win.window.document).on('click',()=>{
-					win.close();
-					this.tray.bookmarkManagerIsShowing = false;
-				});
-				$('.backgroundImage',win.window.document).on('click',()=>{
-					win.close();
-					this.tray.bookmarkManagerIsShowing = false;
-				})
+						}
+						else{
+							if(typeof parentItem == "undefined"){
+								newBookmarkData.push(item);
+							}
+							else{
+								console.log('push to children',item,parentItem);
+								parentItem.children.push(item);
+							}
+							
+						}
+					});
+					/*if(typeof parentItem != "undefined"){
+						console.log('push to new bookmarks top',parentItem)
+						newBookmarkData.push(parentItem);
+					}*/
+				}
+			})
+			$('.bookmarksManager .cancel',$('#modal')).on('click',()=>{
+				//win.close();
+				$('#modal').hide();
+				this.tray.bookmarkManagerIsShowing = false;
 			});
+			$('.backgroundImage',$('#modal')).on('click',()=>{
+				//win.close();
+				$('#modal').hide();
+				this.tray.bookmarkManagerIsShowing = false;
+			})
+			$('#modal').show();
 		});
+		
 	}
 	addNewBookmark(){
 		let localPath = process.env.HOME+'/Library/Application\ Support/HandyBrowser/Bookmarks/bookmarks.json';
@@ -492,8 +482,8 @@ class BookmarkManager{
 		if(process.platform == 'linux'){
 			localPath = process.env.HOME+'/.config/HandyBrowser/Default/Bookmarks/bookmarks.json';
 		}
-		let title = this.tray.activeTab.title == "" ? this.tray.activeTab.window.window.location.href : this.tray.activeTab.title;
-		let url = this.tray.activeTab.window.window.location.href;
+		let title = this.tray.activeTab.title == "" ? this.tray.activeTab.url : this.tray.activeTab.title;
+		let url = this.tray.activeTab.url;
 		let obj = {
 			type:'url',
 			name:title,
@@ -523,100 +513,83 @@ class BookmarkManager{
 		}
 		
 		this.tray.bookmarkManagerIsShowing = true;
-		nw.Window.open('./bookmarkManager.html',{
-			width:w,
-	    	height:h,
-	    	frame:false,
-	    	resizable:false,
-	    	show:true,
-	    	transparent:true,
-	    	x:x,
-	    	y:y
-		},(win)=>{
-			win.focus();
-			win.x = x;
-			win.y = y;
-			win.on('loaded',()=>{
-				win.focus();
-				//populate select vals
-				let folderNames = bmData.filter(d=>{
-					return d.type == 'folder';
-				}).map(d=>{
-					$('#bmFolder',win.window.document).append('<option value="'+d.name+'">'+d.name+'</option>')
-				});
-				$('#bmName',win.window.document).val(title);
-				$('#bmFolder',win.window.document).on('change',()=>{
-					let val = $('#bmFolder option:selected',win.window.document).val();
-					if(val == '__new__'){
-						$('#folderName',win.window.document).show();
-					}
-					else if(val == '__none__'){
-						$('#folderName',win.window.document).val(val).hide()
-					}
-					else{
-						$('#folderName',win.window.document).val(val);
-					}
-				})
-				$('.content',win.window.document).addClass('showing');
-				$('#cancel',win.window.document).on('click',()=>{
-					$('#bookmarkPage',this.tray.trayWindow.window.document).removeClass('clicked')
-					win.close();
-					this.tray.bookmarkManagerIsShowing = false;
-				})
-				$('.backgroundImage',win.window.document).on('click',()=>{
-					$('#bookmarkPage',this.tray.trayWindow.window.document).removeClass('clicked')
-					win.close();
-					this.tray.bookmarkManagerIsShowing = false;
-				})	
-				$('#done',win.window.document).on('click',()=>{
-					
-
-					obj.name = $('#bmName',win.window.document).val();
-					let folder = $('#folderName',win.window.document).val();
-					if(folder == '__none__' || folder == ''){
-						//push at top level
-						obj.type = 'url';
-						bmData.push(obj);
-						console.log('was no folder set',obj,bmData);
-					}
-					else{
-						//is folder
-						obj.type = 'folder';
-						obj.name = folder;
-						obj.children = [];
-						let childObj = {
-							type:'url',
-							url:url,
-							name: $('#bmName',win.window.document).val()
-						}
-						let existingFolder = bmData.find(d=>{
-							let isMatch = d.type == 'folder' && d.name == obj.name;
-							if(isMatch){
-								d.children.push(childObj);
-							}
-							return isMatch;
-						});
-						console.log('folder already exists???',existingFolder,bmData);
-						if(!existingFolder){
-							
-							obj.children.push(childObj);
-							bmData.push(obj);
-							console.log('push to bmdata then',bmData);
-						}
-						
-					}
-					console.log('pre write bmdata',bmData)
-					
-					win.close();
-					fs.writeFileSync(localPath,JSON.stringify(bmData,null,2),'utf8');
-					this.createBookmarksMenu();
-				})
+		fs.readFile('./bookmarkManager.html','utf8',(e,snippet)=>{
+			$('#modal').html($(snippet));
+			let folderNames = bmData.filter(d=>{
+				return d.type == 'folder';
+			}).map(d=>{
+				$('#bmFolder',$('#modal')).append('<option value="'+d.name+'">'+d.name+'</option>')
+			});
+			$('#bmName',$('#modal')).val(title);
+			$('#bmFolder',$('#modal')).on('change',()=>{
+				let val = $('#bmFolder option:selected',$('#modal')).val();
+				if(val == '__new__'){
+					$('#folderName',$('#modal')).show();
+				}
+				else if(val == '__none__'){
+					$('#folderName',$('#modal')).val(val).hide()
+				}
+				else{
+					$('#folderName',$('#modal')).val(val);
+				}
 			})
-			
-			
+			$('.content',$('#modal')).addClass('showing');
+			$('#cancel',$('#modal')).on('click',()=>{
+				$('#bookmarkPage',this.tray.trayWindow.window.document).removeClass('clicked')
+				$('#modal').hide();
+				this.tray.bookmarkManagerIsShowing = false;
+			})
+			$('.backgroundImage',$('#modal')).on('click',()=>{
+				$('#bookmarkPage',this.tray.trayWindow.window.document).removeClass('clicked')
+				$('#modal').hide();
+				this.tray.bookmarkManagerIsShowing = false;
+			})	
+			$('#done',$('#modal')).on('click',()=>{
+				
+
+				obj.name = $('#bmName',$('#modal')).val();
+				let folder = $('#folderName',$('#modal')).val();
+				if(folder == '__none__' || folder == ''){
+					//push at top level
+					obj.type = 'url';
+					bmData.push(obj);
+					console.log('was no folder set',obj,bmData);
+				}
+				else{
+					//is folder
+					obj.type = 'folder';
+					obj.name = folder;
+					obj.children = [];
+					let childObj = {
+						type:'url',
+						url:url,
+						name: $('#bmName',$('#modal')).val()
+					}
+					let existingFolder = bmData.find(d=>{
+						let isMatch = d.type == 'folder' && d.name == obj.name;
+						if(isMatch){
+							d.children.push(childObj);
+						}
+						return isMatch;
+					});
+					console.log('folder already exists???',existingFolder,bmData);
+					if(!existingFolder){
+						
+						obj.children.push(childObj);
+						bmData.push(obj);
+						console.log('push to bmdata then',bmData);
+					}
+					
+				}
+				console.log('pre write bmdata',bmData)
+				
+				$('#modal').hide();
+				fs.writeFileSync(localPath,JSON.stringify(bmData,null,2),'utf8');
+				this.createBookmarksMenu();
+			});
+			$('#modal').show();
 		})
 		
-		/**/
 	}
 	importFromLocal(){
 		let localPath = process.env.HOME+'/Library/Application\ Support/HandyBrowser/Bookmarks/bookmarks.json';
@@ -834,54 +807,45 @@ class BookmarkManager{
 		let liH = $li.outerHeight();
 		
 		this.tray.bookmarkManagerIsShowing = true;
-		nw.Window.open('./bookmarkManager.html',{
-			width:w,
-	    	height:h,
-	    	frame:false,
-	    	resizable:false,
-	    	show:true,
-	    	transparent:true,
-	    	x:x,
-	    	y:y
-		},(win)=>{
-			win.focus();
-			win.x = x;
-			win.y = y;
-			win.on('loaded',()=>{
-				win.focus();
-				//onload
-				$('.bookmarkListContent .title',win.window.document).html(name);
-				$('.bookmarkListContent .listContainer',win.window.document).html($childUl);
-				$('.bookmarkListContent .listContainer',win.window.document).css({
-					'max-height':h-160
-				})
-				let nativeW = $('.bookmarkListContent',win.window.document).width();
-				let posX = pos.x;
-				if(pos.x + $('.bookmarkListContent',win.window.document).width() > w){
-					console.log('dd w',$('.bookmarkListContent',win.window.document).width())
-					$('.bookmarkListContent',win.window.document).css('width',$('.bookmarkListContent',win.window.document).width());
-					posX = w - ($('.bookmarkListContent',win.window.document).width()+20);
-				}
-				
-				$('.bookmarkListContent .listContainer li',win.window.document).on('click',()=>{
-					win.close();
-					this.tray.bookmarkManagerIsShowing = false;
-				})
-				$('.bookmarkListContent',win.window.document).css({
-					'max-height':h-100,
-					'left':posX,
-					'top':pos.y+liH+5
-				}).addClass('showing');;
-				$('.bookmarkListContent .close',win.window.document).on('click',()=>{
-					win.close();
-					this.tray.bookmarkManagerIsShowing = false;
-				})
-				$('.backgroundImage',win.window.document).on('click',()=>{
-					win.close();
-					this.tray.bookmarkManagerIsShowing = false;
-				})
+		fs.readFile('./bookmarkManager.html','utf8',(err,snippet)=>{
+			$('#modal').html($(snippet));
+
+			$('#modal').show();
+			$('.bookmarkListContent .title',$('#modal')).html(name);
+			$('.bookmarkListContent .listContainer',$('#modal')).html($childUl);
+			$('.bookmarkListContent .listContainer',$('#modal')).css({
+				'max-height':h-160
+			})
+			let nativeW = $('.bookmarkListContent',$('#modal')).width();
+			let posX = pos.x;
+			console.log('posx projection',posX,$('.bookmarkListContent',$('#modal')).width(),posX+$('.bookmarkListContent',$('#modal')).width(),'><',w );
+			if(pos.x + $('.bookmarkListContent',$('#modal')).width() > w){
+				console.log('dd w',$('.bookmarkListContent',$('#modal')).width())
+				$('.bookmarkListContent',$('#modal')).css('width',$('.bookmarkListContent',$('#modal')).width());
+				posX = w - ($('.bookmarkListContent',$('#modal')).width()+20);
+			}
+			
+			$('.bookmarkListContent .listContainer li',$('#modal')).on('click',()=>{
+				$('#modal').hide();
+				this.tray.bookmarkManagerIsShowing = false;
+			})
+			$('.bookmarkListContent',$('#modal')).css({
+				'max-height':h-100,
+				'left':posX,
+				'top':pos.y+liH+5
+			}).addClass('showing');;
+			$('.bookmarkListContent .close',$('#modal')).on('click',()=>{
+				$('#modal').hide();
+				this.tray.bookmarkManagerIsShowing = false;
+			})
+			$('.backgroundImage',$('#modal')).on('click',()=>{
+				$('#modal').hide();
+				this.tray.bookmarkManagerIsShowing = false;
 			});
+			$('#modal .bookmarkFolderUl').css("display",'block');
+			
 		});
+		
 	}
 	recurseIntoBookmarkBarFolder(bm,$li){
 		let $ul = $('<ul class="bookmarkFolderUl" />')
@@ -925,7 +889,7 @@ class BookmarkManager{
 		$('#sessionNotification',this.tray.trayWindow.window.document).hide();
 		this.tray.isAddingNewTab = true;
 		$('#tabs ul li',this.tray.trayWindow.window.document).removeClass('tabtarget');
-    let $liTarget = $('<li class="notactivated tabtarget">New Tab</li>')
+    let $liTarget = $('<li class="notactivated tabtarget"><span class="faviconWrap"><div class="lds-ripple"><div></div><div></div></div></span><span class="pageTitle">New Tab</span></li>')
     
     if($('#tabs ul li').length == 1 && this.tray._tabs.length == 0){
     	//hasnt init yet

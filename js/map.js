@@ -1,7 +1,7 @@
-let mapApp;
+/*let mapApp;
 $(document).ready(()=>{
 	mapApp = new NetworkMap();
-})
+})*/
 class NetworkMap{
 	constructor(){
 		this.mapIsLoaded = false;

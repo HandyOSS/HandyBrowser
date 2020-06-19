@@ -1,19 +1,11 @@
-<html>
-<head>
-	<link rel="stylesheet" type="text/css" href="./css/map.css" />
-	<link rel="stylesheet" type="text/css" href="https://api.tiles.mapbox.com/mapbox-gl-js/v1.2.1/mapbox-gl.css" />
-	<script src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.2.1/mapbox-gl.js"></script>
-	<script src="bower_components/jquery/dist/jquery.min.js"></script>
-	<script src="bower_components/d3/d3.min.js"></script>
-	<script src="bower_components/moment/moment.js"></script>
-	<script src="./js/map.js"></script>
-</head>
-<body>
-	<div id="closeMap">X</div>
-	<div id="map"></div>
-	<div id="legend">
-		<div class="item"><span class="swatch grey"></span>Unknown Status</div>
-		<div class="item"><span class="swatch green"></span>Recently Seen</div>
-	</div>
-</body>
-</html>
+<div id="modalNav">
+	<div class="optionButton active" id="closeMap">x</div>
+	<div class="optionButton notActive" id="hide">-</div>
+	<div class="optionButton notActive" id="full">+</div>
+</div>
+
+<div id="map"></div>
+<div id="legend">
+	<div class="item"><span class="swatch grey"></span>Unknown Status</div>
+	<div class="item"><span class="swatch green"></span>Recently Seen</div>
+</div>

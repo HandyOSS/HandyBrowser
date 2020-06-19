@@ -1,6 +1,98 @@
+@font-face {
+	font-family: "Nitti Light";
+	font-weight: normal;
+	src: url('../fonts/nitti-light-v500.eot') format('embedded-opentype'),
+       url('../fonts/nitti-light-v500.woff') format('woff');
+}
+
+@font-face {
+	font-family: "Nitti Light";
+	font-weight: bold;
+	src: url('../fonts/nitti-medium-v500.eot') format('embedded-opentype'),
+       url('../fonts/nitti-medium-v500.woff') format('woff'),
+       url('../fonts/nitti-medium-v500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-weight: 400;
+  src: url('../fonts/IBMPlexMono-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: italic;
+  font-weight: 400;
+  src: url('../fonts/IBMPlexMono-Italic.ttf');
+}
+
+
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: italic;
+  font-weight: 600;
+  src: url('../fonts/IBMPlexMono-SemiBoldItalic.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-weight: 400;
+  src: url('../fonts/IBMPlexSans-Regular.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: italic;
+  font-weight: 400;
+  src: url('../fonts/IBMPlexSans-Italic.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-weight: 600;
+  src: url('../fonts/IBMPlexSans-SemiBold.ttf');
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: italic;
+  font-weight: 600;
+  src: url('../fonts/IBMPlexSans-SemiBoldItalic.ttf');
+}
 html,body{
 	background:#111;
 	overflow: hidden;
+	font-family: "IBM Plex Mono";
+	margin:0;
+	padding:0;
+}
+input{
+	background: rgba(0,0,0,0.15);
+	border-radius: 3px;
+  padding: 5px 10px;
+  font-size: 20px;
+  outline: none;
+  color:#eee;
+  background:#333;
+  border:none;
+}
+select {
+    /*-webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;*/
+    background: rgba(0,0,0,0.15);
+    border: none;
+    border-radius: 3px;
+    padding: 5px 10px;
+    font-size: 20px;
+    outline: none;
+    color:#eee;
+    background:#333;
+    font-family:'IBM Plex Sans';
+}
+input:focus,select:focus{
+	background:#444;
 }
 #introLogo{
 	background: #111; 
@@ -383,12 +475,13 @@ html,body{
 	top:28px;
 }
 #bookmarkPage{
-	position: absolute;
-  left: calc(40% + 69px);
+  position: absolute;
+  left: calc(40% + 71px);
   z-index: 10;
-  top: 8px;
+  top: 1px;
   color: #888;
-  cursor:pointer;
+  cursor: pointer;
+  font-size: 24px;
 }
 #bookmarkPage:not(.clicked):hover{
 	color:#ccc;
@@ -470,5 +563,60 @@ html,body{
 }
 .bookmarkFolderUl{
 	display:none;
+}
+#modal{
+	float:left;
+	width:100%;
+	height:100%;
+	z-index:300;
+	top:0px;
+	right:0px;
+	background:rgba(0,0,0,0.9);
+	position:absolute;
+	display:none;
+}
+
+.faviconWrap{
+	width: 16px;
+  height: 16px;
+  float: left;
+  margin: 0px 6px 0 0;
+}
+.rippleDisabled .lds-ripple{
+	opacity:0;
+}
+/*loading spinner*/
+.lds-ripple {
+	margin-top:5px;
+  display: inline-block;
+  position: relative;
+  width: 16px;
+  height: 16px;
+}
+.lds-ripple div {
+  position: absolute;
+  border: 2px solid #fff;
+  opacity: 1;
+  border-radius: 50%;
+  animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+.lds-ripple div:nth-child(2) {
+  animation-delay: -0.5s;
+}
+@keyframes lds-ripple {
+  0% {
+    top: 8px;
+    left: 8px;
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    top: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    opacity: 0;
+  }
 }
 

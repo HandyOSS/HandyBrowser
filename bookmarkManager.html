@@ -1,54 +1,44 @@
-<html>
-<head>
-	<script src="bower_components/jquery/dist/jquery.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="css/bookmarkManager.css" />
-	<title>Bookmark Manager</title>
+<div class="backgroundImage"></div>
+<div class="content">
+	<div class="title bmDiv">Adding Bookmark...</div>
+	<div class="name bmDiv">
+		<label for="bmName">Name</label>
+		<input id="bmName" placeholder="name" />
+	</div>
+	<div class="folder bmDiv">
+		<label for="bmFolder">Folder</label>
+		<select id="bmFolder">
+			<option value="__none__">No Folder</option>
+			<option value="__new__">New Folder</option>
+			<input id="folderName" placeholder="Folder Name" />
+		</select>
+	</div>
+	<div class="buttons bmDiv">
+		<div id="done">done</div>
+		<div id="cancel">cancel</div>
+	</div>
+</div>
+<div class="bookmarkListContent">
+	<div class="title">title</div>
+	<div class="listContainer"></div>
+	<div class="close">close</div>
+</div>
+<div class="bookmarksManager">
+	<div class="title">
+		<div class="subtitle">
+			Chrome Bookmarks Bar
+			<small>[drag n&#039; drop import: readonly]</small>
+		</div>
+		<div class="subtitle">
+			HandyBrowser Bookmarks
+			<small>[drag n&#039; drop re-order]</small>
+		</div>
+	</div>
+	<div class="panel chrome"></div>
+	<div class="panel local"></div>
+	<div class="buttons">
+		<div class="cancel">cancel</div>
+		<div class="save">save</div>
+	</div>
 	
-</head>
-<body>
-	<div class="backgroundImage"></div>
-	<div class="content">
-		<div class="title bmDiv">Adding Bookmark...</div>
-		<div class="name bmDiv">
-			<label for="bmName">Name</label>
-			<input id="bmName" placeholder="name" />
-		</div>
-		<div class="folder bmDiv">
-			<label for="bmFolder">Folder</label>
-			<select id="bmFolder">
-				<option value="__none__">No Folder</option>
-				<option value="__new__">New Folder</option>
-				<input id="folderName" placeholder="Folder Name" />
-			</select>
-		</div>
-		<div class="buttons bmDiv">
-			<div id="done">done</div>
-			<div id="cancel">cancel</div>
-		</div>
-	</div>
-	<div class="bookmarkListContent">
-		<div class="title">title</div>
-		<div class="listContainer"></div>
-		<div class="close">close</div>
-	</div>
-	<div class="bookmarksManager">
-		<div class="title">
-			<div class="subtitle">
-				Chrome Bookmarks Bar
-				<small>[drag n&#039; drop import: readonly]</small>
-			</div>
-			<div class="subtitle">
-				HandyBrowser Bookmarks
-				<small>[drag n&#039; drop re-order]</small>
-			</div>
-		</div>
-		<div class="panel chrome"></div>
-		<div class="panel local"></div>
-		<div class="buttons">
-			<div class="cancel">cancel</div>
-			<div class="save">save</div>
-		</div>
-		
-	</div>
-</body>
-</html>
+</div>

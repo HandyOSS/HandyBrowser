@@ -1,20 +1,8 @@
-<html>
-<head>
-<link rel="stylesheet" type="text/css" href="./css/donate.css" />
-<script src="bower_components/jquery/dist/jquery.min.js"></script>
-<script>
-	$(document).ready(()=>{
-		console.log('ready');
-		$('.selectMe').off('click').on('click',function(){
-			console.log('focus')
-			$(this).focus();
-			$(this).select();
-		})
-	});
-</script>
-</head>
-<body>
-<div class="close">X</div>
+<div id="modalNav">
+	<div class="optionButton active" id="closeMap">x</div>
+	<div class="optionButton notActive" id="hide">-</div>
+	<div class="optionButton notActive" id="full">+</div>
+</div>
 <div id="donate">
 	<div class="donateLabel">
 		Donate HNS to the HandyBrowser Team:
@@ -24,6 +12,3 @@
 		<input class="selectMe" readonly="readonly" value="hs1qwfpd5ukdwdew7tn7vdgtk0luglgckp3klj44f8" size="45" />
 	</div>
 </div>
-
-</body>
-</html>
