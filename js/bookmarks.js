@@ -124,6 +124,13 @@ class BookmarkManager{
 		let restartDockerOption = nw.MenuItem({label:'Restart Docker HSD',click:()=>{
 			this.restartDocker();
 		}});
+		let nukeOption = nw.MenuItem({label:'Nuke & Rebuild Docker HSD',click:()=>{
+			let didConfirm = confirm('⚠️ Docker rebuild will take a few minutes to Rebuild and Sync HSD.\nAre you sure?');
+			if(didConfirm){
+				this.nukeDocker();
+
+			}
+		}});
   	this.tray.getHSDNodeStatus().then((d)=>{
 
   		let h = 0;
@@ -147,19 +154,23 @@ class BookmarkManager{
   		if(process.platform == 'darwin'){
   			this.mainMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}))
   			this.mainMenu.append(restartDockerOption);
+  			this.mainMenu.append(nukeOption);
   		}
   		else{
   			topMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}))
   			topMenu.append(restartDockerOption)
+  			topMenu.append(nukeOption);
   		}
   	}).catch(e=>{
   		if(process.platform == 'darwin'){
   			this.mainMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}))
   			this.mainMenu.append(restartDockerOption);
+  			this.mainMenu.append(nukeOption);
   		}
   		else{
   			topMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}));
-  			topMenu.append(restartDockerOption)
+  			topMenu.append(restartDockerOption);
+  			topMenu.append(nukeOption);
   		}
   	});
   	
@@ -959,6 +970,18 @@ class BookmarkManager{
 				$('#restartDockerNotification').hide();
 			},2000);*/
 		})
+	}
+	nukeDocker(){
+		localStorage.setItem('isRebuildingDockerNode','true');
+		nw.Window.open('./boot.html',{
+	    "width": 480,
+	    "frame":false,
+	    "resizable":false,
+	    "position":"center",
+	    "height": 240
+		},(win)=>{
+			win.focus();
+		});
 	}
 	restartHSD(){
 		let guid = localStorage.getItem('guid');

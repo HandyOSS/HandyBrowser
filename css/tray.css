@@ -121,6 +121,15 @@ input:focus,select:focus{
 	height:100%;
 	float:left;
 }
+#syncInfo{
+	position:fixed;
+	bottom:0;
+	right:0;
+	z-index:99;
+	padding:5px;
+	font-size:12px;
+	color:#ccc;
+}
 #toolbar.windows{
 	margin-left:5px;
 }

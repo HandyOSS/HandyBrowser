@@ -5,7 +5,7 @@
   "window": {
     "width": 480,
     "frame":false,
-    "resize":false,
+    "resizable":false,
     "position":"center",
     "height": 240,
     "icon": "icons/app_png.png",

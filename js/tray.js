@@ -19,8 +19,7 @@ class Tray{
 		this.initUrlBarLogo();
 		setTimeout(()=>{
 			this.checkNodeStatusTimer();
-		},30000)
-		
+		},2000);
 		/*this.trayWindow.on('document-start',()=>{
 			if(window.localStorage.getItem('windowState') != null){
 				let state = JSON.parse(window.localStorage.getItem('windowState'));
@@ -347,7 +346,7 @@ class Tray{
 				failed: function(msg) {
 					console.log(msg);
 				}
-			}
+			};
 			
 		}
 		else{
@@ -830,7 +829,7 @@ class Tray{
       });
       let $webview = $('<webview src="'+url+'" id="tab'+(tabIndex || this._tabs.length)+'" partition="persist:handybrowser"></webview>')
       $('#contentPanel').append($webview);
-      $('#contentPanel').find('webview:not(#'+$webview.attr('id')+')').hide();
+      $('#contentPanel').find('webview').not($webview[0]).hide();
 
       /*update tab data*/
       let tabNumID = $('#tabs ul li').index($('li.tabtarget'))//this.isAddingNewTab ? $('#tabs ul li').length-1 : this._tabs.length;
@@ -920,8 +919,9 @@ class Tray{
       	console.log('on click of tab');
       	let id = tabData.window.attr('id');
       	tabData.window.show();
+      	this.activeWindow = tabData.window;
       	$('#bookmarkPage').removeClass('clicked')
-      	$('#contentPanel webview:not(#'+id+')').hide()
+      	$('#contentPanel webview').not(tabData.window[0]).hide()
       	//move/resize too
       	let windowState = window.localStorage.getItem('windowState');
 				if(windowState != null){
@@ -1332,6 +1332,11 @@ class Tray{
 		
 	}
 	beforeQuit(){
+		if(typeof this.nodeStatusInterval != "undefined"){
+			clearInterval(this.nodeStatusInterval);
+			delete this.nodeStatusInterval;
+		}
+		localStorage.removeItem('isRebuildingDockerNode');
 		if(this._tabs.length > 0){
 			let urls = this._tabs.map(tab=>{
 				return tab.url;
@@ -1379,68 +1384,74 @@ class Tray{
 			clearInterval(this.nodeStatusInterval);
 			delete this.nodeStatusInterval;
 		}
+		this.checkHSDStatus(); //first time
 		this.nodeStatusInterval = setInterval(()=>{
-			this.getHSDNodeStatus().then((d)=>{
-
-	  		let h = 0;
-	  		let p = 0;
-	  		h = d.myHeight;
-	  		p = d.peerHeight;
-	  		let syncStatus = 'Not Synced';
-	  		let symbol = '⚪ ';
-	  		if(Math.abs(d.myHeight - d.peerHeight) <= 2){
-	  			//close to height
-	  			symbol = '🟢 ';
-	  			syncStatus = 'Synced ['+d.myHeight+']'
-	  		}
-	  		else{	
-
-	  			syncStatus += ' ['+h+':'+p+']';
-	  		}
-	  		
-	  		if(process.platform == 'darwin'){
-	  			nw.Window.get().menu.items[0].submenu.items.map((item,i)=>{
-	  				if(item.label.indexOf('HNS Node') >= 0){
-	  					//update label;
-	  					nw.Window.get().menu.items[0].submenu.items[i].label = symbol+'HNS Node: '+syncStatus;
-	  				}
-	  			})
-		  	}
-		  	else{
-		  		if(typeof this.popupMenu != "undefined"){
-		  			this.popupMenu.items.map((item,i)=>{
-		  				if(item.label.indexOf('HNS Node') >= 0){
-		  					//update label;
-		  					this.popupMenu.items[i].label = symbol+'HNS Node: '+syncStatus;
-		  				}
-		  			})
-		  		}
-		  	}
-	  		
-	  	}).catch(e=>{
-	  		
-	  		if(process.platform == 'darwin'){
-	  			nw.Window.get().menu.items[0].submenu.items.map((item,i)=>{
-	  				if(item.label.indexOf('HNS Node') >= 0){
-	  					//update label;
-	  					nw.Window.get().menu.items[0].submenu.items[i].label = '🔴 HNS Node Not Responding';
-	  				}
-	  			})
-		  	}
-		  	else{
-		  		if(typeof this.popupMenu != "undefined"){
-		  			this.popupMenu.items.map((item,i)=>{
-		  				if(item.label.indexOf('HNS Node') >= 0){
-		  					//update label;
-		  					this.popupMenu.items[i].label = '🔴 HNS Node Not Responding';
-		  				}
-		  			})
-		  		}
-		  	}
-	  	});
+			this.checkHSDStatus();
 			/*if(process.platform == 'darwin'){
 	  		nw.Window.get().menu.items[0].submenu.items[3].label = 'Options';
 	  	}*/
 		},10000)
+	}
+	checkHSDStatus(){
+		this.getHSDNodeStatus().then((d)=>{
+
+  		let h = 0;
+  		let p = 0;
+  		h = d.myHeight;
+  		p = d.peerHeight;
+  		let syncStatus = 'Not Synced';
+  		let symbol = '⚪';
+  		if(Math.abs(d.myHeight - d.peerHeight) <= 2 && d.myHeight > 0){
+  			//close to height
+  			symbol = '🟢';
+  			syncStatus = 'Synced ['+d.myHeight+']'
+  		}
+  		else{	
+
+  			syncStatus += ' ['+h+':'+p+']';
+  		}
+  		
+  		if(process.platform == 'darwin'){
+  			nw.Window.get().menu.items[0].submenu.items.map((item,i)=>{
+  				if(item.label.indexOf('HNS Node') >= 0){
+  					//update label;
+  					nw.Window.get().menu.items[0].submenu.items[i].label = symbol+'HNS Node: '+syncStatus;
+  				}
+  			})
+	  	}
+	  	else{
+	  		if(typeof this.popupMenu != "undefined"){
+	  			this.popupMenu.items.map((item,i)=>{
+	  				if(item.label.indexOf('HNS Node') >= 0){
+	  					//update label;
+	  					this.popupMenu.items[i].label = symbol+'HNS Node: '+syncStatus;
+	  				}
+	  			})
+	  		}
+	  	}
+	  	$('#syncInfo').html(symbol+'HNS Node: '+syncStatus)
+  		
+  	}).catch(e=>{
+  		
+  		if(process.platform == 'darwin'){
+  			nw.Window.get().menu.items[0].submenu.items.map((item,i)=>{
+  				if(item.label.indexOf('HNS Node') >= 0){
+  					//update label;
+  					nw.Window.get().menu.items[0].submenu.items[i].label = '🔴HNS Node Not Responding';
+  				}
+  			})
+	  	}
+	  	else{
+	  		if(typeof this.popupMenu != "undefined"){
+	  			this.popupMenu.items.map((item,i)=>{
+	  				if(item.label.indexOf('HNS Node') >= 0){
+	  					//update label;
+	  					this.popupMenu.items[i].label = '🔴HNS Node Not Responding';
+	  				}
+	  			})
+	  		}
+	  	}
+	  	$('#syncInfo').html('🔴HNS Node Not Responding');
+  	});
 	}
 }

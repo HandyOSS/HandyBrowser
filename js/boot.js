@@ -28,11 +28,17 @@ class bsApp{
 		this.containerName = this.resolver == 'hsd' ? 'HandyBrowserHSD' : 'HandyBrowserHNSD';
 		this.serviceName = this.resolver == 'hsd' ? 'HSD' : 'HNSD';
 		
-		this.checkDockerSupport(true);
-		if(process.platform == 'linux'){
-			//write linux .desktop file proper
-			this.writeLinuxDesktopRunner();
+		if(localStorage.getItem('isRebuildingDockerNode') != null){
+			this.nukeDocker();
 		}
+		else{
+			this.checkDockerSupport(true);
+			if(process.platform == 'linux'){
+				//write linux .desktop file proper
+				this.writeLinuxDesktopRunner();
+			}
+		}
+		
 	}
 	getGuid(){
 		function S4() {
@@ -196,8 +202,42 @@ class bsApp{
 		
 	}
 	createDockerImage(){
-		
-		$('.main').html('BUILDING NEW '+this.serviceName+' DOCKER MACHINE...THIS MAY TAKE A FEW MINUTES (once).');
+		let msgStrings = 
+		[
+			"Locating the required gigapixels to render...",
+      "Spinning up the hamster...",
+      "Shovelling coal into the server...",
+      "Programming the flux capacitor",
+      "Connecting to the Masternodes...",
+      "Downloading Skyrim...",
+      "Texting Vitalik...",
+      "Washing our Hands...",
+      "Eating Lunch...",
+      "640K ought to be enough for anybody...",
+      "The architects are still drafting...",
+		  "The bits are breeding...",
+		  "We're building the buildings as fast as we can...",
+		  "Checking the gravitational constant in your locale...",
+		  "The server is powered by a lemon and two electrodes...",
+		  "While the satellite moves into position...",
+		  "Reconfoobling energymotron...",
+		  "Counting backwards from Infinity...",
+		  "We're making you a cookie...",
+		  "Creating time-loop inversion field...",
+		  "All I really need is a kilobit...",
+		  "Spinning the wheel of fortune...",
+  		"Loading the enchanted bunny...",
+  		"Let's take a mindfulness minute...",
+  		"Unicorns are at the end of this road, I promise.",
+		  "Listening for the sound of one hand clapping...",
+		  "Keeping all the 1's and removing all the 0's...",
+		  "Unicorns are at the end of this road, I promise.",
+		  "Listening for the sound of one hand clapping...",
+		  "Keeping all the 1's and removing all the 0's...",
+		  "Convincing AI not to turn evil...",
+		  "There is no spoon. Because we are not done loading it...",
+		];
+		$('.main').html('BUILDING NEW '+this.serviceName+' DOCKER MACHINE...THIS MAY TAKE A FEW MINUTES (one time only).<br /><span class="statusMessage"></span>');
 		let wasError = false;
 		
 		let dockerFileName = this.resolver == 'hsd' ? './Dockerfile-HSD_RESOLVER' : './Dockerfile-HNSD';
@@ -205,8 +245,20 @@ class bsApp{
 		let createD = spawn('docker',['build', '-t', 'handybrowser', '-f', dockerFileName, '.'],{cwd:nw.__dirname+'/docker_utils'});
 		console.log('create image was called');
 		let hsdLogs = '';
+		let stepVal = 0;
 		createD.stdout.on('data',d=>{
 			console.log('creating docker machine',d.toString('utf8'));
+			let text = d.toString('utf8');
+			if(text.indexOf ('Step') >= 0){
+				let stepText = text.split('Step')[1];
+				stepText = stepText.split(':')[0];
+				
+				if(stepVal > msgStrings.length-1){
+					stepVal = 0;
+				}
+				$('.main .statusMessage').html('Step '+stepText+': '+msgStrings[stepVal])
+				stepVal++;
+			}
 		})
 		createD.stderr.on('data',d=>{	
 			wasError = true;
@@ -274,7 +326,13 @@ class bsApp{
 				},1000);*/
 				console.log('hsd connected hsd')
 				let toClose = nw.Window.get();
-				this.showTray();
+				if(localStorage.getItem('isRebuildingDockerNode') != null){
+					localStorage.removeItem('isRebuildingDockerNode');
+				}
+				else{
+					this.showTray();
+				}
+				
 				setTimeout(()=>{
 					toClose.close();
 				},1000)
@@ -342,5 +400,25 @@ class bsApp{
 		})
 		fs.writeFileSync(runnerPath,lines.join('\n'),'utf8');
 	}
-
+	nukeDocker(){
+		$('.main').html('REMOVING DOCKER CONTAINER...');
+		let containerD = spawn('docker',['stop','HandyBrowserHSD','&&','docker','rm','HandyBrowserHSD','&&','docker','image','rm','handybrowser'],{shell:true});
+		containerD.on('close',d=>{
+			
+			$('.main').html('REMOVED DOCKER CONTAINER, REBUILDING');
+			this.checkDockerSupport(true);
+			if(process.platform == 'linux'){
+				//write linux .desktop file proper
+				this.writeLinuxDesktopRunner();
+			}
+			
+		})
+		containerD.stdout.on('data',d=>{	
+			console.log('nuke docker continer msg',d.toString('utf8'))
+		})
+		containerD.stderr.on('data',d=>{
+			$('.main').html('ERROR REMOVING DOCKER CONTAINER: '+d.toString('utf8'));
+			console.log('cant nuke docker continer',d.toString('utf8'))
+		})
+	}
 }
