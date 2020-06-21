@@ -42,9 +42,9 @@ class bsApp{
 	}
 	getGuid(){
 		function S4() {
-        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-    }
-    return (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+        	return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+	    }
+	    return (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
 	}
 	showTray(){
 		let w = screen.availWidth;
@@ -63,14 +63,6 @@ class bsApp{
 		}
 		nw.App.setProxyConfig('127.0.0.1:5301');
 		let isResizable = true;
-		//only fullscreen support in windows
-		/*if(process.platform == 'win32'){
-			w = screen.availWidth;
-			x = screen.availLeft;
-			y = screen.availTop;
-			h = screen.availHeight;
-			isResizable = false;
-		}*/
 		nw.Window.open('./tray.html',{
 			width:w,
 			height:h,
@@ -172,7 +164,6 @@ class bsApp{
 	}
 	startNewDockerMachine(){
 		//first we'll create the docker machine
-		//first lets check if docker ls lists any eartlabs...
 		let hsdLogs = '';
 		let listData = '';
 		let listD = spawn('docker',['image','ls']);
@@ -184,9 +175,7 @@ class bsApp{
 			}
 			
 		});
-		/*listD.stderr.on('dtaa',d=>{
-
-		})*/
+		
 		listD.on('close',d=>{
 			$('.syncedButton .statusLabel').html('Built Docker Container!')
 			console.log('start listD stdout',listData,listData.indexOf('earthlab'));
@@ -243,11 +232,9 @@ class bsApp{
 		let dockerFileName = this.resolver == 'hsd' ? './Dockerfile-HSD_RESOLVER' : './Dockerfile-HNSD';
 		
 		let createD = spawn('docker',['build', '-t', 'handybrowser', '-f', dockerFileName, '.'],{cwd:nw.__dirname+'/docker_utils'});
-		console.log('create image was called');
 		let hsdLogs = '';
 		let stepVal = 0;
 		createD.stdout.on('data',d=>{
-			console.log('creating docker machine',d.toString('utf8'));
 			let text = d.toString('utf8');
 			if(text.indexOf ('Step') >= 0){
 				let stepText = text.split('Step')[1];
@@ -262,13 +249,11 @@ class bsApp{
 		})
 		createD.stderr.on('data',d=>{	
 			wasError = true;
-			console.log('was create error',d.toString('utf8'))
 			
 			$('.main').html("ERROR CREATING DOCKER MACHINE: "+d.toString('utf8'))
 		})
 		createD.on('close',d=>{
 			//we should now make our container
-			console.log('createD is closed now',wasError);
 			if(!wasError){
 				this.createDockerContainer();
 			}
@@ -279,7 +264,6 @@ class bsApp{
 		$('.main').html('BUILDING NEW '+this.serviceName+' DOCKER ENVIRONMENT...THIS MAY TAKE A MINUTE (once).');
 		let wasContainerError = false;
 		let hsdLogs = '';
-		console.log('create docker container called');
 		let containerD = spawn('docker', ['run', '-p', '13937:13037', '-p', '13938:13038', '-p', '14937:14037','-p','14938:14038', '-p', '12937:12037', '-p', '12938:12038', '-p', '3008:3008', '-p', '15937:15037', '-p', '15938:15038', '-p', '5301:5301', '-p', '13038:13038', '-p', '15359:15359', '--expose', '3008', '--name', this.containerName, '-td', 'handybrowser'],{cwd:nw.__dirname+'/docker_utils'});
 		containerD.stdout.on('data',d=>{
 			
@@ -317,34 +301,19 @@ class bsApp{
 		//let hsdLogs = '';
 		hsdProcess.stdout.on('data',d=>{
 			//console.log('hsd data',d.toString('utf8'));
+			if(this.resolver == 'hsd' && !this.hasLogged){
+				if(d.toString('utf8').indexOf('listening on port 53') == -1){
+					return;
+				}
+			}
 			if(!this.hasLogged){
+
 				this.hsdIsRunningLocally = true;
 				this.hasLogged = true;
-				/*this.hideLoading();
-				setTimeout(()=>{
-					this.addPeers();
-				},1000);*/
-				console.log('hsd connected hsd')
-				let toClose = nw.Window.get();
-				if(localStorage.getItem('isRebuildingDockerNode') != null){
-					localStorage.removeItem('isRebuildingDockerNode');
-				}
-				else{
-					this.showTray();
-				}
-				
-				setTimeout(()=>{
-					toClose.close();
-				},1000)
+				this.finishup();
 				
 			}
 			
-				
-			//TODO: log things/notify here
-
-			//this.pushToLogs(d.toString('utf8'),'stdout','hsd');
-
-
 		})
 		hsdProcess.stderr.on('data',d=>{
 			let errmsg = d.toString('utf8');
@@ -356,10 +325,7 @@ class bsApp{
 				msg = errmsg;
 			}
 			$('.main').html(msg);
-			//console.log('hsd error',d.toString('utf8'));
-			//hsdLogs += d.toString('utf8');
-			//this.pushToLogs(d.toString('utf8'),'error','hsd');
-			//console.log(d.toString('utf8'),'error','hnsd')
+			this.finishup();
 		})
 		hsdProcess.on('close',d=>{
 			console.log('hsd process closed');
@@ -367,14 +333,21 @@ class bsApp{
 		
 		console.log('attempt start of hsd')
 	}
-
-	pushToLogs(line,type,context){
-		//context = miner | hsd
-		console.log('LOGS:',line,type,context);
-		//console.log('line pushed',line,line.indexOf('chain/LOCK:'),line.indexOf('Resource temporarily unavailable'));
-
+	finishup(){
+		let toClose = nw.Window.get();
+		if(localStorage.getItem('isRebuildingDockerNode') != null){
+			localStorage.removeItem('isRebuildingDockerNode');
+		}
+		else{
+			this.showTray();
+		}
 		
-		//TODO: make notication button to show logs
+		setTimeout(()=>{
+			toClose.close();
+		},1000)
+	}
+	pushToLogs(line,type,context){
+		console.log('LOGS:',line,type,context);
 	}
 	writeLinuxDesktopRunner(){
 		let runnerPath = nw.App.getStartPath()+'/HandyBrowser.desktop';

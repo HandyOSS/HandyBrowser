@@ -133,23 +133,8 @@ class BookmarkManager{
 		}});
   	this.tray.getHSDNodeStatus().then((d)=>{
 
-  		let h = 0;
-  		let p = 0;
-  		h = d.myHeight;
-  		p = d.peerHeight;
-  		let syncStatus = 'Not Synced';
-  		let iconPath = './img/grey_dot.png';
-  		let symbol = '⚪ ';
-  		if(Math.abs(d.myHeight - d.peerHeight) <= 2){
-  			//close to height
-  			symbol = '🟢 ';
-  			iconPath = './img/green_dot.png';
-  			syncStatus = 'Synced ['+d.myHeight+']'
-  		}
-  		else{	
-
-  			syncStatus += ' ['+h+':'+p+']';
-  		}
+  		let syncStatus = d.status;
+  		let symbol = d.symbol;
   		
   		if(process.platform == 'darwin'){
   			this.mainMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}))
@@ -175,20 +160,17 @@ class BookmarkManager{
   	});
   	
 		
-	  /*if(process.platform == 'darwin'){
-	  	this.mainMenu.createMacBuiltin("HandyBrowser");
-	  	nw.Window.get().menu = topMenu;
-		}*/
+	  
 		if(process.platform == 'darwin'){
-	  	this.mainMenu.createMacBuiltin("HandyBrowser");
-	  	nw.Window.get().menu = topMenu;
+		  	this.mainMenu.createMacBuiltin("HandyBrowser");
+		  	nw.Window.get().menu = topMenu;
 		}
 		else{
 			this.tray.popupMenu = topMenu;
 		}
 		if(process.platform == 'darwin'){
-  		nw.Window.get().menu.items[0].submenu.items[3].label = 'Options';
-  	}
+	  		nw.Window.get().menu.items[0].submenu.items[3].label = 'Options';
+	  	}
 		
 
 		if(process.platform == 'win32' || process.platform == 'linux'){
@@ -234,12 +216,16 @@ class BookmarkManager{
 		  		$('#modalNav').addClass('linux');
 		  	break;
 		  }
-			$('#modal').show();
-			this.mapApp = new NetworkMap();
-			$('#closeMap',$('#modal')).on('click',()=>{
-				$('#modal').hide().html('');
-				delete this.mapApp;
-			})
+
+		  	$.getScript('https://api.mapbox.com/mapbox-gl-js/v1.11.0/mapbox-gl.js',()=>{
+		  		$('#modal').show();
+				this.mapApp = new NetworkMap();
+				$('#closeMap',$('#modal')).on('click',()=>{
+					$('#modal').hide().html('');
+					delete this.mapApp;
+				})
+		  	});
+			
 		});
 		
 	}
@@ -456,10 +442,7 @@ class BookmarkManager{
 
 			$('.bookmarksManager .save',$('#modal')).on('click',()=>{
 				let newBookmarkData = [];
-				/*$('.bookmarksManager .panel > .localItem',$('#modal')).each(function(){
-					console.log('this data',$(this).data())
-					processElement($(this));
-				});*/
+				
 				processElement($('.bookmarksManager .panel.local',$('#modal')));
 				//save bookmarks data
 				fs.writeFileSync(localPath,JSON.stringify(newBookmarkData),'utf8');
@@ -473,14 +456,13 @@ class BookmarkManager{
 					if($el.hasClass('folder')){
 						$el = $el.children('.listArea');
 					}
-					//console.log('child',selector,$el[0]);
 						
 					$el.children('.localItem').each(function(){
 						let data = $(this).data();
 						let type = $(this).hasClass('folder') ? 'folder' : 'url'
 						let name = $(this).find('input').eq(0).val();
 						let url = data['url'];
-						//console.log('item data',type,name,url);
+						
 						let item = {
 							type:type,
 							name:name,
@@ -508,10 +490,7 @@ class BookmarkManager{
 							
 						}
 					});
-					/*if(typeof parentItem != "undefined"){
-						console.log('push to new bookmarks top',parentItem)
-						newBookmarkData.push(parentItem);
-					}*/
+					
 				}
 			})
 			$('.bookmarksManager .cancel',$('#modal')).on('click',()=>{
@@ -989,12 +968,13 @@ class BookmarkManager{
 		let hsdLogged = false;
 		//let hsdLogs = '';
 		hsdProcess.stdout.on('data',d=>{
-			//console.log('hsd data',d.toString('utf8'));
-			if(!hsdLogged){
+			if(!hsdLogged && d.toString('utf8').indexOf('listening on port 53') >= 0){
 				hsdLogged = true;
 				$('#restartDockerNotification').html('Restarted HSD');
+					this.tray.checkHSDStatus();
 				setTimeout(()=>{
 					$('#restartDockerNotification').hide();
+					this.tray.checkHSDStatus();
 				},2000);
 				setTimeout(()=>{
 					this.createBookmarksMenu(); // sync for menus
@@ -1002,15 +982,8 @@ class BookmarkManager{
 				
 			}
 			
-				
-			//TODO: log things/notify here
-
-			//this.pushToLogs(d.toString('utf8'),'stdout','hsd');
-
-
 		})
 		hsdProcess.stderr.on('data',d=>{
-			console.log('error restart',d.toString('utf8'));
 			$('#restartDockerNotification').html('Error Restarting HSD');
 		})
 		hsdProcess.on('close',d=>{
