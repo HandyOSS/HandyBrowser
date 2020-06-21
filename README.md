@@ -2,7 +2,7 @@
 
 ![alt text](./icons/app_png.png)
 
-### Download Latest Prebuilt in [Releases](./releases) [Skips all the steps below]
+### Download Latest Prebuilt HandyBrowser in [Releases](https://github.com/HandyMiner/HandyBrowser/releases) [Skips all the steps below]
 
 ### Building from Source
 
@@ -31,6 +31,8 @@ HandyBrowser is using node-webkit [nw.js](https://nwjs.io) under the hood. Nw.js
 Since we did not want users to manually have to modify system level configurations and run HNSD/HNS resolvers locally themselves, we rely on Docker. 
 Docker allows us to create a lightweight linux virtual machine that installs HNS resolvers, and is pre-configured to use the HNS resolver. We simply proxy all web traffic from the chromium browser into the Docker machine which resolves via HSD and returns content! Docker generates a self-signed certificate on container creation which allows the user to proxy https traffic to the browser. **During installation Docker runs a one-time install process, after that it won't need to be run again, and you'll be able to start browsing/resolving names immediately (even as the HSD fullnodes syncs in Docker).**
 
+![alt text](./img/HandyBrowser_flowchart.png)
+
 Why Nw.js over Electron? The lead-dev of this project has used Nw.js extensively in enterprise-class application for many years and knows the inside/outs of every piece of the framework. In addition, the window manager (urlbar) we wrote needed to control all windows (tabs) created within the application and IPC is not fun. Nw.js allowed us more flexibility for the task of building a web-browser while offering the security we needed: No browser windows have access to Node.js, just the window manager. 
 [More reasons here, including: ](https://hackernoon.com/why-i-prefer-nw-js-over-electron-2018-comparison-e60b7289752) ```"Even better, you can run Chrome Apps/extensions using NW.js"```
 
@@ -46,17 +48,15 @@ Why Nw.js over Electron? The lead-dev of this project has used Nw.js extensively
   
 ### HandyBrowser TODOs
 
-0. Make Windows Resize/move work properly. Currently the window.move and window.resize events for Windows result in subpixel walks across the screen. Likely need an elegant way to do this.
-
 1. Re-enable HNSD when it's production ready. We got HNSD to work and the dockerfile is there to build. Setting ```this.resolver = 'hsd'; //|| hnsd``` to 'hnsd' in file ```js/boot.js:24``` will allow you to boot with hnsd. Why not HNSD? We had issues with queueing and timeouts at scale. It works great for one site at a time. However when opening multiple tabs with tons of analytics happening (google.com, ebay.com, facebook.com, yahoo.com) HNSD would have a request that would lag and cause subsequent requests to wait for a timeout to happen. Replicating can be done by modifying ```/etc/resolv.conf``` to use ```8.8.8.8``` instead of ```127.0.0.1``` and see the difference. Thus we use hsd for now [PRs welcome if you can get it working].
 
-2. It would be great to not need Docker's overhead. If there were a way to tell the browser which DNS to use locally that would be ideal. We're going work with the community and see if there's a more elegant solution in time.
+2. It would be great to not need Docker's overhead. If there were a way to tell the browser which DNS to use locally that would be ideal. We're going work with the community and see if there's a more elegant solution in time. If a VM is neccessary, hyperkit or HyperV could be ideal alternatives to Docker.
 
 3. Re-enable the HandyMiner GUI that's built in already. Shell script/workflow to install hstratum onto the dockerized HSD machine needs to be made.
 
 4. Figure out how to get Chrome extensions working. They are most certainly supported in nw.js.
 
-5. Syncing indicator for the dockerized HSD node, ability to quickly nuke the node for troubleshooting purposes.
+5. Add native-styled close menu buttons for most linux variants. Right now its styled like Ubuntu 16.
 
 ### HandyBrowser Install FAQS
 
@@ -70,12 +70,14 @@ Linux - https://docs.docker.com/engine/install/
 
   - The initial setup prompt for HSD should take 3-4minutes [this will change with the HNSD light client], and only needs to be done once. When you restart the app in the future it won’t need to occur, and the app will automatically start syncing your browser up-to-date.
   - Your firewall may prompt you a couple of times for permissions the first time you run the browser, be sure to accept those. We need them to make the browser work.
-  - If you have any trouble with your Docker node not loading, enter these commands in your terminal, and run the browser once more:
+  - If you have any trouble with your Docker node not loading, either use the 'nuke' option in the HandyBrowser Menu or enter these commands in your terminal, and run the browser once more:
   ```sh
 $ docker stop HandyBrowserHSD
 $ docker rm HandyBrowserHSD
 $ docker image rm handybrowser
 ```
+
+  - To SSH into your docker container: ```docker exec -it HandyBrowserHSD bash```
 
 ### Project Roadmap [Donation Driven Development]
 
