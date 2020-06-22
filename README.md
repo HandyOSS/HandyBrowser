@@ -27,7 +27,7 @@ First, install frontend client dependencies
 
 ### How HandyBrowser Works
 
-HandyBrowser is using node-webkit [nw.js](https://nwjs.io) under the hood. Nw.js packages the latest chromium with the latest node.js and allows us granular security, html and many other features. 
+HandyBrowser (aka "Handy") is using node-webkit [nw.js](https://nwjs.io) under the hood. Nw.js packages the latest chromium with the latest node.js and allows us granular security, html and many other features. 
 Since we did not want users to manually have to modify system level configurations and run HNSD/HNS resolvers locally themselves, we rely on Docker. 
 Docker allows us to create a lightweight linux virtual machine that installs HNS resolvers, and is pre-configured to use the HNS resolver. We simply proxy all web traffic from the chromium browser into the Docker machine which resolves via HSD and returns content! Docker generates a self-signed certificate on container creation which allows the user to proxy https traffic to the browser. **During installation Docker runs a one-time install process, after that it won't need to be run again, and you'll be able to start browsing/resolving names immediately (even as the HSD fullnodes syncs in Docker).**
 
@@ -46,6 +46,7 @@ Why Nw.js over Electron? The lead-dev of this project has used Nw.js extensively
   - Video playback support, enjoy YouTube and Netflix.
   - Donate modal for the HandyBrowser team.
   - Use the HandyBrowser Docker container as a proxy for your mainstream browser to resolve Handshake Names. After starting HandyBrowser, set your mainstream browser proxy to ```localhost:5301```
+  - UI indicators for the Docker HSD node syncing status, and option for nuking the docker image in the event of any weird beta edge cases.
   
 ### HandyBrowser TODOs
 
@@ -96,7 +97,7 @@ HNS: ```hs1qwfpd5ukdwdew7tn7vdgtk0luglgckp3klj44f8```
 
 ##### [LICENSE](https://github.com/HandyMiner/HandyBrowser/blob/master/LICENSE) 
 
-HandyBrowser - a Chromium Browser powered by Handshake Resolver.
+HandyBrowser - a Chromium Browser powered by a Handshake Resolver.
     
 Copyright (C) 2020  
 Alex Smith - alex.smith@earthlab.tech
