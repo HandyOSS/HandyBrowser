@@ -45,6 +45,7 @@ Why Nw.js over Electron? The lead-dev of this project has used Nw.js extensively
   - Custom "HNS Lock" that changes color between White [HNS]/Dark Grey[DNS]/Green [DNSSEC+HNS] to notate how you're connecting over DNS.
   - Video playback support, enjoy YouTube and Netflix.
   - Donate modal for the HandyBrowser team.
+  - Use the HandyBrowser Docker container as a proxy for your mainstream browser to resolve Handshake Names. After starting HandyBrowser, set your mainstream browser proxy to ```localhost:5301```
   
 ### HandyBrowser TODOs
 
