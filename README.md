@@ -60,6 +60,8 @@ Why Nw.js over Electron? The lead-dev of this project has used Nw.js extensively
 
 5. Add native-styled close menu buttons for most linux variants. Right now its styled like Ubuntu 16.
 
+6. Addition auto-updating option so it's easier to upgrade to the latest version of Handy.
+
 ### HandyBrowser Install FAQS
 
   - Before running HandyBrowser the first time, make sure you have Docker installed and running [Note you don't need a Docker account, simply just the Docker service so we can install the dependencies for your Handshake node]:
