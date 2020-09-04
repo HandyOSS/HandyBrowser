@@ -1208,10 +1208,12 @@ class Tray{
 				return tab.url;
 			});
 			localStorage.setItem('tabState',JSON.stringify(urls));
+			this.deregisterKeyboardShortcuts();
 			nw.Window.get().close(true);
 			//nw.App.quit();
 		}
 		else{
+			this.deregisterKeyboardShortcuts();
 			nw.Window.get().close(true);
 			//nw.App.quit();
 		}
