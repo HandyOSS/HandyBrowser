@@ -3,6 +3,15 @@
   text-align: center;
   color:#eee;
 }
+.donate50{
+	float:left;
+	width:50%;
+	height:100%;
+}
+.qr{
+	width:200px;
+	height:200px;
+}
 .donateLabel{
 	font-size: 24px;
 	font-weight:600;

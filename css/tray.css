@@ -634,3 +634,33 @@ input:focus,select:focus{
   }
 }
 
+.proxyInfo{
+	overflow-y: scroll;
+    height: calc(100% - 70px);
+    color: #eee;
+    width: calc(50%);
+    margin-top: 50px;
+    padding: 10px 25%;
+}
+.proxyInfo .firefox img{
+	width: 90%;
+	clear:both;
+}
+.proxyInfo .ios img{
+	width: 50%;
+}
+.proxyInfo .facts{
+	padding: 20px;
+	width: calc(100% - 40px);
+	font-size: 24px;
+}
+.facts a{
+	display:block;
+	font-size: 16px;
+}
+.proxyInfo .IP, .proxyInfo .port{
+	font-weight: 600;
+}
+.proxyInfo a, .proxyInfo a:visited{
+	color:#00aa00;
+}

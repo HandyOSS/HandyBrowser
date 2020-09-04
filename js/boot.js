@@ -21,7 +21,7 @@ class bsApp{
 		}
 
 		/*setting this will use hsd or hnsd*/
-		this.resolver = 'hsd'; //|| hnsd
+		this.resolver =  'hnsd'; // OR 'hsd'
 
 		window.localStorage.setItem('resolver',this.resolver);
 
@@ -38,7 +38,7 @@ class bsApp{
 				this.writeLinuxDesktopRunner();
 			}
 		}
-		
+		this.initSystemTray()
 	}
 	getGuid(){
 		function S4() {
@@ -226,16 +226,17 @@ class bsApp{
 			"Convincing the Handshake AI not to turn evil...",
 			"Creating the New Internet...",
 		];
-		$('.main').html('BUILDING NEW '+this.serviceName+' DOCKER MACHINE...THIS MAY TAKE A FEW MINUTES (one time only).<br /><span class="statusMessage"></span>');
+		$('.main').html('BUILDING NEW '+this.serviceName+' DOCKER MACHINE...THIS WILL TAKE A FEW MINUTES (one time only).<br /><span class="statusMessage"></span>');
 		let wasError = false;
 		
-		let dockerFileName = this.resolver == 'hsd' ? './Dockerfile-HSD_RESOLVER' : './Dockerfile-HNSD';
+		let dockerFileName = this.resolver == 'hsd' ? './Dockerfile-HSD_RESOLVER' : './Dockerfile-HNSD-Prebuilt';
 		
 		let createD = spawn('docker',['build', '-t', 'handybrowser', '-f', dockerFileName, '.'],{cwd:nw.__dirname+'/docker_utils'});
 		let hsdLogs = '';
 		let stepVal = 0;
 		createD.stdout.on('data',d=>{
 			let text = d.toString('utf8');
+			console.log('progress',text);
 			if(text.indexOf ('Step') >= 0){
 				let stepText = text.split('Step')[1];
 				stepText = stepText.split(':')[0];
@@ -243,6 +244,7 @@ class bsApp{
 				if(stepVal > msgStrings.length-1){
 					stepVal = 0;
 				}
+				
 				$('.main .statusMessage').html('Step '+stepText+': '+msgStrings[stepVal])
 				stepVal++;
 			}
@@ -264,7 +266,7 @@ class bsApp{
 		$('.main').html('BUILDING NEW '+this.serviceName+' DOCKER ENVIRONMENT...THIS MAY TAKE A MINUTE (once).');
 		let wasContainerError = false;
 		let hsdLogs = '';
-		let containerD = spawn('docker', ['run', '-p', '13937:13037', '-p', '13938:13038', '-p', '14937:14037','-p','14938:14038', '-p', '12937:12037', '-p', '12938:12038', '-p', '3008:3008', '-p', '15937:15037', '-p', '15938:15038', '-p', '5301:5301', '-p', '13038:13038', '-p', '15359:15359', '--expose', '3008', '--name', this.containerName, '-td', 'handybrowser'],{cwd:nw.__dirname+'/docker_utils'});
+		let containerD = spawn('docker', ['run', '-p', '13937:13037', '-p', '13938:13038', '-p', '14937:14037','-p','14938:14038', '-p', '12937:12037', '-p', '12938:12038', '-p', '3008:3008', '-p', '15937:15037', '-p', '15938:15038', '-p', '5301:5301', '-p', '5302:5302', '-p', '13038:13038', '-p', '15359:15359', '--expose', '3008', '--name', this.containerName, '-td', 'handybrowser'],{cwd:nw.__dirname+'/docker_utils'});
 		containerD.stdout.on('data',d=>{
 			
 			console.log('container creation data',d.toString('utf8'));
@@ -291,13 +293,18 @@ class bsApp{
 		let envVars = process.env;
 		console.log('starting hsd')
 		let hsdProcess;
+		let hsdFullnodeProcess;
 		console.log('this resolver',this.resolver)
 		if(this.resolver == 'hsd'){
 			hsdProcess = spawn('docker',['exec','-i',this.containerName,'sh','-c','"./run.hns.resolver.sh\ '+this.guid+'"'],{shell:true})
 		} 
 		else{
 			hsdProcess = spawn('docker',['exec','-i',this.containerName,'sh','-c','"./run.hnsd.sh"'],{shell:true})
+			hsdFullnodeProcess = spawn('docker',['exec','-i',this.containerName,'sh','-c','"/usr/hsd/run.hns.node.sh\ '+this.guid+'"'],{shell:true})
 		}
+
+		let godaneProxyProcess = spawn('docker',['exec','-i',this.containerName,'sh','-c','"/usr/godane/run.godane.proxy.sh\ '+this.guid+'"'],{shell:true})
+		
 		//let hsdLogs = '';
 		hsdProcess.stdout.on('data',d=>{
 			//console.log('hsd data',d.toString('utf8'));
@@ -316,6 +323,7 @@ class bsApp{
 			
 		})
 		hsdProcess.stderr.on('data',d=>{
+			console.log('stderr log',d.toString('utf8'))
 			let errmsg = d.toString('utf8');
 			let msg;
 			if(errmsg.indexOf('failed opening ns') >= 0 || errmsg.indexOf('lock') >= 0){
@@ -324,8 +332,13 @@ class bsApp{
 			else{
 				msg = errmsg;
 			}
+			if(errmsg.indexOf('EFAILURE') >= 0 && this.resolver == 'hnsd'){
+				msg = 'HNSD ALREADY RUNNING';
+			}
 			$('.main').html(msg);
-			this.finishup();
+			if(this.resolver == 'hsd'){
+				this.finishup();
+			}
 		})
 		hsdProcess.on('close',d=>{
 			console.log('hsd process closed');
@@ -343,7 +356,7 @@ class bsApp{
 		}
 		
 		setTimeout(()=>{
-			toClose.close();
+			toClose.hide();//toClose.close();
 		},1000)
 	}
 	pushToLogs(line,type,context){
@@ -393,5 +406,137 @@ class bsApp{
 			$('.main').html('ERROR REMOVING DOCKER CONTAINER: '+d.toString('utf8'));
 			console.log('cant nuke docker continer',d.toString('utf8'))
 		})
+	}
+	initSystemTray(){
+		// Create a tray icon
+		var tray = new nw.Tray({ title: 'HandyBrowser', icon: './icons/app_256x256x32.png' });
+
+		// Give it a menu
+		var menu = new nw.Menu();
+		menu.append(
+			new nw.MenuItem({ label: 'New HandyBrowser Window',click:()=>{
+				this.showTray();
+			} 
+		}));
+		menu.append(
+			new nw.MenuItem({
+				label:'Quit and Halt Handshake Proxy',
+				click:()=>{
+					let stopCmd = spawn('docker',['stop','HandyBrowserHNSD'],{shell:true});
+					$('.main').html('STOPPING DOCKER HNSD CONTAINER...');
+					nw.Window.get().show();
+					nw.Window.get().focus();
+					stopCmd.stdout.on('data',(d)=>{
+						console.log('stop cmd out',d.toString('utf8'))
+						tray.remove();
+						nw.Window.get().close(true);
+						nw.App.quit();
+					})
+					stopCmd.stderr.on('data',(d)=>{
+						tray.remove();
+						nw.Window.get().close(true);
+						nw.App.quit();
+					})
+					
+				}
+			})
+		);
+		menu.append(
+			new nw.MenuItem({
+				label:'How to Use Handshake in Other Browsers',
+				click:()=>{
+					this.showHowtoProxy();
+				}
+			})
+		)
+		tray.menu = menu;
+
+		/*// Remove the tray
+		tray.remove();
+		tray = null;*/
+	}
+	showHowtoProxy(){
+		//show the proxy info panel
+		const nets = os.networkInterfaces();
+		const results = {};
+
+		for (const name of Object.keys(nets)) {
+		    for (const net of nets[name]) {
+		        // skip over non-ipv4 and internal (i.e. 127.0.0.1) addresses
+		        if (net.family === 'IPv4' && !net.internal) {
+		            
+		            if(net.address.indexOf('10.') == 0 || net.address.indexOf('192.168') == 0){
+		            	if (!results[name]) {
+			                results[name] = [];
+			            }
+		            	results[name].push(net.address);
+		        	}
+		        }
+		    }
+		}
+
+
+		let state = localStorage.getItem('windowState');
+		let x = 0;
+		let y = 0;
+		let w = screen.availWidth;
+		let h = screen.availHeight;
+
+		if(state != null){
+			state = JSON.parse(state);
+			x = state.x;
+			y = state.y;
+			w = state.width;
+			h = state.height;
+		}
+		nw.Window.open('./proxyInfo.html',{
+			width:w,
+			height:h,
+			frame:false,
+			resizable:true,
+			transparent:true,
+			x:x,
+			y:y
+		},(win)=>{
+			win.x = x;
+			win.y = y;
+			win.on('loaded',()=>{
+				$('#modalNav',$(win.window.document)).css('position','fixed');
+				//console.log('opened win',win,$('.proxyInfo',$(win.window.document)));
+				console.log('ip res',results);
+				if(Object.keys(results).length > 0){
+					let $el = $('.proxyInfo .ips',$(win.window.document))
+					$el.html('')
+					Object.keys(results).map(netName=>{
+						console.log('nn',results[netName])
+						if(results[netName].length > 0){
+							results[netName].map((ip,i)=>{
+								if(i == 0){
+					  			$el.append('<div>'+netName+'</div>')
+					  		}
+					  		$el.append('<div class="IP">IP: '+ip+'</div>')
+					  		$el.append('<div class="port">port: 5301</div>')
+							})
+				  		
+				  		}
+					})
+				}
+				switch(process.platform){
+					case 'win32':
+						$('#modalNav',$(win.window.document)).addClass('windows');
+					break;
+					case 'linux':
+						$('#modalNav',$(win.window.document)).addClass('linux');
+					break;
+				}
+
+				$('#closeMap',$(win.window.document)).on('click',()=>{
+					//$('#modal',win.window).hide().html('');
+					win.close(true);
+				})
+			})
+			
+		});
+		
 	}
 }

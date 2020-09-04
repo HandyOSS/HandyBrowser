@@ -1,5 +1,6 @@
 const GetFavicons = require('./getFavicon.js');
 const GetNetworkMap = require('./getNetworkMapLocations.js');
+const fs = require('fs');
 module.exports = {
   // introduction
   summary: 'HandyBrowser Customized Proxy Rules',
@@ -36,6 +37,17 @@ module.exports = {
       });
       
     }
+    if(requestDetail.url.indexOf('__handybrowser_get_godane_cert__') >= 0){
+      return new Promise((resolve,reject)=>{
+        let content = fs.readFileSync('/root/.godane/cert.crt','utf8');
+        let localResponse = {
+            statusCode: 200,
+            header: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({data:content})
+          };
+          resolve({response:localResponse});
+      })
+    }
     /*else{
       console.log('returning null');
       return null;
@@ -44,7 +56,7 @@ module.exports = {
   // deal response before send to client
   *beforeSendResponse(requestDetail, responseDetail) { /* ... */ },
   // if deal https request
-  *beforeDealHttpsRequest(requestDetail) { /* ... */ },
+  //*beforeDealHttpsRequest(requestDetail) { /* ... */ },
   // error happened when dealing requests
   *onError(requestDetail, error) { 
     //custom 404

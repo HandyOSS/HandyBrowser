@@ -28,10 +28,12 @@ RUN npm install request --save
 RUN npm install get-website-favicon --save
 RUN npm install ico-to-png --save
 RUN npm install anyproxy --save
+RUN npm install geoip-lite --save
 RUN ./node_modules/anyproxy/bin/anyproxy-ca -g
 COPY ./resolv.conf resolv.conf
 COPY ./proxyRule.js proxyRule.js
 COPY ./getFavicon.js getFavicon.js
+COPY ./getNetworkMapLocations.js getNetworkMapLocations.js
 COPY ./runProxy.js runProxy.js
 COPY ./startProxy.sh /usr/local/bin/docker-entrypoint.sh
 RUN sed -i -e 's/\r$//' /usr/local/bin/docker-entrypoint.sh

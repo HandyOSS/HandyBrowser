@@ -1,0 +1,61 @@
+<link rel="stylesheet" type="text/css" href="css/tray.css" />
+<link rel="stylesheet" type="text/css" href="css/bookmarkManager.css" />
+<link rel="stylesheet" type="text/css" href="./css/map.css" />	
+<div class="proxyInfo">
+	<div id="modalNav">
+		<div class="optionButton active" id="closeMap">x</div>
+		<div class="optionButton notActive" id="hide">-</div>
+		<div class="optionButton notActive" id="full">+</div>
+	</div>
+
+	<div class="facts">
+		Fun fact: you can use the Handshake backend of HandyBrowser in your favorite web browsers on the same local network (meaning your mobile too).
+		<a href="#ff">Firefox Instructions</a>
+		<a href="#ios">iOS Instructions</a>
+	</div>
+	<div class="ips">
+		<div class="IP">
+			My IP: 127.0.0.1
+		</div>
+		<div class="port">
+			Port: 5301
+		</div>
+	</div>
+	
+	<div class="firefox">
+		<a id="ff"></a>
+		<h4>Firefox</h4>
+		
+		<ul>
+			<li>Goto Options</li>
+			<li>Search for "Proxy"</li>
+			<li>Click on the "Settings..." button in the Network Settings results</li>
+			<li>Enter your IP and port from above like so:</li>
+			<li><img src="./img/proxysetting_firefox.png" /></li>
+			<li>Now search in options for "Certificates", and click the "View Certificates..." Button</li>
+			<li><img src="./img/certs_ff.png" /></li>
+			<li><a id="downloadCert">Download your Handshake Proxy Certificate here</a>, and then in Firefox, click "Import..." to import the downloaded certificate.</li>
+			<li>When importing, you will check the box for "Trust this CA to Identify Websites" like this:</li>
+			<li><img src="./img/certs_ff2.png" /><br />And then click "OK"</li>
+			<li>Now visit a Handshake enabled site, like: http://welcome.nb/, or https://proofofconcept/</li>
+			<li>Note: Firefox may want you to add a "." after the TLD, aka: "welcome.nb."</li>
+		</ul>
+	</div>
+	<div class="ios">
+		<a id="ios"></a>
+		<h4>iOS</h4>
+		
+		<ul>
+			<li>Open "Settings"</li>
+			<li>Wi-Fi Settings</li>
+			<li>Click the "i" icon next to your wifi network like:</li>
+			<li><img src="./img/wifi_setting_ios0.jpeg" /></li>
+			<li>Scroll to the bottom of this screen, and tap "Configure Proxy"</li>
+			<li>Set to "Manual" (try Automatic too if youre lucky)</li>
+			<li>Set the IP and port to the address listed on this page</li>
+			<li>Tap "Save" in the top-right</li>
+			<li>Visit a Handshake enabled site like http://welcome.nb./ (notice the "." after the TLD)</li>
+
+		</ul>
+	</div>
+</div>

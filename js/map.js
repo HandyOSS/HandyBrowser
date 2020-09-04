@@ -7,7 +7,7 @@ class NetworkMap{
 		this.mapIsLoaded = false;
 		this.hasPlotted = false;
 		this.drawMap();
-		$.getJSON('http://__handybrowser_get_hosts__',(data)=>{
+		$.getJSON('http://localhost:5302/__handybrowser_get_hosts__',(data)=>{
 			this.mapData = data;
 			this.modelData();
 			//this.plotPoints();
@@ -112,6 +112,9 @@ class NetworkMap{
   	}).map(ip=>{
   		let data = this.mapData[ip];
   		let geoData = data.geo;
+      if(geoData == null){
+        return;
+      }
   		//addMarkers(data,geoData.ll,data);
   		featureData.push({
         "type": "Feature",

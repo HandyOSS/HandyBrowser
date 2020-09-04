@@ -1,5 +1,6 @@
 const spawn = require('child_process').spawn;
 const fs = require('fs');
+const os = require('os');
 class BookmarkManager{
 	constructor(tray){
 		this.tray = tray;
@@ -56,7 +57,7 @@ class BookmarkManager{
 		}
 		//showDonate()
 
-		let donateOption = nw.MenuItem({label:'Donate HNS 🤝',click:()=>{
+		let donateOption = nw.MenuItem({label:'Donate HNS|BTC 🤝',click:()=>{
 			this.showDonate();
 		}});
 		if(process.platform == 'darwin'){
@@ -131,33 +132,43 @@ class BookmarkManager{
 
 			}
 		}});
+		let showProxyInfo = nw.MenuItem({label:'How to Proxy to Firefox/etc',click:()=>{
+			this.showHowtoProxy();
+		}})
   	this.tray.getHSDNodeStatus().then((d)=>{
 
   		let syncStatus = d.status;
   		let symbol = d.symbol;
   		
   		if(process.platform == 'darwin'){
+  			this.mainMenu.append(showProxyInfo);
   			this.mainMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}))
   			this.mainMenu.append(restartDockerOption);
   			this.mainMenu.append(nukeOption);
+  			
   		}
   		else{
+  			topMenu.append(showProxyInfo);
   			topMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}))
   			topMenu.append(restartDockerOption)
   			topMenu.append(nukeOption);
   		}
   	}).catch(e=>{
   		if(process.platform == 'darwin'){
+  			this.mainMenu.append(showProxyInfo);
   			this.mainMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}))
   			this.mainMenu.append(restartDockerOption);
   			this.mainMenu.append(nukeOption);
   		}
   		else{
+  			topMenu.append(showProxyInfo);
   			topMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}));
   			topMenu.append(restartDockerOption);
   			topMenu.append(nukeOption);
   		}
   	});
+
+
   	
 		
 	  
@@ -190,6 +201,84 @@ class BookmarkManager{
 				$('#bookmarkPage').addClass('clicked');
 			}
 		})
+	}
+	showHowtoProxy(){
+		//show the proxy info panel
+		const nets = os.networkInterfaces();
+		const results = {};
+
+		for (const name of Object.keys(nets)) {
+		    for (const net of nets[name]) {
+		        // skip over non-ipv4 and internal (i.e. 127.0.0.1) addresses
+		        if (net.family === 'IPv4' && !net.internal) {
+		            
+		            if(net.address.indexOf('10.') == 0 || net.address.indexOf('192.168') == 0){
+		            	if (!results[name]) {
+			                results[name] = [];
+			            }
+		            	results[name].push(net.address);
+		        	}
+		        }
+		    }
+		}
+
+
+		let state = localStorage.getItem('windowState');
+		let x = 0;
+		let y = 0;
+		let w = screen.availWidth;
+		let h = screen.availHeight;
+
+		if(state != null){
+			state = JSON.parse(state);
+			x = state.x;
+			y = state.y;
+			w = state.width;
+			h = state.height;
+		}
+		fs.readFile('./proxyInfo.html','utf8',(err,snippet)=>{
+		  $('#modal').html($(snippet))
+		  $.getJSON('http://localhost:5302/__handybrowser_get_godane_cert__',(certD)=>{
+		  	let certText = certD.data;
+		  	let $a = $('#modal #downloadCert');
+		  	$a[0].href = URL.createObjectURL(new Blob([certText]));
+		  	$a.attr('type','text/crt')
+		  	$a.attr('download','godane.cert.crt');
+		  })
+		  
+		  console.log('ip res',results);
+		  if(Object.keys(results).length > 0){
+			let $el = $('#modal .ips')
+		  	$el.html('<div class="myInfoLabel">My Proxy Server Info:</div>')
+		  	Object.keys(results).map(netName=>{
+		  		console.log('nn',results[netName])
+		  		if(results[netName].length > 0){
+		  			results[netName].map((ip,i)=>{
+		  				if(i == 0){
+				  			$el.append('<div>'+netName+'</div>')
+				  		}
+				  		$el.append('<div class="IP">IP: '+ip+'</div>')
+				  		$el.append('<div class="port">port: 5301</div>')
+		  			})
+			  		
+			  	}
+		  	})
+		  }
+		  switch(process.platform){
+		  	case 'win32':
+		  		$('#modalNav').addClass('windows');
+		  	break;
+		  	case 'linux':
+		  		$('#modalNav').addClass('linux');
+		  	break;
+		  }
+
+		  $('#modal').show();
+		  $('#closeMap',$('#modal')).on('click',()=>{
+			$('#modal').hide().html('');
+		  })
+			
+		});
 	}
 	showNetworkMap(){
 		let state = localStorage.getItem('windowState');
@@ -780,7 +869,7 @@ class BookmarkManager{
 				if(typeof this.faviconData[encodeURIComponent(bm.url)] == "undefined"){
 
 					$li = $('<li class="url"><span class="iconPlaceholder"></span>'+bm.name+'</li>');
-					$.getJSON('http://__handybrowser_getfavicon__/'+encodeURIComponent(bm.url),(d)=>{
+					$.getJSON('http://localhost:5302/__handybrowser_getfavicon__/'+encodeURIComponent(bm.url),(d)=>{
 						this.faviconData[encodeURIComponent(bm.url)] = d.icon;
 						$('.iconPlaceholder',$li).remove();
 						$li.prepend('<img src="'+d.icon+'" class="icon" />')
@@ -880,7 +969,7 @@ class BookmarkManager{
 				if(typeof this.faviconData[encodeURIComponent(child.url)] == "undefined"){
 
 					li = $('<li class="url"><span class="iconPlaceholder"></span>'+child.name+'</li>');
-					$.getJSON('http://__handybrowser_getfavicon__/'+encodeURIComponent(child.url),(d)=>{
+					$.getJSON('http://localhost:5302/__handybrowser_getfavicon__/'+encodeURIComponent(child.url),(d)=>{
 						this.faviconData[encodeURIComponent(child.url)] = d.icon;
 						$('.iconPlaceholder',li).remove();
 						li.prepend('<img src="'+d.icon+'" class="icon" />')

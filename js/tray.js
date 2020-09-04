@@ -196,8 +196,8 @@ class Tray{
 			this.resizeActive(true);
 			this.calcTabSize();
 		})
-		
 	}
+	
 	resizeActive(isMove){
 		let y = this.trayWindow.y;
 		let h = $('#toolbar').outerHeight()+5;
@@ -779,8 +779,14 @@ class Tray{
 	    		}
 	    		this.setTabInfoOnLoad(tabData.url,tabData,false);
 	    	
-	      }
-	      /*$webview[0].oncontentload = (e)=>{
+	      };	
+	      
+	      $webview[0].addEventListener('permissionrequest', function(e) {
+			if (e.permission === 'media' || e.permission === 'fullscreen') {
+			  e.request.allow();
+			}
+		  });	      
+		  /*$webview[0].oncontentload = (e)=>{
 	      	console.log('on contentload',e);
 	      }*/
 	      $webview[0].onloadstop = (e)=>{
@@ -875,7 +881,7 @@ class Tray{
 	  		activeNow.fetchingIcon = true;
 	  		let toLoad = typeof url != "undefined" ? url : activeNow.url;
 	    	
-	    	$.getJSON('http://__handybrowser_getfavicon__/'+encodeURIComponent(toLoad),(d)=>{
+	    	$.getJSON('http://localhost:5302/__handybrowser_getfavicon__/'+encodeURIComponent(toLoad),(d)=>{
 				activeNow.icon = d.icon;
 				delete activeNow.fetchingIcon;
 				//this.activeTab.$el.html(this.activeTab.window.title);
@@ -1202,10 +1208,12 @@ class Tray{
 				return tab.url;
 			});
 			localStorage.setItem('tabState',JSON.stringify(urls));
-			nw.App.quit();
+			nw.Window.get().close(true);
+			//nw.App.quit();
 		}
 		else{
-			nw.App.quit();
+			nw.Window.get().close(true);
+			//nw.App.quit();
 		}
 		return;	
 	}
