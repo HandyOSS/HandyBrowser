@@ -11,6 +11,11 @@ $(document).ready(function(){
 class bsApp{
 	constructor(){
 		console.log('construct');
+		nw.App.on('open',()=>{
+			console.log('new open process');
+			this.showTray();
+		})
+		nw.Window.get().focus();
 		//set guid		
 		if(window.localStorage.getItem('guid') == null){
 			this.guid = this.getGuid();
@@ -365,7 +370,10 @@ class bsApp{
 			manifest.additional_trust_anchors = [certText];
 			manifest.main = manifest.main.split('/');
 			manifest.main = manifest.main[manifest.main.length-1];
-			
+			if(process.platform == 'win32'){
+				manifest.main = manifest.main.split('\\')
+				manifest.main = manifest.main[manifest.main.length-1];
+			}
 			let execPath = process.execPath;
 			let startPath = nw.App.startPath;
 			/*let p = spawn('sleep',['1','&&',execPath,startPath])
@@ -406,7 +414,20 @@ class bsApp{
 		    		//nw.App.quit();
 		    	}
 		    	if(process.platform == 'win32'){
-		    		let restartWIN = spawn(wp+'/utils/restart.windows.sh',[process.pid,process.execPath],{detached:true})
+		    		//let restartWIN = spawn('cmd.exe',['sh',wp+'/utils/restart.windows.sh',process.pid,process.execPath],{detached:true})
+		    		let restartWIN = spawn( 'restart.windows.bat',[ process.pid, process.execPath],{detached:true,silent:true,cwd:wp+'/utils'});
+		    		setTimeout(()=>{
+		    			nw.Window.get().setAlwaysOnTop(true);
+		    		},100)
+		    		setTimeout(()=>{
+		    			nw.Window.get().setAlwaysOnTop();
+		    		},1100)
+		    		restartWIN.stdout.on('data',d=>{
+						console.log('stdout:::',d.toString('utf8'))
+					})
+					restartWIN.stderr.on('data',d=>{
+						console.log('stderr:::',d.toString('utf8'))
+					})
 		    	}
 		    	if(process.platform == 'linux'){
 		    		let restartLIN = spawn(wp+'/utils/restart.linux.sh',[process.pid,process.execPath],{detached:true})
@@ -430,11 +451,12 @@ class bsApp{
 		else{
 			this.showTray();
 		}
+		setTimeout(()=>{
+			toClose.hide();//toClose.close();
+		},1000)
 	})
 		
-		/*setTimeout(()=>{
-			toClose.hide();//toClose.close();
-		},1000)*/
+		
 	}
 	pushToLogs(line,type,context){
 		console.log('LOGS:',line,type,context);
@@ -492,6 +514,7 @@ class bsApp{
 			icon = './icons/app_16x16x32.png'
 			title = '';
 		}
+		//if(process.platform == 'darwin'){
 		var tray = new nw.Tray({ title: title, icon: icon });
 
 		// Give it a menu
@@ -533,6 +556,7 @@ class bsApp{
 			})
 		)
 		tray.menu = menu;
+		//}
 
 		/*// Remove the tray
 		tray.remove();

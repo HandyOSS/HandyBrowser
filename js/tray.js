@@ -17,6 +17,10 @@ class Tray{
 		this.initEvents();
 		this.initKeyboardShortcuts();
 		this.trayWindow = nw.Window.get();
+		this.trayWindow.setAlwaysOnTop(true);
+		setTimeout(()=>{
+			this.trayWindow.setAlwaysOnTop(false);
+		},100)
 		this.initUrlBarLogo();
 		setTimeout(()=>{
 			this.checkNodeStatusTimer(false);
@@ -282,6 +286,7 @@ class Tray{
 		let closeTabCmd;
 		let showDevToolsCmd;
 		let reloadTabCmd;
+		let newWinCmd;
 		if(process.platform == 'darwin'){
 			this.deregisterKeyboardShortcuts();
 		}
@@ -318,6 +323,13 @@ class Tray{
 					console.log(msg);
 				}
 			};
+			newWinCmd = {
+				key: 'Command+N',
+				active:newWindow,
+				failed:function(msg){
+					console.log(msg);
+				}
+			}
 			
 		}
 		else{
@@ -351,6 +363,13 @@ class Tray{
 					console.log(msg);
 				}
 			}
+			newWinCmd = {
+				key:'Ctrl+N',
+				active:newWindow,
+				failed:function(msg){
+					console.log(msg);
+				}
+			}
 			
 		}
 		let newTabShortcut = new nw.Shortcut(newTabCmd);
@@ -368,6 +387,10 @@ class Tray{
 		let reloadTabShortcut = new nw.Shortcut(reloadTabCmd);
 		this._globalShortcuts.reloadTabShortcut = reloadTabShortcut;
 		nw.App.registerGlobalHotKey(reloadTabShortcut);
+
+		let newWinShortcut = new nw.Shortcut(newWinCmd);
+		this._globalShortcuts.newWinShortcut = newWinShortcut;
+		nw.App.registerGlobalHotKey(newWinShortcut);
 
 		$('#addTabButton').off('click').on('click',function(){
 			activeFunction();
@@ -485,6 +508,9 @@ class Tray{
 				}
 				_this.isAddingNewTab = true;
 			}
+		}
+		function newWindow(){
+			_this.openNewWindow();
 		}
 		//add H
 	}
@@ -1350,5 +1376,35 @@ class Tray{
 	  	}
 	  	$('#syncInfo').html('🔴HNS Node Not Responding');
   	});
+	}
+	openNewWindow(){
+		let w = screen.availWidth;
+		let h = screen.availHeight;
+		let x = screen.availLeft;
+		let y = screen.availTop;
+		let hasState = false;
+		if(window.localStorage.getItem('windowState') != null){
+			let state = JSON.parse(window.localStorage.getItem('windowState'));
+			console.log('window state is here',state);
+			w = state.width;
+			h = state.height;
+			x = state.x;
+			y = state.y;
+			hasState = true;
+		}
+		nw.App.setProxyConfig('127.0.0.1:5301');
+		let isResizable = true;
+		nw.Window.open('./tray.html',{
+			width:w,
+			height:h,
+			frame:false,
+			resizable:isResizable,
+			transparent:true,
+			x:x,
+			y:y
+		},(win)=>{
+			win.x = x;
+			win.y = y;
+		});
 	}
 }
