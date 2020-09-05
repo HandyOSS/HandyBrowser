@@ -1,0 +1,132 @@
+<html>
+<head>
+	<title>HandyBrowser</title>
+	<link rel="stylesheet" type="text/css" href="css/tray.css" />
+	<link rel="stylesheet" type="text/css" href="css/bookmarkManager.css" />
+	<link rel="stylesheet" type="text/css" href="./css/map.css" />	
+	<link rel="stylesheet" type="text/css" href="./css/donate.css" />	
+	<style>
+		.icon img{
+			width: 128px;
+			height:128px;
+		}
+		.icon .title{
+			font-weight:600;
+			margin: 10px 0;
+			font-size: 24px;
+		}
+		html,body{
+			background:#222;
+			overflow:auto;
+		}
+		.links, .info{
+			margin: 5px 0;
+		}
+		.infoLabel{
+			font-weight: 600;
+		}
+
+		body .proxyInfo{
+			margin-top:0px;
+			height: auto;
+			overflow:auto;
+
+		}
+		body .donate50{
+			color:#ccc;
+			text-align: center;
+			height:auto;
+		}
+		.donate50 input{
+			text-align:center;
+		}
+	</style>
+</head>
+	<body>
+	<div class="proxyInfo">
+		<div class="icon">
+			<img src="./icons/app_png.png" />
+			<div class="title">HandyBrowser 0.2</div>
+		</div>
+		<div class="links">
+			<a href="https://github.com/HandyMiner/HandyBrowser/releases/" target="_blank">Download the latest pre-build release here</a>
+		</div>
+		<div class="info">
+			<div class="infoLabel">HandyBrowser 0.2 Changelog:</div>
+			HandyBrowser 0.2 adds support for community projects godane and hnsd. 
+			<ul>
+				<li><a href="https://github.com/buffrr/godane" target="_blank">godane</a> enables the use of DANE (DNS Based Authentication of Named Entities) in browsers using a simple proxy. It currently supports DANE-EE, and works with self-signed certificates.</li>
+				<li><a href="https://github.com/handshake-org/hnsd" target="_blank">hnsd</a> is a Handshake SPV resolver daemon for the Handshake network. Written in C for speed/size/embedability. It enables us to do fast lookups of Handshake names without relying on a full sync of the blockchain in a Handshake fullnode.</li>
+			</ul>
+			<div>Other Updates:</div>
+			<ul>
+				<li>In the HandyBrowser menu there is now a guide showing you how to use HandyBrowser&#039;s resolver/proxy to resolve Handshake names in your favorite browsers. This was something you could always do, we just made it more prominent. Most of the guide follows below:</li>
+			</ul>
+		</div>
+
+
+		<div class="facts">
+			Fun fact: you can use the Handshake backend of HandyBrowser in your favorite web browsers on the same local network (meaning your mobile too).
+			<a href="#ff">Firefox Instructions</a>
+			<a href="#ios">iOS Instructions</a>
+		</div>
+		
+		
+		<div class="firefox">
+			<a id="ff"></a>
+			<h4>Firefox</h4>
+			
+			<ul>
+				<li>Goto Options</li>
+				<li>Search for "Proxy"</li>
+				<li>Click on the "Settings..." button in the Network Settings results</li>
+				<li>Enter your IP and port (5301) from the HandyBrowser Proxy Info panel like so:</li>
+				<li><img src="./img/proxysetting_firefox.png" /></li>
+				<li>Now search in options for "Certificates", and click the "View Certificates..." Button</li>
+				<li><img src="./img/certs_ff1.png" /></li>
+				<li><a id="downloadCert">Download your Handshake Proxy Certificate in HandyBrowser</a>, and then in Firefox, click "Import..." to import the downloaded certificate.</li>
+				<li>When importing, you will check the box for "Trust this CA to Identify Websites" like this:</li>
+				<li><img src="./img/certs_ff2.png" /><br />And then click "OK"</li>
+				<li>Now visit a Handshake enabled site, like: http://welcome.nb/, or https://proofofconcept/</li>
+				<li>Note: Firefox may want you to add a "." after the TLD, aka: "welcome.nb."</li>
+			</ul>
+		</div>
+		<div class="ios">
+			<a id="ios"></a>
+			<h4>iOS</h4>
+			
+			<ul>
+				<li>Open "Settings"</li>
+				<li>Wi-Fi Settings</li>
+				<li>Click the "i" icon next to your wifi network like:</li>
+				<li><img src="./img/wifi_setting_ios0.jpeg" /></li>
+				<li>Scroll to the bottom of this screen, and tap "Configure Proxy"</li>
+				<li>Set to "Manual" (try Automatic too if youre lucky)</li>
+				<li>Set the IP and port to the address listed on this page</li>
+				<li>Tap "Save" in the top-right</li>
+				<li>Visit a Handshake enabled site like http://welcome.nb./ (notice the "." after the TLD)</li>
+
+			</ul>
+		</div>
+		
+	</div>
+	<div class="donate50">
+		<div class="donateLabel">
+			Donate HNS to the HandyBrowser Team:
+		</div>
+		<img class="qr" src="./icons/qr.png" />
+		<div class="donateLabel">
+			<input class="selectMe" readonly="readonly" value="hs1qwfpd5ukdwdew7tn7vdgtk0luglgckp3klj44f8" size="45" />
+		</div>
+	</div>
+	<div class="donate50">
+		<div class="donateLabel">
+			Donate BTC to the HandyBrowser Team:
+		</div>
+		<img class="qr" src="./img/btc_qr.jpg" />
+		<div class="donateLabel">
+			<input class="selectMe" readonly="readonly" value="bc1qk3rk4kgek0hzpgs8qj4yej9j5fs7kcnjk7kuvt" size="45" />
+		</div>
+	</div>
+</body>
+</html>

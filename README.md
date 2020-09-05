@@ -4,6 +4,8 @@
 
 ### Download Latest Prebuilt HandyBrowser in [Releases](https://github.com/HandyMiner/HandyBrowser/releases) [Skips all the steps below]
 
+Note: Use the HandyBrowser Docker container as a proxy for your favorite browser (even iOS) to resolve Handshake Names. After starting HandyBrowser, set your browser proxy to ```localhost:5301```. There is also a menu item within HandyBrowser to guide you thru proxy setup in Firefox and iOS.
+
 ### Building from Source
 
 First, install frontend client dependencies
@@ -29,7 +31,7 @@ First, install frontend client dependencies
 
 HandyBrowser (aka "Handy") is using node-webkit [nw.js](https://nwjs.io) under the hood. Nw.js packages the latest chromium with the latest node.js and allows us granular security, html and many other features. 
 Since we did not want users to manually have to modify system level configurations and run HNSD/HNS resolvers locally themselves, we rely on Docker. 
-Docker allows us to create a lightweight linux virtual machine that installs HNS resolvers, and is pre-configured to use the HNS resolver. We simply proxy all web traffic from the chromium browser into the Docker machine which resolves via HSD and returns content! Docker generates a self-signed certificate on container creation which allows the user to proxy https traffic to the browser. **During installation Docker runs a one-time install process, after that it won't need to be run again, and you'll be able to start browsing/resolving names immediately (even as the HSD fullnodes syncs in Docker).**
+Docker allows us to create a lightweight linux virtual machine that installs HNS resolvers, and is pre-configured to use the HNS resolver. We simply proxy all web traffic from the chromium browser into the Docker machine via another community procject, [godane](https://github.com/buffrr/godane),  which resolves via HSD and returns content securely with it's own root CA! [Godane](https://github.com/buffrr/godane) generates a self-signed certificate on container creation which allows the user to proxy https traffic to the browser securely. **During installation Docker runs a one-time install process, after that it won't need to be run again, and you'll be able to start browsing/resolving names immediately (even as the HSD fullnodes syncs in Docker).**
 
 ![alt text](./img/HandyBrowser_flowchart.png)
 
@@ -50,17 +52,15 @@ Why Nw.js over Electron? The lead-dev of this project has used Nw.js extensively
   
 ### HandyBrowser TODOs
 
-1. Re-enable HNSD when it's production ready. We got HNSD to work and the dockerfile is there to build. Setting ```this.resolver = 'hsd'; //|| hnsd``` to 'hnsd' in file ```js/boot.js:24``` will allow you to boot with hnsd. Why not HNSD? We had issues with queueing and timeouts at scale. It works great for one site at a time. However when opening multiple tabs with tons of analytics happening (google.com, ebay.com, facebook.com, yahoo.com) HNSD would have a request that would lag and cause subsequent requests to wait for a timeout to happen. Replicating can be done by modifying ```/etc/resolv.conf``` to use ```8.8.8.8``` instead of ```127.0.0.1``` and see the difference. Thus we use hsd for now [PRs welcome if you can get it working].
+1. It would be great to not need Docker's overhead. If there were a way to tell the browser which DNS to use locally that would be ideal. We're going work with the community and see if there's a more elegant solution in time. If a VM is neccessary, hyperkit or HyperV could be ideal alternatives to Docker.
 
-2. It would be great to not need Docker's overhead. If there were a way to tell the browser which DNS to use locally that would be ideal. We're going work with the community and see if there's a more elegant solution in time. If a VM is neccessary, hyperkit or HyperV could be ideal alternatives to Docker.
+2. Re-enable the HandyMiner GUI that's built in already. Shell script/workflow to install hstratum onto the dockerized HSD machine needs to be made.
 
-3. Re-enable the HandyMiner GUI that's built in already. Shell script/workflow to install hstratum onto the dockerized HSD machine needs to be made.
+3. Figure out how to get Chrome extensions working. They are most certainly supported in nw.js.
 
-4. Figure out how to get Chrome extensions working. They are most certainly supported in nw.js.
+4. Add native-styled close menu buttons for most linux variants. Right now its styled like Ubuntu 16.
 
-5. Add native-styled close menu buttons for most linux variants. Right now its styled like Ubuntu 16.
-
-6. Addition auto-updating option so it's easier to upgrade to the latest version of Handy.
+5. Addition auto-updating option so it's easier to upgrade to the latest version of Handy.
 
 ### HandyBrowser Install FAQS
 
@@ -76,12 +76,12 @@ Linux - https://docs.docker.com/engine/install/
   - Your firewall may prompt you a couple of times for permissions the first time you run the browser, be sure to accept those. We need them to make the browser work.
   - If you have any trouble with your Docker node not loading, either use the 'nuke' option in the HandyBrowser Menu or enter these commands in your terminal, and run the browser once more:
   ```sh
-$ docker stop HandyBrowserHSD
-$ docker rm HandyBrowserHSD
+$ docker stop HandyBrowserHNSD
+$ docker rm HandyBrowserHNSD
 $ docker image rm handybrowser
 ```
 
-  - To SSH into your docker container: ```docker exec -it HandyBrowserHSD bash```
+  - To SSH into your docker container: ```docker exec -it HandyBrowserHNSD bash```
 
 ### Project Roadmap [Donation Driven Development]
 
