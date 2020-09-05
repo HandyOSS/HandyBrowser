@@ -8,6 +8,8 @@ RUN apt-get install dnsutils -y
 
 COPY ./hnsd hnsd
 
+RUN chmod +x hnsd
+
 COPY ./run.hnsd.sh run.hnsd.sh
 
 RUN sed -i -e 's/\r$//' run.hnsd.sh
@@ -25,6 +27,8 @@ RUN chmod 0775 run.hns.node.sh
 WORKDIR /usr/godane
 
 COPY ./godane godane
+
+RUN chmod +x godane
 
 COPY ./run.godane.proxy.sh run.godane.proxy.sh
 

@@ -122,10 +122,10 @@ class BookmarkManager{
 			topMenu.append(mapOption);
 			topMenu.append(donateOption);
 		}
-		let restartDockerOption = nw.MenuItem({label:'Restart Docker HSD',click:()=>{
+		let restartDockerOption = nw.MenuItem({label:'Restart Docker HNSD',click:()=>{
 			this.restartDocker();
 		}});
-		let nukeOption = nw.MenuItem({label:'Nuke & Rebuild Docker HSD',click:()=>{
+		let nukeOption = nw.MenuItem({label:'Nuke & Rebuild Docker HNSD',click:()=>{
 			let didConfirm = confirm('⚠️ Docker rebuild will take a few minutes to Rebuild and Sync HSD.\nAre you sure?');
 			if(didConfirm){
 				this.nukeDocker();
@@ -1053,11 +1053,11 @@ class BookmarkManager{
 	}
 	restartHSD(){
 		let guid = localStorage.getItem('guid');
-		let hsdProcess = spawn('docker',['exec','-i','HandyBrowserHSD','sh','-c','"./run.hns.resolver.sh\ '+guid+'"'],{shell:true})
+		let hsdProcess = spawn('docker',['exec','-i','HandyBrowserHNSD','sh','-c','"./run.hnsd.sh"'],{shell:true})
 		let hsdLogged = false;
 		//let hsdLogs = '';
 		hsdProcess.stdout.on('data',d=>{
-			if(!hsdLogged && d.toString('utf8').indexOf('listening on port 53') >= 0){
+			if(!hsdLogged /*&& d.toString('utf8').indexOf('listening on port 53') >= 0*/){
 				hsdLogged = true;
 				$('#restartDockerNotification').html('Restarted HSD');
 					this.tray.checkHSDStatus();

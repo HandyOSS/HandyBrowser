@@ -37,8 +37,9 @@ class bsApp{
 				//write linux .desktop file proper
 				this.writeLinuxDesktopRunner();
 			}
+			this.initSystemTray()
 		}
-		this.initSystemTray()
+		
 	}
 	getGuid(){
 		function S4() {
@@ -49,8 +50,8 @@ class bsApp{
 	showTray(){
 		let w = screen.availWidth;
 		let h = screen.availHeight;
-		let x = 0;
-		let y = 0;
+		let x = screen.availLeft;
+		let y = screen.availTop;
 		let hasState = false;
 		if(window.localStorage.getItem('windowState') != null){
 			let state = JSON.parse(window.localStorage.getItem('windowState'));
@@ -347,6 +348,81 @@ class bsApp{
 		console.log('attempt start of hsd')
 	}
 	finishup(){
+		let manifest = nw.App.manifest;
+		console.log('finishup')
+		//always keep the godane cert updated in the app manifest
+		let p = new Promise((resolve,reject)=>{
+		let cpSpawn = spawn('docker',['cp','HandyBrowserHNSD:/root/.godane/cert.crt',nw.App.dataPath+'/godane.cert.crt']);
+		cpSpawn.on('close',()=>{
+			//console.log('copied cert')
+			let certText = fs.readFileSync(nw.App.dataPath+'/godane.cert.crt','utf8');
+			let ogCert = manifest.additional_trust_anchors;
+			if(typeof ogCert != "undefined"){
+				ogCert = manifest.additional_trust_anchors[0];
+			}
+			certText = certText.replace(/\n/gi,'\n');
+			//console.log('certText',certText);
+			manifest.additional_trust_anchors = [certText];
+			manifest.main = manifest.main.split('/');
+			manifest.main = manifest.main[manifest.main.length-1];
+			
+			let execPath = process.execPath;
+			let startPath = nw.App.startPath;
+			/*let p = spawn('sleep',['1','&&',execPath,startPath])
+			p.stdout.on('data',d=>{
+				console.log('stdout:::',d.toString('utf8'))
+			})
+			p.stderr.on('data',d=>{
+				console.log('stderr:::',d.toString('utf8'))
+			})*/
+			//setTimeout(()=>{
+				//let child;
+			const path = require('path');
+			let wp;
+			if (process.platform == "darwin")  {
+				wp = path.dirname(process.execPath.match(/^([^\0]+?\.app)\//)[1])
+				//fs.writeFileSync(wp+'/package.json',JSON.stringify(manifest,null,2),'utf8');
+		        //child = spawn("open", ["-n", "-a", process.execPath.match(/^([^\0]+?\.app)\//)[1]], {detached:true})
+		    } else {
+		        //child = spawn(process.execPath, [], {detached: true})
+		        wp = path.dirname(process.execPath)+'/package.nw'
+				//fs.writeFileSync(wp+'/package.json',JSON.stringify(manifest,null,2),'utf8');
+		    }
+		    console.log('write manifest to',wp);
+		    fs.writeFileSync(wp+'/package.json',JSON.stringify(manifest,null,2),'utf8');
+
+		    if(ogCert != certText){
+		    	if(localStorage.getItem('isRebuildingDockerNode') != null){
+					localStorage.removeItem('isRebuildingDockerNode');
+				}
+		    	console.log('rewrite cert and restart')
+		    	$('.main').html('UPDATING PROXY CERTIFICATE AND RESTARTING APP...');
+		    	//we rewrote it, we should restart the app real fast
+		    	if(process.platform == 'darwin'){
+		    		//console.log('to restart',wp+'/utils/restart.mac.sh')
+		    		let restartMAC = spawn(wp+'/utils/restart.mac.sh',[process.pid,process.execPath.match(/^([^\0]+?\.app)\//)[1]],{detached:true})
+		    		
+		    		//restart.unref();
+		    		//nw.App.quit();
+		    	}
+		    	if(process.platform == 'win32'){
+		    		let restartWIN = spawn(wp+'/utils/restart.windows.sh',[process.pid,process.execPath],{detached:true})
+		    	}
+		    	if(process.platform == 'linux'){
+		    		let restartLIN = spawn(wp+'/utils/restart.linux.sh',[process.pid,process.execPath],{detached:true})
+		    	}
+			    //child.unref()
+		    }
+		    else {
+		    	resolve();
+		    }
+			//},100);
+			
+		})
+		//console.log('manifest',nw.App.manifest);
+		//}
+		
+	}).then(()=>{
 		let toClose = nw.Window.get();
 		if(localStorage.getItem('isRebuildingDockerNode') != null){
 			localStorage.removeItem('isRebuildingDockerNode');
@@ -354,10 +430,11 @@ class bsApp{
 		else{
 			this.showTray();
 		}
+	})
 		
-		setTimeout(()=>{
+		/*setTimeout(()=>{
 			toClose.hide();//toClose.close();
-		},1000)
+		},1000)*/
 	}
 	pushToLogs(line,type,context){
 		console.log('LOGS:',line,type,context);
@@ -388,7 +465,7 @@ class bsApp{
 	}
 	nukeDocker(){
 		$('.main').html('REMOVING DOCKER CONTAINER...');
-		let containerD = spawn('docker',['stop','HandyBrowserHSD','&&','docker','rm','HandyBrowserHSD','&&','docker','image','rm','handybrowser'],{shell:true});
+		let containerD = spawn('docker',['stop','HandyBrowserHNSD','&&','docker','rm','HandyBrowserHNSD','&&','docker','image','rm','handybrowser'],{shell:true});
 		containerD.on('close',d=>{
 			
 			$('.main').html('REMOVED DOCKER CONTAINER, REBUILDING');
@@ -409,7 +486,13 @@ class bsApp{
 	}
 	initSystemTray(){
 		// Create a tray icon
-		var tray = new nw.Tray({ title: 'HandyBrowser', icon: './icons/app_256x256x32.png' });
+		let icon = './icons/app_256x256x32.png';
+		let title = 'HandyBrowser';
+		if(process.platform == 'darwin'){
+			icon = './icons/app_16x16x32.png'
+			title = '';
+		}
+		var tray = new nw.Tray({ title: title, icon: icon });
 
 		// Give it a menu
 		var menu = new nw.Menu();
@@ -477,8 +560,8 @@ class bsApp{
 
 
 		let state = localStorage.getItem('windowState');
-		let x = 0;
-		let y = 0;
+		let x = screen.availLeft;
+		let y = screen.availTop;
 		let w = screen.availWidth;
 		let h = screen.availHeight;
 
@@ -501,12 +584,19 @@ class bsApp{
 			win.x = x;
 			win.y = y;
 			win.on('loaded',()=>{
+				$.getJSON('http://localhost:5302/__handybrowser_get_godane_cert__',(certD)=>{
+					let certText = certD.data;
+					let $a = $('#downloadCert',$(win.window.document));
+					$a[0].href = URL.createObjectURL(new Blob([certText]));
+					$a.attr('type','text/crt')
+					$a.attr('download','godane.cert.crt');
+				})
 				$('#modalNav',$(win.window.document)).css('position','fixed');
 				//console.log('opened win',win,$('.proxyInfo',$(win.window.document)));
 				console.log('ip res',results);
 				if(Object.keys(results).length > 0){
 					let $el = $('.proxyInfo .ips',$(win.window.document))
-					$el.html('')
+					$el.html('<div class="myInfoLabel">My Proxy Server Info:</div>')
 					Object.keys(results).map(netName=>{
 						console.log('nn',results[netName])
 						if(results[netName].length > 0){
