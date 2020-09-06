@@ -185,7 +185,7 @@ class bsApp{
 		listD.on('close',d=>{
 			$('.syncedButton .statusLabel').html('Built Docker Container!')
 			console.log('start listD stdout',listData,listData.indexOf('earthlab'));
-			if(listData.indexOf('handybrowser') == -1){
+			if(listData.indexOf('handybrowserhnsd') == -1){
 				//we dont need to build image
 				this.createDockerImage();
 			}
@@ -237,7 +237,7 @@ class bsApp{
 		
 		let dockerFileName = this.resolver == 'hsd' ? './Dockerfile-HSD_RESOLVER' : './Dockerfile-HNSD-Prebuilt';
 		
-		let createD = spawn('docker',['build', '-t', 'handybrowser', '-f', dockerFileName, '.'],{cwd:nw.__dirname+'/docker_utils'});
+		let createD = spawn('docker',['build', '-t', 'handybrowserhnsd', '-f', dockerFileName, '.'],{cwd:nw.__dirname+'/docker_utils'});
 		let hsdLogs = '';
 		let stepVal = 0;
 		createD.stdout.on('data',d=>{
@@ -272,7 +272,7 @@ class bsApp{
 		$('.main').html('BUILDING NEW '+this.serviceName+' DOCKER ENVIRONMENT...THIS MAY TAKE A MINUTE (once).');
 		let wasContainerError = false;
 		let hsdLogs = '';
-		let containerD = spawn('docker', ['run', '-p', '13937:13037', '-p', '13938:13038', '-p', '14937:14037','-p','14938:14038', '-p', '12937:12037', '-p', '12938:12038', '-p', '3008:3008', '-p', '15937:15037', '-p', '15938:15038', '-p', '5301:5301', '-p', '5302:5302', '-p', '13038:13038', '-p', '15359:15359', '--expose', '3008', '--name', this.containerName, '-td', 'handybrowser'],{cwd:nw.__dirname+'/docker_utils'});
+		let containerD = spawn('docker', ['run', '-p', '13937:13037', '-p', '13938:13038', '-p', '14937:14037','-p','14938:14038', '-p', '12937:12037', '-p', '12938:12038', '-p', '3008:3008', '-p', '15937:15037', '-p', '15938:15038', '-p', '5301:5301', '-p', '5302:5302', '-p', '13038:13038', '-p', '15359:15359', '--expose', '3008', '--name', this.containerName, '-td', 'handybrowserhnsd'],{cwd:nw.__dirname+'/docker_utils'});
 		containerD.stdout.on('data',d=>{
 			
 			console.log('container creation data',d.toString('utf8'));
@@ -430,7 +430,11 @@ class bsApp{
 					})
 		    	}
 		    	if(process.platform == 'linux'){
-		    		let restartLIN = spawn(wp+'/utils/restart.linux.sh',[process.pid,process.execPath],{detached:true})
+		    		let restartLIN = spawn(wp+'/utils/restart.linux.sh',[process.pid,process.execPath],{detached:true,env:process.env})
+		    		restartLIN.unref();
+		    		setTimeout(()=>{
+		    			nw.App.quit();
+		    		},2000)
 		    	}
 			    //child.unref()
 		    }
@@ -452,7 +456,13 @@ class bsApp{
 			this.showTray();
 		}
 		setTimeout(()=>{
-			toClose.hide();//toClose.close();
+			if(process.platform != 'linux'){
+				//tray icon not showing on ubuntu 16?
+				toClose.hide();//toClose.close();
+			}
+			else{
+				toClose.close();
+			}
 		},1000)
 	})
 		
@@ -487,7 +497,7 @@ class bsApp{
 	}
 	nukeDocker(){
 		$('.main').html('REMOVING DOCKER CONTAINER...');
-		let containerD = spawn('docker',['stop','HandyBrowserHNSD','&&','docker','rm','HandyBrowserHNSD','&&','docker','image','rm','handybrowser'],{shell:true});
+		let containerD = spawn('docker',['stop','HandyBrowserHNSD','&&','docker','rm','HandyBrowserHNSD','&&','docker','image','rm','handybrowserhnsd'],{shell:true});
 		containerD.on('close',d=>{
 			
 			$('.main').html('REMOVED DOCKER CONTAINER, REBUILDING');
