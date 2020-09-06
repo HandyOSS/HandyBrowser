@@ -15,6 +15,12 @@ class bsApp{
 			console.log('new open process');
 			this.showTray();
 		})
+		if(process.platform == 'darwin'){
+			nw.App.on('reopen',()=>{
+				console.log('new open process');
+				this.showTray();
+			});
+		}
 		nw.Window.get().focus();
 		//set guid		
 		if(window.localStorage.getItem('guid') == null){
