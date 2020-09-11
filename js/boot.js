@@ -411,8 +411,9 @@ class bsApp{
 				//fs.writeFileSync(wp+'/package.json',JSON.stringify(manifest,null,2),'utf8');
 		    }
 		    console.log('write manifest to',wp);
-		    fs.writeFileSync(wp+'/package.json',JSON.stringify(manifest,null,2),'utf8');
-
+		    if(process.platform != 'linux'){
+		    	fs.writeFileSync(wp+'/package.json',JSON.stringify(manifest,null,2),'utf8');
+			}
 		    if(ogCert != certText){
 		    	if(localStorage.getItem('isRebuildingDockerNode') != null){
 					localStorage.removeItem('isRebuildingDockerNode');
@@ -457,11 +458,55 @@ class bsApp{
 		    		
 		    	}
 		    	if(process.platform == 'linux'){
-		    		let restartLIN = spawn(wp+'/utils/restart.linux.sh',[process.pid,process.execPath],{detached:true,env:process.env})
-		    		restartLIN.unref();
-		    		setTimeout(()=>{
-		    			nw.App.quit();
-		    		},2000)
+		    		$('.main').html('UPDATING PROXY CERTIFICATE<br />CERTIFICATE INSTALL WILL ASK FOR PERMISSIONS...');
+		    		/*let installCERT = spawn('./install_CA_cert_linux.sh',[nw.App.dataPath+'/godane.cert.crt'],{detached:true,silent:true,cwd:wp+'/utils'})
+		    		installCERT.stdout.on('data',d=>{
+						console.log('stdout:::',d.toString('utf8'))
+					})
+					installCERT.stderr.on('data',d=>{
+						console.log('stderr:::',d.toString('utf8'))
+					})
+					installCERT.on('close',()=>{
+						console.log('install cert closed');
+					})*/
+					//check for certutil
+					let utilCheck = spawn('certutil',['-H']);
+					let wasError = false;
+					utilCheck.on('error',()=>{
+						wasError = true;
+						console.log('util check err');
+						$('.main').html('"certutil" command not found</br />Please run:<br /><br />sudo apt install libnss3-tools<br /><br /> and restart HandyBrowser');
+					})
+					utilCheck.on('close',()=>{
+						//success
+						if(wasError){
+							return;
+						}
+						fs.writeFileSync(wp+'/package.json',JSON.stringify(manifest,null,2),'utf8'); //add cert to manifest
+						const sp = require('sudo-prompt');
+						let options = {
+						  name: 'HandyBrowser'
+						};
+						process.title = 'HandyBrowser';
+						setTimeout(()=>{
+							sp.exec(wp+'/utils/install_CA_cert_linux.sh '+nw.App.dataPath+'/godane.cert.crt',options,
+								function(error, stdout, stderr) {
+									//if(error){
+										console.log("ERR",error,stdout,stderr);;
+									//}
+									$('.main').html('CERTIFICATE UPDATED<br />RESTARTING HANDYBROWSER...');
+								    let restartLIN = spawn(wp+'/utils/restart.linux.sh',[process.pid,process.execPath],{detached:true,env:process.env})
+						    		restartLIN.unref();
+						    		setTimeout(()=>{
+						    			nw.App.quit();
+						    		},2000)
+								}
+							);
+						},2000)
+					})
+					
+					
+		    		
 		    	}
 			    //child.unref()
 		    }
