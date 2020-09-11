@@ -116,7 +116,7 @@ input:focus,select:focus{
 	z-index:100;
 	top:62px;
 }
-#contentPanel webview{
+#contentPanel webview, #contentPanel iframe{
 	width:100%;
 	height:100%;
 	float:left;

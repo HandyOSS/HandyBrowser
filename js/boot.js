@@ -371,7 +371,15 @@ class bsApp{
 			if(typeof ogCert != "undefined"){
 				ogCert = manifest.additional_trust_anchors[0];
 			}
-			certText = certText.replace(/\n/gi,'\n');
+			/*certText = certText.replace(/\n/gi,'\n');
+			if(process.platform != 'darwin'){
+				let guts = certText.split('\n').slice(0,-1).slice(1,-1);
+				let begin = certText.split('\n').slice(0,-1).slice(0,1)
+				let end = certText.split('\n').slice(0,-1).slice(-1)
+				guts = guts.join('')
+				certText = guts;
+
+			}*/
 			//console.log('certText',certText);
 			manifest.additional_trust_anchors = [certText];
 			manifest.main = manifest.main.split('/');
@@ -421,19 +429,32 @@ class bsApp{
 		    	}
 		    	if(process.platform == 'win32'){
 		    		//let restartWIN = spawn('cmd.exe',['sh',wp+'/utils/restart.windows.sh',process.pid,process.execPath],{detached:true})
-		    		let restartWIN = spawn( 'restart.windows.bat',[ process.pid, process.execPath],{detached:true,silent:true,cwd:wp+'/utils'});
-		    		setTimeout(()=>{
-		    			nw.Window.get().setAlwaysOnTop(true);
-		    		},100)
-		    		setTimeout(()=>{
-		    			nw.Window.get().setAlwaysOnTop();
-		    		},1100)
-		    		restartWIN.stdout.on('data',d=>{
-						console.log('stdout:::',d.toString('utf8'))
-					})
-					restartWIN.stderr.on('data',d=>{
-						console.log('stderr:::',d.toString('utf8'))
-					})
+		    		//Import-Certificate -FilePath "C:\CA-PublicKey.Cer" -CertStoreLocation Cert:\LocalMachine\Root
+		    		let installCert = spawn('powershell.exe',['-command','Import-Certificate', '-FilePath', '"'+nw.App.dataPath+'/godane.cert.crt'+'"', '-CertStoreLocation', 'Cert:\\LocalMachine\\Root'])
+		    		installCert.stdout.on('data',d=>{
+		    			console.log('install stdout',d.toString('utf8'));
+		    		})
+		    		installCert.stderr.on('data',d=>{
+		    			console.log('install stderr',d.toString('utf8'));
+		    		})
+		    		installCert.on('close',()=>{
+		    			let restartWIN = spawn( 'restart.windows.bat',[ process.pid, process.execPath],{detached:true,silent:true,cwd:wp+'/utils'});
+		    		
+			    		setTimeout(()=>{
+			    			nw.Window.get().setAlwaysOnTop(true);
+			    		},100)
+			    		restartWIN.unref();
+			    		setTimeout(()=>{
+			    			nw.App.quit();
+			    		},2000)
+			    		restartWIN.stdout.on('data',d=>{
+							console.log('stdout:::',d.toString('utf8'))
+						})
+						restartWIN.stderr.on('data',d=>{
+							console.log('stderr:::',d.toString('utf8'))
+						})
+		    		})
+		    		
 		    	}
 		    	if(process.platform == 'linux'){
 		    		let restartLIN = spawn(wp+'/utils/restart.linux.sh',[process.pid,process.execPath],{detached:true,env:process.env})
@@ -565,7 +586,7 @@ class bsApp{
 		);
 		menu.append(
 			new nw.MenuItem({
-				label:'How to Use Handshake in Other Browsers',
+				label:'How to Use Handshake in Chrome/Firefox/etc',
 				click:()=>{
 					this.showHowtoProxy();
 				}

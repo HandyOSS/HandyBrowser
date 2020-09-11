@@ -132,7 +132,7 @@ class BookmarkManager{
 
 			}
 		}});
-		let showProxyInfo = nw.MenuItem({label:'How to Proxy to Firefox/etc',click:()=>{
+		let showProxyInfo = nw.MenuItem({label:'How to Use Handshake in Chrome/Firefox/etc',click:()=>{
 			this.showHowtoProxy();
 		}})
   	this.tray.getHSDNodeStatus().then((d)=>{

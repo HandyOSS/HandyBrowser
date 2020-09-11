@@ -11,6 +11,7 @@
 	<div class="facts">
 		Fun fact: you can use the Handshake backend of HandyBrowser in your favorite web browsers on the same local network (meaning your mobile too).
 		<a href="#ff">Firefox Instructions</a>
+		<a href="#chromeWin">Chrome (Windows) Instructions</a>
 		<a href="#ios">iOS Instructions</a>
 	</div>
 	<div class="ips">
@@ -37,8 +38,24 @@
 			<li><a id="downloadCert">Download your Handshake Proxy Certificate here</a>, and then in Firefox, click "Import..." to import the downloaded certificate.</li>
 			<li>When importing, you will check the box for "Trust this CA to Identify Websites" like this:</li>
 			<li><img src="./img/certs_ff2.png" /><br />And then click "OK"</li>
-			<li>Now visit a Handshake enabled site, like: http://welcome.nb/, or https://proofofconcept/</li>
+			<li>Now visit a Handshake enabled site, like: http://welcome.nb/, or https://3b/</li>
 			<li>Note: Firefox may want you to add a "." after the TLD, aka: "welcome.nb."</li>
+		</ul>
+	</div>
+	<div class="chromeWin">
+		<a id="chromeWin"></a>
+		<h4>Chrome (Windows)</h4>
+		<ul>
+			<li>Goto Settings</li>
+			<li>Search for "proxy"</li>
+			<li>Click the option for "Open your Computer&#039;s Proxy Settings</li>
+			<li>Scroll down to "Manual Proxy Setup"</li>
+			<li>Click the toggle for "Use a proxy server"</li>
+			<li>Address: localhost</li>
+			<li>Port: 5301</li>
+			<li>Click "Save"</li>
+			<li>Resolve Handshake Names like: welcome.nb/, or https://3b/</li>
+			<li>Note: For handshake names, make sure you add the trailing slash (/) after the TLD like 3b/ or welcome.nb/</li>
 		</ul>
 	</div>
 	<div class="ios">
