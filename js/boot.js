@@ -424,7 +424,10 @@ class bsApp{
 		    	if(process.platform == 'darwin'){
 		    		//console.log('to restart',wp+'/utils/restart.mac.sh')
 		    		let restartMAC = spawn(wp+'/utils/restart.mac.sh',[process.pid,process.execPath.match(/^([^\0]+?\.app)\//)[1]],{detached:true})
-		    		
+		    		restartMAC.unref();
+		    		setTimeout(()=>{
+		    			nw.App.quit();
+		    		},2000)
 		    		//restart.unref();
 		    		//nw.App.quit();
 		    	}
