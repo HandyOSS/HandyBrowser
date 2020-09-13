@@ -821,7 +821,20 @@ class Tray{
 		        code: `document.title`
 		      }, result => {
 		      	//if(data[1] == tabData.url){
-	      		tabData.title = result[0];
+		      	console.log('result',result);
+		      	if(typeof result == "undefined"){
+		      		return;
+		      	}
+	      		tabData.title = this.sanitizeTitleString(result[0]);
+	      		if(result[0].indexOf('http://') == 0 || result[0].indexOf('https://') == 0){
+	      			//title is formed like a url, lets remove http or https from the beginning
+	      			if(tabData.title.indexOf('https') == 0){
+	      				tabData.title = tabData.title.replace('https','');
+	      			}
+	      			else if(tabData.title.indexOf('http') == 0){
+	      				tabData.title = tabData.title.replace('http','');
+	      			}
+	      		}
 		      	//set tab title
 		      	this.setTabInfoOnLoad(tabData.url,tabData,true);
 		      	//}
@@ -892,6 +905,10 @@ class Tray{
 
 	    }
 	}
+	sanitizeTitleString(str){
+	    str = str.replace(/[^a-z0-9áéíóúñü \.,_-]/gim,"");
+	    return str.trim();
+	}
 	setTabInfoOnLoad(url,activeNow,shouldSetTitle){
 	
 		if(!$('#urlQuery').is(":focus") && !shouldSetTitle){
@@ -899,6 +916,12 @@ class Tray{
 	  	}
 	  	if(shouldSetTitle){
 	  		let title = activeNow.title == '' ? activeNow.url : activeNow.title;
+	  		if(title.indexOf('https://') == 0){
+	  			title = title.replace('https://','').split('/')[0];
+	  		}
+	  		else if(title.indexOf('http://') == 0){
+	  			title = title.replace('http://','').split('/')[0];
+	  		}
 	    	activeNow.$el.find('span.pageTitle').html(title);
 	    }
 	    
