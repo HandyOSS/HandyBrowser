@@ -434,7 +434,43 @@ class bsApp{
 		    	if(process.platform == 'win32'){
 		    		//let restartWIN = spawn('cmd.exe',['sh',wp+'/utils/restart.windows.sh',process.pid,process.execPath],{detached:true})
 		    		//Import-Certificate -FilePath "C:\CA-PublicKey.Cer" -CertStoreLocation Cert:\LocalMachine\Root
-		    		let installCert = spawn('powershell.exe',['-command','Import-Certificate', '-FilePath', '"'+nw.App.dataPath+'/godane.cert.crt'+'"', '-CertStoreLocation', 'Cert:\\LocalMachine\\Root'])
+		    		/*
+					
+		    		*/
+		    		$('.main').html('UPDATING PROXY CERTIFICATE<br />CERTIFICATE INSTALL WILL ASK FOR PERMISSIONS...');
+		    		
+		    		const sp = require('sudo-prompt');
+					let options = {
+					  name: 'HandyBrowser'
+					};
+					process.title = 'HandyBrowser';
+					setTimeout(()=>{
+						let spe = sp.exec('powershell.exe -command "get-childitem \"Cert:\\LocalMachine\\Root\" | Where-Object { $_.Subject -eq \'CN=DNSSEC, O=DNSSEC\' } | Remove-Item ; if($?) { Import-Certificate -FilePath \''+nw.App.dataPath+'\\godane.cert.crt\' -CertStoreLocation Cert:\\LocalMachine\\Root }',
+							function(error, stdout, stderr) {
+								//console.log('remove cert err,stdout,stderr',error,stdout,stderr);
+								$('.main').html('RESTARTING HANDYBROWSER...');
+		    		
+								
+								let restartWIN = spawn( 'restart.windows.bat',[ process.pid, process.execPath],{detached:true,silent:true,cwd:wp+'/utils'});
+					
+								setTimeout(()=>{
+									nw.Window.get().setAlwaysOnTop(true);
+								},100)
+								restartWIN.unref();
+								setTimeout(()=>{
+									nw.App.quit();
+								},2000)
+								restartWIN.stdout.on('data',d=>{
+									console.log('stdout:::',d.toString('utf8'))
+								})
+								restartWIN.stderr.on('data',d=>{
+									console.log('stderr:::',d.toString('utf8'))
+								})
+								
+							}
+						);
+					},2000);
+		    		/*let installCert = spawn('powershell.exe',['-command','Import-Certificate', '-FilePath', '"'+nw.App.dataPath+'/godane.cert.crt'+'"', '-CertStoreLocation', 'Cert:\\LocalMachine\\Root'])
 		    		installCert.stdout.on('data',d=>{
 		    			console.log('install stdout',d.toString('utf8'));
 		    		})
@@ -458,7 +494,7 @@ class bsApp{
 							console.log('stderr:::',d.toString('utf8'))
 						})
 		    		})
-		    		
+		    		*/
 		    	}
 		    	if(process.platform == 'linux'){
 		    		$('.main').html('UPDATING PROXY CERTIFICATE<br />CERTIFICATE INSTALL WILL ASK FOR PERMISSIONS...');
