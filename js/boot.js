@@ -211,14 +211,14 @@ class bsApp{
 			"Calculating Dollarydoos",
 			"Connecting to the Masternodes...",
 			"Downloading Skyrim...",
-			"Texting Vitalik...",
-			"Washing our Hands...",
 			"Contacting Aliens...",
 			"640K ought to be enough for anybody...",
 			"We're almost done, this shit is hard...",
 			"The bits are flipping...",
 			"Ooops lost a file...",
 			"Just kidding...",
+			"Texting Vitalik...",
+			"Washing our Hands...",
 			"Handshake was built by aliens, they're lying...",
 			"Satellites moving into position...",
 			"Wakanda Forever...",
@@ -437,7 +437,7 @@ class bsApp{
 		    		/*
 					
 		    		*/
-		    		$('.main').html('UPDATING PROXY CERTIFICATE<br />CERTIFICATE INSTALL WILL ASK FOR PERMISSIONS...');
+		    		$('.main').html('UPDATING PROXY CERTIFICATE.<br />INSTALLATION WILL ASK FOR PERMISSIONS...');
 		    		
 		    		const sp = require('sudo-prompt');
 					let options = {
@@ -448,7 +448,7 @@ class bsApp{
 						let spe = sp.exec('powershell.exe -command "get-childitem \"Cert:\\LocalMachine\\Root\" | Where-Object { $_.Subject -eq \'CN=DNSSEC, O=DNSSEC\' } | Remove-Item ; if($?) { Import-Certificate -FilePath \''+nw.App.dataPath+'\\godane.cert.crt\' -CertStoreLocation Cert:\\LocalMachine\\Root }',
 							function(error, stdout, stderr) {
 								//console.log('remove cert err,stdout,stderr',error,stdout,stderr);
-								$('.main').html('RESTARTING HANDYBROWSER...');
+								$('.main').html('CERTIFICATE INSTALLED.<br />RESTARTING HANDYBROWSER...');
 		    		
 								
 								let restartWIN = spawn( 'restart.windows.bat',[ process.pid, process.execPath],{detached:true,silent:true,cwd:wp+'/utils'});
@@ -497,7 +497,7 @@ class bsApp{
 		    		*/
 		    	}
 		    	if(process.platform == 'linux'){
-		    		$('.main').html('UPDATING PROXY CERTIFICATE<br />CERTIFICATE INSTALL WILL ASK FOR PERMISSIONS...');
+		    		$('.main').html('UPDATING PROXY CERTIFICATE.<br />INSTALLATION WILL ASK FOR PERMISSIONS...');
 		    		/*let installCERT = spawn('./install_CA_cert_linux.sh',[nw.App.dataPath+'/godane.cert.crt'],{detached:true,silent:true,cwd:wp+'/utils'})
 		    		installCERT.stdout.on('data',d=>{
 						console.log('stdout:::',d.toString('utf8'))
@@ -533,7 +533,7 @@ class bsApp{
 									//if(error){
 										console.log("ERR",error,stdout,stderr);;
 									//}
-									$('.main').html('CERTIFICATE UPDATED<br />RESTARTING HANDYBROWSER...');
+									$('.main').html('CERTIFICATE INSTALLED.<br />RESTARTING HANDYBROWSER...');
 								    let restartLIN = spawn(wp+'/utils/restart.linux.sh',[process.pid,process.execPath],{detached:true,env:process.env})
 						    		restartLIN.unref();
 						    		setTimeout(()=>{
