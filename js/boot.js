@@ -419,7 +419,7 @@ class bsApp{
 					localStorage.removeItem('isRebuildingDockerNode');
 				}
 		    	console.log('rewrite cert and restart')
-		    	$('.main').html('UPDATING PROXY CERTIFICATE AND RESTARTING APP...');
+		    	$('.main').html('UPDATING PROXY CERTIFICATE AND RESTARTING HANDYBROWSER...');
 		    	//we rewrote it, we should restart the app real fast
 		    	if(process.platform == 'darwin'){
 		    		//console.log('to restart',wp+'/utils/restart.mac.sh')
