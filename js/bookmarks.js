@@ -48,6 +48,12 @@ class BookmarkManager{
 		let topMenu = new nw.Menu({type:menuType});
 		this.mainMenu = new nw.Menu();
 		
+		let donateOption = nw.MenuItem({label:'Donate HNS|BTC 🤝',click:()=>{
+			this.showDonate();
+		}});
+		if(process.platform == 'darwin'){
+			this.mainMenu.append(donateOption);
+		}
 
 		let mapOption = nw.MenuItem({label:'Network Map',click:()=>{
 			this.showNetworkMap();
@@ -57,12 +63,7 @@ class BookmarkManager{
 		}
 		//showDonate()
 
-		let donateOption = nw.MenuItem({label:'Donate HNS|BTC 🤝',click:()=>{
-			this.showDonate();
-		}});
-		if(process.platform == 'darwin'){
-			this.mainMenu.append(donateOption);
-		}
+		
 
 		this.bookmarksObj = {};
 		this.bookmarkFolder = process.env.HOME+'/Library/Application\ Support/HandyBrowser/Bookmarks';
@@ -119,8 +120,8 @@ class BookmarkManager{
 		}
 
 		if(process.platform == 'win32' || process.platform == 'linux'){
-			topMenu.append(mapOption);
 			topMenu.append(donateOption);
+			topMenu.append(mapOption);
 		}
 		let restartDockerOption = nw.MenuItem({label:'Restart Docker HNSD',click:()=>{
 			this.restartDocker();
@@ -132,48 +133,103 @@ class BookmarkManager{
 
 			}
 		}});
-		let showProxyInfo = nw.MenuItem({label:'How to Use Handshake in Chrome/Firefox/etc',click:()=>{
+		let supportOption = new nw.MenuItem({
+	  		label:'Telegram Support',
+	  		click:()=>{
+	  			let text = 'http://t.me/HandshakeTalk'
+	  			var clipboard = nw.Clipboard.get();
+	  			clipboard.set(text,'text')
+	  			alert('Copied Telegram Link (http://t.me/HandshakeTalk) to Clipboard')
+	  		}
+	  	})
+		let showProxyInfo = nw.MenuItem({label:'How to Use Handshake on Chrome/Firefox/Mobile',click:()=>{
 			this.showHowtoProxy();
 		}})
-  	this.tray.getHSDNodeStatus().then((d)=>{
+	  	this.tray.getHSDNodeStatus().then((d)=>{
 
-  		let syncStatus = d.status;
-  		let symbol = d.symbol;
-  		
-  		if(process.platform == 'darwin'){
-  			this.mainMenu.append(showProxyInfo);
-  			this.mainMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}))
-  			this.mainMenu.append(restartDockerOption);
-  			this.mainMenu.append(nukeOption);
-  			
-  		}
-  		else{
-  			topMenu.append(showProxyInfo);
-  			topMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}))
-  			topMenu.append(restartDockerOption)
-  			topMenu.append(nukeOption);
-  		}
-  	}).catch(e=>{
-  		if(process.platform == 'darwin'){
-  			this.mainMenu.append(showProxyInfo);
-  			this.mainMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}))
-  			this.mainMenu.append(restartDockerOption);
-  			this.mainMenu.append(nukeOption);
-  		}
-  		else{
-  			topMenu.append(showProxyInfo);
-  			topMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}));
-  			topMenu.append(restartDockerOption);
-  			topMenu.append(nukeOption);
-  		}
-  	});
+	  		let syncStatus = d.status;
+	  		let symbol = d.symbol;
+	  		
+	  		if(process.platform == 'darwin'){
+	  			let dockerNodeMenu = new nw.Menu()
+	  			dockerNodeMenu.append(restartDockerOption);
+	  			dockerNodeMenu.append(nukeOption);
+	  			dockerNodeMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}));
+	  			let dockerNested = new nw.MenuItem({
+	  				label: 'Docker Node Options',
+	  				submenu:dockerNodeMenu
+	  			})
+	  			this.mainMenu.append(dockerNested);
+	  			this.mainMenu.append(showProxyInfo);
+	  			this.mainMenu.append(supportOption);
+	  			//this.mainMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}))
+
+	  			/*this.mainMenu.append(restartDockerOption);
+	  			this.mainMenu.append(nukeOption);*/
+	  			
+	  		}
+	  		else{
+	  			let dockerNodeMenu = new nw.Menu()
+	  			dockerNodeMenu.append(restartDockerOption);
+	  			dockerNodeMenu.append(nukeOption);
+	  			dockerNodeMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}));
+	  			let dockerNested = new nw.MenuItem({
+	  				label: 'Docker Node Options',
+	  				submenu:dockerNodeMenu
+	  			})
+	  			topMenu.append(dockerNested);
+	  			topMenu.append(showProxyInfo);
+	  			topMenu.append(supportOption);
+	  			/*topMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}))
+	  			topMenu.append(restartDockerOption)
+	  			topMenu.append(nukeOption);*/
+	  		}
+	  	}).catch(e=>{
+	  		if(process.platform == 'darwin'){
+	  			/*this.mainMenu.append(showProxyInfo);
+	  			this.mainMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}))
+	  			this.mainMenu.append(restartDockerOption);
+	  			this.mainMenu.append(nukeOption);*/
+	  			let dockerNodeMenu = new nw.Menu()
+	  			dockerNodeMenu.append(restartDockerOption);
+	  			dockerNodeMenu.append(nukeOption);
+	  			dockerNodeMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}));
+	  			let dockerNested = new nw.MenuItem({
+	  				label: 'Docker Node Options',
+	  				submenu:dockerNodeMenu
+	  			})
+	  			this.mainMenu.append(dockerNested);
+	  			this.mainMenu.append(showProxyInfo);
+	  			this.mainMenu.append(supportOption);
+	  		}
+	  		else{
+	  			/*topMenu.append(showProxyInfo);
+	  			topMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}));
+	  			topMenu.append(restartDockerOption);
+	  			topMenu.append(nukeOption);*/
+	  			let dockerNodeMenu = new nw.Menu()
+	  			dockerNodeMenu.append(restartDockerOption);
+	  			dockerNodeMenu.append(nukeOption);
+	  			dockerNodeMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}));
+	  			let dockerNested = new nw.MenuItem({
+	  				label: 'Docker Node Options',
+	  				submenu:dockerNodeMenu
+	  			})
+	  			topMenu.append(dockerNested);
+	  			topMenu.append(showProxyInfo);
+	  			topMenu.append(supportOption);
+	  		}
+	  	});
 
 
   	
 		
 	  
 		if(process.platform == 'darwin'){
-		  	this.mainMenu.createMacBuiltin("HandyBrowser");
+		  	this.mainMenu.createMacBuiltin("HandyBrowser",{
+		  		//hideEdit:true,
+		  		hideWindow:true
+		  	});
 		  	nw.Window.get().menu = topMenu;
 		}
 		else{

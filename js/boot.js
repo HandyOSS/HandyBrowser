@@ -360,16 +360,25 @@ class bsApp{
 	}
 	finishup(){
 		let manifest = nw.App.manifest;
-		console.log('finishup')
+		console.log('finishup');
+		let ogCert = '';
+		try{
+			ogCert = fs.readFileSync(nw.App.dataPath+'/godane.cert.crt','utf8');
+		}
+		catch(e){
+
+		}
 		//always keep the godane cert updated in the app manifest
 		let p = new Promise((resolve,reject)=>{
 		let cpSpawn = spawn('docker',['cp','HandyBrowserHNSD:/root/.godane/cert.crt',nw.App.dataPath+'/godane.cert.crt']);
 		cpSpawn.on('close',()=>{
 			//console.log('copied cert')
 			let certText = fs.readFileSync(nw.App.dataPath+'/godane.cert.crt','utf8');
-			let ogCert = manifest.additional_trust_anchors;
-			if(typeof ogCert != "undefined"){
-				ogCert = manifest.additional_trust_anchors[0];
+			if(process.platform != "darwin"){
+				ogCert = manifest.additional_trust_anchors;
+				if(typeof ogCert != "undefined"){
+					ogCert = manifest.additional_trust_anchors[0];
+				}
 			}
 			/*certText = certText.replace(/\n/gi,'\n');
 			if(process.platform != 'darwin'){
@@ -411,7 +420,7 @@ class bsApp{
 				//fs.writeFileSync(wp+'/package.json',JSON.stringify(manifest,null,2),'utf8');
 		    }
 		    console.log('write manifest to',wp);
-		    if(process.platform != 'linux'){
+		    if(process.platform == 'win32'){
 		    	fs.writeFileSync(wp+'/package.json',JSON.stringify(manifest,null,2),'utf8');
 			}
 		    if(ogCert != certText){
@@ -423,11 +432,40 @@ class bsApp{
 		    	//we rewrote it, we should restart the app real fast
 		    	if(process.platform == 'darwin'){
 		    		//console.log('to restart',wp+'/utils/restart.mac.sh')
-		    		let restartMAC = spawn(wp+'/utils/restart.mac.sh',[process.pid,process.execPath.match(/^([^\0]+?\.app)\//)[1]],{detached:true})
+		    		//security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "nw.App.dataPath+'/godane.cert.crt"
+		    		$('.main').html('UPDATING PROXY CERTIFICATE.<br />INSTALLATION WILL ASK FOR PERMISSIONS...');
+
+		    		setTimeout(()=>{
+
+
+			    		process.env.SUDO_ASKPASS = global.__dirname+'/js/mac.askpass.js';
+			    		const cpExec = require('child_process').exec;
+			    		cpExec('sudo --askpass security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "'+nw.App.dataPath+'/godane.cert.crt"',{env:process.env},
+			    			function(error,stdout,stderr){
+			    				if(error){
+			    					$('.main').html('WARNING: CERTIFICATE NOT UPDATED.<br />STARTING HANDYBROWSER...');
+			    				}
+			    				else{
+			    					$('.main').html('CERTIFICATE WAS UPDATED.<br />STARTING HANDYBROWSER...');
+			    				}
+			    				//console.log('add mac cert',error,stdout,stderr)
+			    				/*let restartMAC = spawn(wp+'/utils/restart.mac.sh',[process.pid,process.execPath.match(/^([^\0]+?\.app)\//)[1]],{detached:true})
+					    		restartMAC.unref();
+					    		setTimeout(()=>{
+					    			nw.App.quit();
+					    		},2000)*/
+					    		setTimeout(()=>{
+					    			resolve();
+					    		},2000)
+					    		
+			    			}
+			    		)
+			    	},2000);
+		    		/*let restartMAC = spawn(wp+'/utils/restart.mac.sh',[process.pid,process.execPath.match(/^([^\0]+?\.app)\//)[1]],{detached:true})
 		    		restartMAC.unref();
 		    		setTimeout(()=>{
 		    			nw.App.quit();
-		    		},2000)
+		    		},2000)*/
 		    		//restart.unref();
 		    		//nw.App.quit();
 		    	}
@@ -647,6 +685,14 @@ class bsApp{
 		}));
 		menu.append(
 			new nw.MenuItem({
+				label:'How to Use Handshake on Chrome/Firefox/Mobile',
+				click:()=>{
+					this.showHowtoProxy();
+				}
+			})
+		)
+		menu.append(
+			new nw.MenuItem({
 				label:'Quit and Halt Handshake Proxy',
 				click:()=>{
 					let stopCmd = spawn('docker',['stop','HandyBrowserHNSD'],{shell:true});
@@ -668,14 +714,7 @@ class bsApp{
 				}
 			})
 		);
-		menu.append(
-			new nw.MenuItem({
-				label:'How to Use Handshake in Chrome/Firefox/etc',
-				click:()=>{
-					this.showHowtoProxy();
-				}
-			})
-		)
+		
 		tray.menu = menu;
 		//}
 
