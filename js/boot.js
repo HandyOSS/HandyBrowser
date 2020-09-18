@@ -562,20 +562,23 @@ class bsApp{
 						fs.writeFileSync(wp+'/package.json',JSON.stringify(manifest,null,2),'utf8'); //add cert to manifest
 						const sp = require('sudo-prompt');
 						let options = {
-						  name: 'HandyBrowser'
+						  name: 'HandyBrowser',
+						  env:process.env
 						};
 						process.title = 'HandyBrowser';
 						setTimeout(()=>{
-							sp.exec(wp+'/utils/install_CA_cert_linux.sh '+nw.App.dataPath+'/godane.cert.crt',options,
+							sp.exec(wp+'/utils/install_CA_cert_linux.sh '+nw.App.dataPath+'/godane.cert.crt '+process.env.HOME,options,
 								function(error, stdout, stderr) {
 									//if(error){
-										console.log("ERR",error,stdout,stderr);;
+										console.log("ERR",error,stdout,stderr);
+										
 									//}
-									$('.main').html('CERTIFICATE INSTALLED.<br />RESTARTING HANDYBROWSER...');
-								    let restartLIN = spawn(wp+'/utils/restart.linux.sh',[process.pid,process.execPath],{detached:true,env:process.env})
-						    		restartLIN.unref();
+									$('.main').html('CERTIFICATE INSTALLED.<br />STARTING HANDYBROWSER...');
+								    //let restartLIN = spawn(wp+'/utils/restart.linux.sh',[process.pid,process.execPath],{detached:true,env:process.env})
+						    		//restartLIN.unref();
 						    		setTimeout(()=>{
-						    			nw.App.quit();
+						    			//nw.App.quit();
+						    			resolve();
 						    		},2000)
 								}
 							);

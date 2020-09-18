@@ -7,7 +7,7 @@ ObjC.import('stdlib')
 const app = Application.currentApplication()
 app.includeStandardAdditions = true
 
-const result = app.displayDialog('Enter your password to add HandyBrowser Certificate "DNSSEC" to Keychain.', {
+const result = app.displayDialog('Enter your password to add the HandyBrowser Certificate to Keychain.', {
   defaultAnswer: '',
   withIcon: 'stop',
   buttons: ['Cancel', 'Ok'],
