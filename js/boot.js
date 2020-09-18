@@ -440,23 +440,29 @@ class bsApp{
 
 			    		process.env.SUDO_ASKPASS = global.__dirname+'/js/mac.askpass.js';
 			    		const cpExec = require('child_process').exec;
-			    		cpExec('sudo --askpass security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "'+nw.App.dataPath+'/godane.cert.crt"',{env:process.env},
-			    			function(error,stdout,stderr){
-			    				if(error){
-			    					$('.main').html('WARNING: CERTIFICATE NOT UPDATED.<br />STARTING HANDYBROWSER...');
-			    				}
-			    				else{
-			    					$('.main').html('CERTIFICATE WAS UPDATED.<br />STARTING HANDYBROWSER...');
-			    				}
-			    				//console.log('add mac cert',error,stdout,stderr)
-			    				/*let restartMAC = spawn(wp+'/utils/restart.mac.sh',[process.pid,process.execPath.match(/^([^\0]+?\.app)\//)[1]],{detached:true})
-					    		restartMAC.unref();
-					    		setTimeout(()=>{
-					    			nw.App.quit();
-					    		},2000)*/
-					    		setTimeout(()=>{
-					    			resolve();
-					    		},2000)
+			    		cpExec('sudo --askpass security delete-certificate -c HandyBrowser',{env:process.env},
+			    			function(error1,stdout1,stderr1){
+			    				//console.log('del mac cert',error1,stdout1,stderr1);
+			    				//deleted old cert with name HandyBrowser
+			    				cpExec('sudo --askpass security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "'+nw.App.dataPath+'/godane.cert.crt"',{env:process.env},
+			    					function(error,stdout,stderr){
+					    				if(error){
+					    					$('.main').html('WARNING: CERTIFICATE NOT UPDATED.<br />STARTING HANDYBROWSER...');
+					    				}
+					    				else{
+					    					$('.main').html('CERTIFICATE WAS UPDATED.<br />STARTING HANDYBROWSER...');
+					    				}
+					    				console.log('add mac cert',error,stdout,stderr)
+					    				/*let restartMAC = spawn(wp+'/utils/restart.mac.sh',[process.pid,process.execPath.match(/^([^\0]+?\.app)\//)[1]],{detached:true})
+							    		restartMAC.unref();
+							    		setTimeout(()=>{
+							    			nw.App.quit();
+							    		},2000)*/
+							    		setTimeout(()=>{
+							    			resolve();
+							    		},2000)
+							    	}
+							    );
 					    		
 			    			}
 			    		)
