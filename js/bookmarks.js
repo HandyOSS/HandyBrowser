@@ -296,10 +296,15 @@ class BookmarkManager{
 		  $('#modal').html($(snippet))
 		  $.getJSON('http://localhost:5302/__handybrowser_get_godane_cert__',(certD)=>{
 		  	let certText = certD.data;
-		  	let $a = $('#modal #downloadCert');
-		  	$a[0].href = URL.createObjectURL(new Blob([certText]));
+		  	let $a = $('#modal .downloadCert');
+		  	$a.each(function(){
+		  		$(this)[0].href = URL.createObjectURL(new Blob([certText]));
+			  	$(this).attr('type','text/crt')
+			  	$(this).attr('download','godane.cert.crt');
+		  	})
+		  	/*$a[0].href = URL.createObjectURL(new Blob([certText]));
 		  	$a.attr('type','text/crt')
-		  	$a.attr('download','godane.cert.crt');
+		  	$a.attr('download','godane.cert.crt');*/
 		  })
 		  
 		  console.log('ip res',results);

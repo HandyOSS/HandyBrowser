@@ -617,7 +617,16 @@ class Tray{
 		
 	}
 	initEvents(){
-		$('#urlQuery').focus();
+		//sheesh, all this to get keyboard shortcuts to pick up on init should i blur right away...
+		nw.Window.get().blur();
+		setTimeout(()=>{
+			nw.Window.get().focus();
+			this.trayWindow.setAlwaysOnTop(false);
+		},500)
+		
+		$('#urlQuery').trigger('click').focus();
+		//done sheeshing..
+
 		let winState = window.localStorage.getItem('windowState');
 		if(winState != null){
 			winState = JSON.parse(winState);

@@ -10,7 +10,7 @@
 ###
 
 certfile="$1"
-certname="DNSSEC"
+certname="HandyBrowser"
 
 ###
 ### For cert8 (legacy - DBM)

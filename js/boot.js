@@ -483,7 +483,7 @@ class bsApp{
 					};
 					process.title = 'HandyBrowser';
 					setTimeout(()=>{
-						let spe = sp.exec('powershell.exe -command "get-childitem \"Cert:\\LocalMachine\\Root\" | Where-Object { $_.Subject -eq \'CN=DNSSEC, O=DNSSEC\' } | Remove-Item ; if($?) { Import-Certificate -FilePath \''+nw.App.dataPath+'\\godane.cert.crt\' -CertStoreLocation Cert:\\LocalMachine\\Root }',
+						let spe = sp.exec('powershell.exe -command "get-childitem \"Cert:\\LocalMachine\\Root\" | Where-Object { $_.Subject -eq \'CN=HandyBrowser, O=HandyBrowser\' } | Remove-Item ; if($?) { Import-Certificate -FilePath \''+nw.App.dataPath+'\\godane.cert.crt\' -CertStoreLocation Cert:\\LocalMachine\\Root }',
 							function(error, stdout, stderr) {
 								//console.log('remove cert err,stdout,stderr',error,stdout,stderr);
 								$('.main').html('CERTIFICATE INSTALLED.<br />RESTARTING HANDYBROWSER...');
@@ -770,10 +770,16 @@ class bsApp{
 			win.on('loaded',()=>{
 				$.getJSON('http://localhost:5302/__handybrowser_get_godane_cert__',(certD)=>{
 					let certText = certD.data;
-					let $a = $('#downloadCert',$(win.window.document));
+					/*let $a = $('#downloadCert',$(win.window.document));
 					$a[0].href = URL.createObjectURL(new Blob([certText]));
 					$a.attr('type','text/crt')
-					$a.attr('download','godane.cert.crt');
+					$a.attr('download','godane.cert.crt');*/
+					let $a = $('.downloadCert',$(win.window.document));
+				  	$a.each(function(){
+				  		$(this)[0].href = URL.createObjectURL(new Blob([certText]));
+					  	$(this).attr('type','text/crt')
+					  	$(this).attr('download','godane.cert.crt');
+				  	})
 				})
 				$('#modalNav',$(win.window.document)).css('position','fixed');
 				//console.log('opened win',win,$('.proxyInfo',$(win.window.document)));
