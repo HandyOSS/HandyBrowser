@@ -6,9 +6,7 @@ RUN apt-get update
 RUN apt-get install libunbound-dev -y
 RUN apt-get install dnsutils -y
 
-RUN git clone https://github.com/pinheadmz/hnsd.git /usr/hnsd
-
-RUN git checkout maintest1
+RUN git clone https://github.com/handshake-org/hnsd.git /usr/hnsd
 
 RUN sed -i 's/ub_callback_type/ub_callback_t/g' src/rs_worker.h
 
