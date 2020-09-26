@@ -41,6 +41,15 @@ Docker allows us to create a lightweight linux virtual machine that installs HNS
 Why Nw.js over Electron? The lead-dev of this project has used Nw.js extensively in enterprise-class application for many years and knows the inside/outs of every piece of the framework. In addition, the window manager (urlbar) we wrote needed to control all windows (tabs) created within the application and IPC is not fun. Nw.js allowed us more flexibility for the task of building a web-browser while offering the security we needed: No browser windows have access to Node.js, just the window manager. 
 [More reasons here, including: ](https://hackernoon.com/why-i-prefer-nw-js-over-electron-2018-comparison-e60b7289752) ```"Even better, you can run Chrome Apps/extensions using NW.js"```
 
+### HandyBrowser v0.2.0 Features
+
+  - Added godane proxy
+  - Added HNSD light resolver for faster Handshake Name resolution during initial sync
+  - Added the [quick reference quide](https://HandyMiner.github.io/HandyBrowser/) both external and within the app for quick setup to your other browsers and mobile devices
+  - Support Audius.co music playback
+  - Bugfix: enable fullscreen video support
+  - Tested Mist (Electron) XSS Vulnerabilities against HandyBrowser, [mist vulnerability report](https://drive.google.com/file/d/1LSsD9gzOejmQ2QipReyMXwr_M0Mg1GMH/view)
+  - Verified a range of certificate warnings/errors with [https://badssl.com](https://badssl.com)
 
 ### HandyBrowser v0.1.0 Features
 
@@ -52,14 +61,6 @@ Why Nw.js over Electron? The lead-dev of this project has used Nw.js extensively
   - Donate modal for the HandyBrowser team.
   - Use the HandyBrowser Docker container as a proxy for your mainstream browser to resolve Handshake Names. After starting HandyBrowser, set your mainstream browser proxy to ```localhost:5301```, more in the [quick reference quide](https://HandyMiner.github.io/HandyBrowser/)
   - UI indicators for the Docker HSD node syncing status, and option for nuking the docker image in the event of any weird beta edge cases.
-
-### HandyBrowser v0.2.0 Features
-
-  - Added godane proxy
-  - Added HNSD light resolver for faster Handshake Name resolution during initial sync
-  - Added the [quick reference quide](https://HandyMiner.github.io/HandyBrowser/) external and within the app for quick setup to your other browsers/mobile devices
-  - Support Audius.co music playback
-  - Bugfix: enable fullscreen video support
 
 ### HandyBrowser TODOs
 
