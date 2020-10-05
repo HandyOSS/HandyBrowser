@@ -16,7 +16,7 @@
 			font-size: 24px;
 		}
 		html,body{
-			background:#222;
+			background:#010324;
 			overflow:auto;
 		}
 		.links, .info{
@@ -40,12 +40,35 @@
 		.donate50 input{
 			text-align:center;
 		}
+		#logovideo{
+			width:100%;
+			outline:none;
+			border:none;
+		}
 	</style>
+	<script>
+		/*window.addEventListener('load', async () => {
+			console.log('v');
+		  let video = document.querySelector('video');
+		  try {
+		    await video.play();
+		  } catch (err) {
+		    video.controls = true;
+		  }
+		});*/
+		
+	</script>
 </head>
 	<body>
 	<div class="proxyInfo">
+		
+		<div class="video">
+			<video id="logovideo" autoplay muted loop controls>
+				<source src="./img/IMG_3776.mp4" type="video/mp4">
+			</video>
+		</div>
 		<div class="icon">
-			<img src="./icons/app_png.png" />
+			<!-- <img src="./icons/app_png.png" /> -->
 			<div class="title">HandyBrowser 0.2</div>
 		</div>
 		<div class="links">
