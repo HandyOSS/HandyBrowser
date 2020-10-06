@@ -1,5 +1,6 @@
 const spawn = require('child_process').spawn;
 const fs = require('fs');
+const os = require('os');
 class BookmarkManager{
 	constructor(tray){
 		this.tray = tray;
@@ -47,6 +48,12 @@ class BookmarkManager{
 		let topMenu = new nw.Menu({type:menuType});
 		this.mainMenu = new nw.Menu();
 		
+		let donateOption = nw.MenuItem({label:'Donate HNS|BTC 🤝',click:()=>{
+			this.showDonate();
+		}});
+		if(process.platform == 'darwin'){
+			this.mainMenu.append(donateOption);
+		}
 
 		let mapOption = nw.MenuItem({label:'Network Map',click:()=>{
 			this.showNetworkMap();
@@ -56,12 +63,7 @@ class BookmarkManager{
 		}
 		//showDonate()
 
-		let donateOption = nw.MenuItem({label:'Donate HNS 🤝',click:()=>{
-			this.showDonate();
-		}});
-		if(process.platform == 'darwin'){
-			this.mainMenu.append(donateOption);
-		}
+		
 
 		this.bookmarksObj = {};
 		this.bookmarkFolder = process.env.HOME+'/Library/Application\ Support/HandyBrowser/Bookmarks';
@@ -118,51 +120,116 @@ class BookmarkManager{
 		}
 
 		if(process.platform == 'win32' || process.platform == 'linux'){
-			topMenu.append(mapOption);
 			topMenu.append(donateOption);
+			topMenu.append(mapOption);
 		}
-		let restartDockerOption = nw.MenuItem({label:'Restart Docker HSD',click:()=>{
+		let restartDockerOption = nw.MenuItem({label:'Restart Docker HNSD',click:()=>{
 			this.restartDocker();
 		}});
-		let nukeOption = nw.MenuItem({label:'Nuke & Rebuild Docker HSD',click:()=>{
+		let nukeOption = nw.MenuItem({label:'Nuke & Rebuild Docker HNSD',click:()=>{
 			let didConfirm = confirm('⚠️ Docker rebuild will take a few minutes to Rebuild and Sync HSD.\nAre you sure?');
 			if(didConfirm){
 				this.nukeDocker();
 
 			}
 		}});
-  	this.tray.getHSDNodeStatus().then((d)=>{
+		let supportOption = new nw.MenuItem({
+	  		label:'Telegram Support',
+	  		click:()=>{
+	  			let text = 'http://t.me/HandshakeTalk'
+	  			var clipboard = nw.Clipboard.get();
+	  			clipboard.set(text,'text')
+	  			alert('Copied Telegram Link (http://t.me/HandshakeTalk) to Clipboard')
+	  		}
+	  	})
+		let showProxyInfo = nw.MenuItem({label:'How to Use Handshake on Chrome/Firefox/Mobile',click:()=>{
+			this.showHowtoProxy();
+		}})
+	  	this.tray.getHSDNodeStatus().then((d)=>{
 
-  		let syncStatus = d.status;
-  		let symbol = d.symbol;
-  		
-  		if(process.platform == 'darwin'){
-  			this.mainMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}))
-  			this.mainMenu.append(restartDockerOption);
-  			this.mainMenu.append(nukeOption);
-  		}
-  		else{
-  			topMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}))
-  			topMenu.append(restartDockerOption)
-  			topMenu.append(nukeOption);
-  		}
-  	}).catch(e=>{
-  		if(process.platform == 'darwin'){
-  			this.mainMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}))
-  			this.mainMenu.append(restartDockerOption);
-  			this.mainMenu.append(nukeOption);
-  		}
-  		else{
-  			topMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}));
-  			topMenu.append(restartDockerOption);
-  			topMenu.append(nukeOption);
-  		}
-  	});
+	  		let syncStatus = d.status;
+	  		let symbol = d.symbol;
+	  		
+	  		if(process.platform == 'darwin'){
+	  			let dockerNodeMenu = new nw.Menu()
+	  			dockerNodeMenu.append(restartDockerOption);
+	  			dockerNodeMenu.append(nukeOption);
+	  			dockerNodeMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}));
+	  			let dockerNested = new nw.MenuItem({
+	  				label: 'Docker Node Options',
+	  				submenu:dockerNodeMenu
+	  			})
+	  			this.mainMenu.append(dockerNested);
+	  			this.mainMenu.append(showProxyInfo);
+	  			this.mainMenu.append(supportOption);
+	  			//this.mainMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}))
+
+	  			/*this.mainMenu.append(restartDockerOption);
+	  			this.mainMenu.append(nukeOption);*/
+	  			
+	  		}
+	  		else{
+	  			let dockerNodeMenu = new nw.Menu()
+	  			dockerNodeMenu.append(restartDockerOption);
+	  			dockerNodeMenu.append(nukeOption);
+	  			dockerNodeMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}));
+	  			let dockerNested = new nw.MenuItem({
+	  				label: 'Docker Node Options',
+	  				submenu:dockerNodeMenu
+	  			})
+	  			topMenu.append(dockerNested);
+	  			topMenu.append(showProxyInfo);
+	  			topMenu.append(supportOption);
+	  			/*topMenu.append(new nw.MenuItem({label:symbol+'HNS Node: '+syncStatus}))
+	  			topMenu.append(restartDockerOption)
+	  			topMenu.append(nukeOption);*/
+	  		}
+	  	}).catch(e=>{
+	  		if(process.platform == 'darwin'){
+	  			/*this.mainMenu.append(showProxyInfo);
+	  			this.mainMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}))
+	  			this.mainMenu.append(restartDockerOption);
+	  			this.mainMenu.append(nukeOption);*/
+	  			let dockerNodeMenu = new nw.Menu()
+	  			dockerNodeMenu.append(restartDockerOption);
+	  			dockerNodeMenu.append(nukeOption);
+	  			dockerNodeMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}));
+	  			let dockerNested = new nw.MenuItem({
+	  				label: 'Docker Node Options',
+	  				submenu:dockerNodeMenu
+	  			})
+	  			this.mainMenu.append(dockerNested);
+	  			this.mainMenu.append(showProxyInfo);
+	  			this.mainMenu.append(supportOption);
+	  		}
+	  		else{
+	  			/*topMenu.append(showProxyInfo);
+	  			topMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}));
+	  			topMenu.append(restartDockerOption);
+	  			topMenu.append(nukeOption);*/
+	  			let dockerNodeMenu = new nw.Menu()
+	  			dockerNodeMenu.append(restartDockerOption);
+	  			dockerNodeMenu.append(nukeOption);
+	  			dockerNodeMenu.append(new nw.MenuItem({label:'🔴 HNS Node Not Responding'}));
+	  			let dockerNested = new nw.MenuItem({
+	  				label: 'Docker Node Options',
+	  				submenu:dockerNodeMenu
+	  			})
+	  			topMenu.append(dockerNested);
+	  			topMenu.append(showProxyInfo);
+	  			topMenu.append(supportOption);
+	  		}
+	  	});
+
+
   	
 		
 	  
 		if(process.platform == 'darwin'){
-		  	this.mainMenu.createMacBuiltin("HandyBrowser");
+		  	this.mainMenu.createMacBuiltin("HandyBrowser",{
+		  		//hideEdit:true,
+		  		hideWindow:true
+		  	});
 		  	nw.Window.get().menu = topMenu;
 		}
 		else{
@@ -190,6 +257,89 @@ class BookmarkManager{
 				$('#bookmarkPage').addClass('clicked');
 			}
 		})
+	}
+	showHowtoProxy(){
+		//show the proxy info panel
+		const nets = os.networkInterfaces();
+		const results = {};
+
+		for (const name of Object.keys(nets)) {
+		    for (const net of nets[name]) {
+		        // skip over non-ipv4 and internal (i.e. 127.0.0.1) addresses
+		        if (net.family === 'IPv4' && !net.internal) {
+		            
+		            if(net.address.indexOf('10.') == 0 || net.address.indexOf('192.168') == 0){
+		            	if (!results[name]) {
+			                results[name] = [];
+			            }
+		            	results[name].push(net.address);
+		        	}
+		        }
+		    }
+		}
+
+
+		let state = localStorage.getItem('windowState');
+		let x = 0;
+		let y = 0;
+		let w = screen.availWidth;
+		let h = screen.availHeight;
+
+		if(state != null){
+			state = JSON.parse(state);
+			x = state.x;
+			y = state.y;
+			w = state.width;
+			h = state.height;
+		}
+		fs.readFile('./proxyInfo.html','utf8',(err,snippet)=>{
+		  $('#modal').html($(snippet))
+		  $.getJSON('http://localhost:5302/__handybrowser_get_godane_cert__',(certD)=>{
+		  	let certText = certD.data;
+		  	let $a = $('#modal .downloadCert');
+		  	$a.each(function(){
+		  		$(this)[0].href = URL.createObjectURL(new Blob([certText]));
+			  	$(this).attr('type','text/crt')
+			  	$(this).attr('download','godane.cert.crt');
+		  	})
+		  	/*$a[0].href = URL.createObjectURL(new Blob([certText]));
+		  	$a.attr('type','text/crt')
+		  	$a.attr('download','godane.cert.crt');*/
+		  })
+		  
+		  console.log('ip res',results);
+		  if(Object.keys(results).length > 0){
+			let $el = $('#modal .ips')
+		  	$el.html('<div class="myInfoLabel">My Proxy Server Info:</div>')
+		  	Object.keys(results).map(netName=>{
+		  		console.log('nn',results[netName])
+		  		if(results[netName].length > 0){
+		  			results[netName].map((ip,i)=>{
+		  				if(i == 0){
+				  			$el.append('<div>'+netName+'</div>')
+				  		}
+				  		$el.append('<div class="IP">IP: '+ip+'</div>')
+				  		$el.append('<div class="port">port: 5301</div>')
+		  			})
+			  		
+			  	}
+		  	})
+		  }
+		  switch(process.platform){
+		  	case 'win32':
+		  		$('#modalNav').addClass('windows');
+		  	break;
+		  	case 'linux':
+		  		$('#modalNav').addClass('linux');
+		  	break;
+		  }
+
+		  $('#modal').show();
+		  $('#closeMap',$('#modal')).on('click',()=>{
+			$('#modal').hide().html('');
+		  })
+			
+		});
 	}
 	showNetworkMap(){
 		let state = localStorage.getItem('windowState');
@@ -780,7 +930,7 @@ class BookmarkManager{
 				if(typeof this.faviconData[encodeURIComponent(bm.url)] == "undefined"){
 
 					$li = $('<li class="url"><span class="iconPlaceholder"></span>'+bm.name+'</li>');
-					$.getJSON('http://__handybrowser_getfavicon__/'+encodeURIComponent(bm.url),(d)=>{
+					$.getJSON('http://localhost:5302/__handybrowser_getfavicon__/'+encodeURIComponent(bm.url),(d)=>{
 						this.faviconData[encodeURIComponent(bm.url)] = d.icon;
 						$('.iconPlaceholder',$li).remove();
 						$li.prepend('<img src="'+d.icon+'" class="icon" />')
@@ -880,7 +1030,7 @@ class BookmarkManager{
 				if(typeof this.faviconData[encodeURIComponent(child.url)] == "undefined"){
 
 					li = $('<li class="url"><span class="iconPlaceholder"></span>'+child.name+'</li>');
-					$.getJSON('http://__handybrowser_getfavicon__/'+encodeURIComponent(child.url),(d)=>{
+					$.getJSON('http://localhost:5302/__handybrowser_getfavicon__/'+encodeURIComponent(child.url),(d)=>{
 						this.faviconData[encodeURIComponent(child.url)] = d.icon;
 						$('.iconPlaceholder',li).remove();
 						li.prepend('<img src="'+d.icon+'" class="icon" />')
@@ -964,11 +1114,11 @@ class BookmarkManager{
 	}
 	restartHSD(){
 		let guid = localStorage.getItem('guid');
-		let hsdProcess = spawn('docker',['exec','-i','HandyBrowserHSD','sh','-c','"./run.hns.resolver.sh\ '+guid+'"'],{shell:true})
+		let hsdProcess = spawn('docker',['exec','-i','HandyBrowserHNSD','sh','-c','"./run.hnsd.sh"'],{shell:true})
 		let hsdLogged = false;
 		//let hsdLogs = '';
 		hsdProcess.stdout.on('data',d=>{
-			if(!hsdLogged && d.toString('utf8').indexOf('listening on port 53') >= 0){
+			if(!hsdLogged /*&& d.toString('utf8').indexOf('listening on port 53') >= 0*/){
 				hsdLogged = true;
 				$('#restartDockerNotification').html('Restarted HSD');
 					this.tray.checkHSDStatus();

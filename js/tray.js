@@ -17,6 +17,10 @@ class Tray{
 		this.initEvents();
 		this.initKeyboardShortcuts();
 		this.trayWindow = nw.Window.get();
+		this.trayWindow.setAlwaysOnTop(true);
+		setTimeout(()=>{
+			this.trayWindow.setAlwaysOnTop(false);
+		},100)
 		this.initUrlBarLogo();
 		setTimeout(()=>{
 			this.checkNodeStatusTimer(false);
@@ -196,8 +200,8 @@ class Tray{
 			this.resizeActive(true);
 			this.calcTabSize();
 		})
-		
 	}
+	
 	resizeActive(isMove){
 		let y = this.trayWindow.y;
 		let h = $('#toolbar').outerHeight()+5;
@@ -282,6 +286,7 @@ class Tray{
 		let closeTabCmd;
 		let showDevToolsCmd;
 		let reloadTabCmd;
+		let newWinCmd;
 		if(process.platform == 'darwin'){
 			this.deregisterKeyboardShortcuts();
 		}
@@ -318,6 +323,13 @@ class Tray{
 					console.log(msg);
 				}
 			};
+			newWinCmd = {
+				key: 'Command+N',
+				active:newWindow,
+				failed:function(msg){
+					console.log(msg);
+				}
+			}
 			
 		}
 		else{
@@ -351,6 +363,13 @@ class Tray{
 					console.log(msg);
 				}
 			}
+			newWinCmd = {
+				key:'Ctrl+N',
+				active:newWindow,
+				failed:function(msg){
+					console.log(msg);
+				}
+			}
 			
 		}
 		let newTabShortcut = new nw.Shortcut(newTabCmd);
@@ -368,6 +387,10 @@ class Tray{
 		let reloadTabShortcut = new nw.Shortcut(reloadTabCmd);
 		this._globalShortcuts.reloadTabShortcut = reloadTabShortcut;
 		nw.App.registerGlobalHotKey(reloadTabShortcut);
+
+		let newWinShortcut = new nw.Shortcut(newWinCmd);
+		this._globalShortcuts.newWinShortcut = newWinShortcut;
+		nw.App.registerGlobalHotKey(newWinShortcut);
 
 		$('#addTabButton').off('click').on('click',function(){
 			activeFunction();
@@ -486,6 +509,9 @@ class Tray{
 				_this.isAddingNewTab = true;
 			}
 		}
+		function newWindow(){
+			_this.openNewWindow();
+		}
 		//add H
 	}
 	focusOnTabAfterRemove(){
@@ -591,7 +617,16 @@ class Tray{
 		
 	}
 	initEvents(){
-		$('#urlQuery').focus();
+		//sheesh, all this to get keyboard shortcuts to pick up on init should i blur right away...
+		nw.Window.get().blur();
+		setTimeout(()=>{
+			nw.Window.get().focus();
+			this.trayWindow.setAlwaysOnTop(false);
+		},500)
+		
+		$('#urlQuery').trigger('click').focus();
+		//done sheeshing..
+
 		let winState = window.localStorage.getItem('windowState');
 		if(winState != null){
 			winState = JSON.parse(winState);
@@ -779,8 +814,14 @@ class Tray{
 	    		}
 	    		this.setTabInfoOnLoad(tabData.url,tabData,false);
 	    	
-	      }
-	      /*$webview[0].oncontentload = (e)=>{
+	      };	
+	      
+	      $webview[0].addEventListener('permissionrequest', function(e) {
+			if (e.permission === 'media' || e.permission === 'fullscreen') {
+			  e.request.allow();
+			}
+		  });	      
+		  /*$webview[0].oncontentload = (e)=>{
 	      	console.log('on contentload',e);
 	      }*/
 	      $webview[0].onloadstop = (e)=>{
@@ -789,7 +830,20 @@ class Tray{
 		        code: `document.title`
 		      }, result => {
 		      	//if(data[1] == tabData.url){
-	      		tabData.title = result[0];
+		      	console.log('result',result);
+		      	if(typeof result == "undefined"){
+		      		return;
+		      	}
+	      		tabData.title = this.sanitizeTitleString(result[0]);
+	      		if(result[0].indexOf('http://') == 0 || result[0].indexOf('https://') == 0){
+	      			//title is formed like a url, lets remove http or https from the beginning
+	      			if(tabData.title.indexOf('https') == 0){
+	      				tabData.title = tabData.title.replace('https','');
+	      			}
+	      			else if(tabData.title.indexOf('http') == 0){
+	      				tabData.title = tabData.title.replace('http','');
+	      			}
+	      		}
 		      	//set tab title
 		      	this.setTabInfoOnLoad(tabData.url,tabData,true);
 		      	//}
@@ -860,6 +914,10 @@ class Tray{
 
 	    }
 	}
+	sanitizeTitleString(str){
+	    str = str.replace(/[^a-z0-9áéíóúñü \.,_-]/gim,"");
+	    return str.trim();
+	}
 	setTabInfoOnLoad(url,activeNow,shouldSetTitle){
 	
 		if(!$('#urlQuery').is(":focus") && !shouldSetTitle){
@@ -867,6 +925,12 @@ class Tray{
 	  	}
 	  	if(shouldSetTitle){
 	  		let title = activeNow.title == '' ? activeNow.url : activeNow.title;
+	  		if(title.indexOf('https://') == 0){
+	  			title = title.replace('https://','').split('/')[0];
+	  		}
+	  		else if(title.indexOf('http://') == 0){
+	  			title = title.replace('http://','').split('/')[0];
+	  		}
 	    	activeNow.$el.find('span.pageTitle').html(title);
 	    }
 	    
@@ -875,7 +939,7 @@ class Tray{
 	  		activeNow.fetchingIcon = true;
 	  		let toLoad = typeof url != "undefined" ? url : activeNow.url;
 	    	
-	    	$.getJSON('http://__handybrowser_getfavicon__/'+encodeURIComponent(toLoad),(d)=>{
+	    	$.getJSON('http://localhost:5302/__handybrowser_getfavicon__/'+encodeURIComponent(toLoad),(d)=>{
 				activeNow.icon = d.icon;
 				delete activeNow.fetchingIcon;
 				//this.activeTab.$el.html(this.activeTab.window.title);
@@ -1202,10 +1266,14 @@ class Tray{
 				return tab.url;
 			});
 			localStorage.setItem('tabState',JSON.stringify(urls));
-			nw.App.quit();
+			this.deregisterKeyboardShortcuts();
+			nw.Window.get().close(true);
+			//nw.App.quit();
 		}
 		else{
-			nw.App.quit();
+			this.deregisterKeyboardShortcuts();
+			nw.Window.get().close(true);
+			//nw.App.quit();
 		}
 		return;	
 	}
@@ -1340,5 +1408,35 @@ class Tray{
 	  	}
 	  	$('#syncInfo').html('🔴HNS Node Not Responding');
   	});
+	}
+	openNewWindow(){
+		let w = screen.availWidth;
+		let h = screen.availHeight;
+		let x = screen.availLeft;
+		let y = screen.availTop;
+		let hasState = false;
+		if(window.localStorage.getItem('windowState') != null){
+			let state = JSON.parse(window.localStorage.getItem('windowState'));
+			console.log('window state is here',state);
+			w = state.width;
+			h = state.height;
+			x = state.x;
+			y = state.y;
+			hasState = true;
+		}
+		nw.App.setProxyConfig('127.0.0.1:5301');
+		let isResizable = true;
+		nw.Window.open('./tray.html',{
+			width:w,
+			height:h,
+			frame:false,
+			resizable:isResizable,
+			transparent:true,
+			x:x,
+			y:y
+		},(win)=>{
+			win.x = x;
+			win.y = y;
+		});
 	}
 }

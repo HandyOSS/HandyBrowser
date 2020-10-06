@@ -1,355 +1,195 @@
-<html style="background:#eee;">
+<html>
 <head>
-	<link rel="stylesheet" type="text/css" href="css/main.css" />
-	<script src="bower_components/jquery/dist/jquery.min.js"></script>
-	<script src="bower_components/d3/d3.min.js"></script>
-	<script src="bower_components/numeral/numeral.js"></script>
-	<script src="bower_components/moment/moment.js"></script>
-	<script src="externals/three.js/three.min.js"></script>
-	<script src="bower_components/threejs-trackball-controls/TrackballControls.js"></script>
-	<script type="shader/x-fragment" id="logoFragmentShader">
-		uniform float animate;
-		uniform float opacity;
-
-		void main() {
-		  gl_FragColor = vec4(vec3(0,0,0), opacity);
+	<title>HandyBrowser</title>
+	<link rel="stylesheet" type="text/css" href="css/tray.css" />
+	<link rel="stylesheet" type="text/css" href="css/bookmarkManager.css" />
+	<link rel="stylesheet" type="text/css" href="./css/map.css" />	
+	<link rel="stylesheet" type="text/css" href="./css/donate.css" />	
+	<style>
+		.icon img{
+			width: 128px;
+			height:128px;
 		}
-	</script>
-	<script type="shader/x-vertex" id="logoVertexShader">
-		attribute vec3 direction;
-		attribute vec3 centroid;
-
-		uniform float animate;
-		uniform float opacity;
-		uniform float scale;
-
-		#define PI 3.14
-
-		void main() {
-		  // rotate the triangles
-		  // each half rotates the opposite direction
-		  float theta = (1.0 - animate) * (PI * 1.5) * sign(centroid.x);
-		  mat3 rotMat = mat3(
-		    vec3(cos(theta), 0.0, sin(theta)),
-		    vec3(0.0, 1.0, 0.0),
-		    vec3(-sin(theta), 0.0, cos(theta))
-		  );
-		  
-		  // push outward
-		  vec3 offset = mix(vec3(0.0), direction.xyz * rotMat, 1.0 - animate);
-		  
-		  // scale triangles to their centroids
-		  vec3 tPos = mix(centroid.xyz, position.xyz, scale) + offset;
-		  
-		  gl_Position = projectionMatrix *
-		              modelViewMatrix *
-		              vec4(tPos, 1.0);
+		.icon .title{
+			font-weight:600;
+			margin: 10px 0;
+			font-size: 24px;
 		}
-	</script>
-	<script src="js/main.js"></script>
+		html,body{
+			background:#222;
+			overflow:auto;
+		}
+		.links, .info{
+			margin: 5px 0;
+		}
+		.infoLabel{
+			font-weight: 600;
+		}
+
+		body .proxyInfo{
+			margin-top:0px;
+			height: auto;
+			overflow:auto;
+
+		}
+		body .donate50{
+			color:#ccc;
+			text-align: center;
+			height:auto;
+		}
+		.donate50 input{
+			text-align:center;
+		}
+	</style>
 </head>
-<body style="background:#eee;">
-
-<div class="minerForm hidden" id="gpus">
-	<h3>Enter GPU Information</h3>
-	<div class="infoElement">
-		<label for="gpuMfg">GPU Manufacturer</label>
-		<select id="gpuMfg">
-			<option value="nvidia">NVIDIA</option>
-			<option value="amd" selected>AMD</option>
-		</select>
-	</div>
-	<div class="infoElement">
-		<label for="gpuMfg">GPU Platform</label>
-		<select id="gpuPlatform">
-			<option value="0" selected>0</option>
-			<option value="1">1</option>
-			<option value="2">2</option>
-		</select>
-		<small class="gpuPlatformNote">* Likely 0, on a Windows Rig it may be 1 or 2</small>
-	</div>
-	<div class="infoElement">
-		<label for="gpuList">GPUs</label>
-		<input type="text" id="gpuList" placeholder="0,1,2,3,4,5" />
-		<small>* comma separated gpus you mine with</small>
-		<div class="queryGPUs"><span class="questionMark">?</span>Query GPU IDs</div>
-	</div>
-	<div class="infoElement">
-		<label for="intensity">GPU Memory Intensity</label>
-		<select id="intensity">
-			<option value="1">1 - ( Old / Integrated GPUs )</option>
-			<option value="2">2</option>
-			<option value="3">3</option>
-			<option value="4">4</option>
-			<option value="5">5 - (I can still use my MacBook)</option>
-			<option value="6">6</option>
-			<option value="7">7</option>
-			<option value="8">8 - (MacBook can lag ~here)</option>
-			<option value="9">9</option>
-			<option value="10" selected="selected">10 - ( NVDA 1070 / AMD RX4xx-5xx )</option>
-			<option value="11">11 - ( BEAST MODE )</option>
-		</select>
-	</div>
-	<div class="infoElement">
-		<div class="checkboxWrapper">
-			<!-- <label for="muteFanfare"><input type="checkbox" id="muteFanfare" value="1" /> Mute Fanfare Winning Song</label> -->
-			<div class="checkbox-container">
-		        <label class="checkbox-label">
-		            <input type="checkbox" id="muteFanfare" value="1" />
-		            <span class="checkbox-custom rectangular"></span>
-		        </label>
-		        <label id="fflabel" for="muteFanfare">Mute Fanfare Winning Song</label>
-		    </div>
+	<body>
+	<div class="proxyInfo">
+		<div class="icon">
+			<img src="./icons/app_png.png" />
+			<div class="title">HandyBrowser 0.2</div>
 		</div>
-	</div>
-	<div class="saveButton">
-		Save GPUs
-	</div>
-	<div class="escape">[ESC to hide]</div>
-</div>
-<div class="minerForm hidden" id="cyoa">
-	Choose a Mining Mode
-	<div class="option" id="pool">
-		Pool Mining
-	</div>
-	<div class="option" id="solo">
-		Solo Mining
-	</div>
-	<div class="escape">[ESC to hide]</div>
-</div>
-<div class="minerForm hidden" id="cyoa2">
-	Handshake Daemon (HSD) Node Options:
-	<div class="option" id="local">
-		Start Local Node
-	</div>
-	<div class="option" id="remote">
-		Connect to Remote Node
-	</div>
-	<div class="escape">[ESC to hide]</div>
-</div>
+		<div class="links">
+			<a href="https://github.com/HandyMiner/HandyBrowser/releases/" target="_blank">Download the latest pre-built release here</a><br />
+			<a href="http://t.me/HandshakeTalk" target="_blank">Join us on Telegram</a>
+		</div>
 
-<div class="minerForm hidden" id="poolUI">
-	<h3>Enter Mining Pool Details</h3>
-	<div class="infoElement stratumElement" id="serverPort">
-		<div class="stratumSubElement">
-			<label for="poolProvider">Mining Pool</label>
-			<select id="poolProvider">
-				<option value="hns.f2pool.com" selected="selected">F2 Pool</option>
-				<option value="stratum+tcp://handshake.6block.com">6block</option>
-				<option value="hns-us.ss.poolflare.com">PoolFlare</option>
-				<option value="stratum-us.hnspool.com">hnspool</option>
-			</select>
-			<a id="advancedPoolSettings" href="#">advanced|custom pool settings</a>
+		<div class="info">
+			<div class="infoLabel">HandyBrowser 0.2 Changelog:</div>
+			HandyBrowser 0.2 adds support for community projects godane and hnsd. 
+			<ul>
+				<li><a href="https://github.com/buffrr/godane" target="_blank">godane</a> enables the use of DANE (DNS Based Authentication of Named Entities) in browsers using a simple proxy. It currently supports DANE-EE, and works with self-signed certificates.</li>
+				<li><a href="https://github.com/handshake-org/hnsd" target="_blank">hnsd</a> is a Handshake SPV resolver daemon for the Handshake network. Written in C for speed/size/embedability. It enables us to do fast lookups of Handshake names without relying on a full sync of the blockchain in a Handshake fullnode.</li>
+			</ul>
+			<div>Other Updates:</div>
+			<ul>
+				<li>
+					In Mac/Windows, we added a Handy toolbar!<br /><img src="./img/toolbar_mac.png" style="width:250px;" />
+				</li>
+				<li>
+					In the HandyBrowser menu there is now a guide showing you how to use HandyBrowser&#039;s resolver/proxy to resolve Handshake names in your favorite browsers. This was something you could always do, we just made it more prominent. Most of the guide follows below:
+				</li>
+
+			</ul>
+		</div>
+
+
+		<div class="facts">
+			Fun fact: you can use the Handshake backend of HandyBrowser in your favorite web browsers on the same local network (meaning your mobile too).<br />
+			Howto: First, start HandyBrowser to run the Handshake Proxy backend. (You can close HandyBrowser anytime after it boots). Then:<br />
+			<a href="#ff">Firefox Instructions</a>
+			<a href="#chromeWin">Chrome (Windows) Instructions</a>
+			<a href="#chromeLin">Chrome (Linux) Instructions</a>
+			<a href="#ios">iOS Instructions</a>
+			<a href="#android">Android Instructions</a>
 		</div>
 		
-		<div class="stratumSubElement hidden advancedStratumSetting">
-			<label for="stratumHost">Pool Stratum Custom Host</label>
-			<input type="text" id="stratumHostPool" placeholder="hns.f2pool.com" value="hns.f2pool.com" />
-		</div>
-		<div class="stratumSubElement hidden advancedStratumSetting">
-			<label for="stratumPort">Pool Stratum Port</label>
-			<input type="text" id="stratumPortPool" placeholder="6000" value="6000" />
-		</div>
-	</div>
-	<div class="infoElement hsdElement" id="hsdAPI">
-		<div class="stratumSubElement">
-			<label for="hsdAPIUrl">HSD API Server:Port</label>
-			<input type="text" id="hsdAPIUrlPool" placeholder="127.0.0.1:13037" />
-		</div>
-		<div class="stratumSubElement">
-			<label for="hsdAPIPass">HSD API Key</label>
-			<input type="text" id="hsdAPIPassPool" placeholder="earthlab" />
-		</div>
-		<div class="notes">
-			*Note: We notice you are already running hsd locally! To get the most out of this UI (see your blocks solved) please add the flags: <br />
-			--index-tx=true
-			--index-address=true
-			<br />
-		</div>
-	</div>
-
-	<div class="infoElement stratumElement" id="userPass">
-		<div class="stratumSubElement">
-			<label for="stratumUser">Mining User</label>
-			<input type="text" id="stratumUserPool" class="superwide" placeholder="wallet.rigName" />
-		</div>
-		<div class="stratumSubElement hidden" id="poolPass">
-			<label for="stratumPass">Mining Password</label>
-			<input type="text" id="stratumPassPool" placeholder="anything" />
-		</div>
-
-	</div>
-	
-	<!-- <div class="infoElement" id="wallet">
-		<label for="hasMinerWalletPool">Miner Rewards Wallet</label>
-		<input type="text" id="hsdMinerWalletPool" placeholder="ts1q59rxjegn030vwe0z3jjgx76j6ql44tpfwkjv5g" />
-	</div> -->
-
-	<!-- <div class="infoElement" id="difficulty">
-		<label for="minerDifficulty">Pool Difficulty</label>
-		<input type="number" id="minerDifficulty" placeholder="10" />
-		<small>
-			Note: Try somewhere ~ 5-6 for newer laptops and maybe 8-10 for an 8GB GPU. Ideally tune this to get shares every 30s.
-	  </small>
-	</div> -->	
-	
-	<div class="saveButton">
-		Save Mining Pool Details
-	</div>
-	<div class="escape">[ESC to hide]</div>
-</div>
-<div class="minerForm hidden" id="stratum">
-	<h3>Enter Solo Stratum Details</h3>
-	<div class="infoElement stratumElement" id="serverPort">
-		<div class="stratumSubElement">
-			<label for="stratumHost">Stratum Host</label>
-			<input type="text" id="stratumHost" placeholder="127.0.0.1" />
-		</div>
-		<div class="stratumSubElement">
-			<label for="stratumPort">Stratum Port</label>
-			<input type="text" id="stratumPort" placeholder="3008" />
-		</div>
-	</div>
-	
-	<div class="infoElement stratumElement" id="userPass">
-		<div class="stratumSubElement">
-			<label for="stratumUser">Stratum User</label>
-			<input type="text" id="stratumUser" placeholder="earthlab:rig4" />
-		</div>
-		<div class="stratumSubElement">
-			<label for="stratumPass">Stratum Password</label>
-			<input type="text" id="stratumPass" placeholder="earthlab" />
-		</div>
-
-	</div>
-	<div class="infoElement hsdElement" id="hsdAPI">
-		<div class="stratumSubElement">
-			<label for="hsdAPIUrl">HSD API Server:Port</label>
-			<input type="text" id="hsdAPIUrl" placeholder="127.0.0.1:13037" />
-		</div>
-		<div class="stratumSubElement">
-			<label for="hsdAPIPass">HSD API Key</label>
-			<input type="text" id="hsdAPIPass" placeholder="earthlab" />
-		</div>
-		<div class="notes">
-			*Note: We notice you are already running hsd locally! To get the most out of this UI (see your blocks solved) please add the flags: <br />
-			--index-tx=true
-			--index-address=true
-			<br />
-		</div>
-	</div>
-	<div class="infoElement" id="wallet">
-		<label for="hasMinerWallet">Miner Rewards Wallet</label>
-		<input type="text" id="hsdMinerWallet" placeholder="ts1q59rxjegn030vwe0z3jjgx76j6ql44tpfwkjv5g" />
-	</div>	
-	<div class="infoElement" id="networkID">
-		<label for="network">Network</label>
-		<select id="network">
-			<option value="main">mainnet</option>
-			<option value="testnet">testnet</option>
-			<option value="simnet">simnet</option>
-			<option value="regtest">regtest</option>
-		</select>
-	</div>
-	
-	<div class="saveButton">
-		Save Stratum Details and Restart Docker Container
-	</div>
-	<div class="escape">[ESC to hide]</div>
-	<div class="nukeDocker">
-		Nuke and Rebuild Docker Machine
-	</div>
-</div>
-<div id="logs" class="hidden">
-	<div class="label">HSD Logs:</div>
-	<pre id="logOutput">
 		
-	</pre>
-	<div class="label">Miner Logs:</div>
-	<pre id="minerOutput">
-		###################################
-		# Miner logs show up about 10-20s #
-		# after clicking the play button. #
-		###################################
-		#    |\---/|                      #
-		#    | ,_, |                      #
-		#     \_`_/-..----.               #
-		#  ___/ `   ' ,""+ \              #
-		# (__...'   __\    |`.___.';      #
-		#   (_,...'(_,.`__)/'.....+       #
-		###################################
-	</pre>
-	<div class="close">Hide</div>
-</div>
-<!-- <div class="minerForm hidden" id="hsd">
-	<h3>Enter HSD Node Details</h3>
-	<div class="infoElement">
-		<label for="stratumHost">Set an HSD API Key</label>
-		<input type="text" id="hsdApiKey" placeholder="aka: earthlab" />
-	</div>
-	<div class="infoElement">
-		<label for="stratumPort">Miner Rewards Wallet</label>
-		<input type="text" id="hsdMinerWallet" placeholder="ts1q59rxjegn030vwe0z3jjgx76j6ql44tpfwkjv5g" />
-	</div>
+		<div class="firefox">
+			<a id="ff"></a>
+			<h4>Firefox</h4>
+			
+			<ul>
+				<li>Goto Options</li>
+				<li>Search for "Proxy"</li>
+				<li>Click on the "Settings..." button in the Network Settings results</li>
+				<li>Enter your IP and port (5301) from the HandyBrowser Proxy Info panel like so:</li>
+				<li><img src="./img/proxysetting_firefox.png" /></li>
+				<li>Now search in options for "Certificates", and click the "View Certificates..." Button</li>
+				<li><img src="./img/certs_ff1.png" /></li>
+				<li><a id="downloadCert">Download your Handshake Proxy Certificate in HandyBrowser</a>, and then in Firefox, click "Import..." to import the downloaded certificate.</li>
+				<li>When importing, you will check the box for "Trust this CA to Identify Websites" like this:</li>
+				<li><img src="./img/certs_ff2.png" /><br />And then click "OK"</li>
+				<li>Now visit a Handshake enabled site, like: http://welcome.nb/, or https://3b/</li>
+			</ul>
+		</div>
+		<div class="chromeWin">
+			<a id="chromeWin"></a>
+			<h4>Chrome (Windows)</h4>
+			<ul>
+				<li>Goto Settings</li>
+				<li>Search for "proxy"</li>
+				<li>Click the option for "Open your Computer&#039;s Proxy Settings</li>
+				<li>Scroll down to "Manual Proxy Setup"</li>
+				<li>Click the toggle for "Use a proxy server"</li>
+				<li>Address: localhost</li>
+				<li>Port: 5301</li>
+				<li>Click "Save"</li>
+				<li>Resolve Handshake Names like: welcome.nb/, or https://3b/</li>
+				<li>Note: For handshake names, make sure you add the trailing slash (/) after the TLD like 3b/ or welcome.nb/</li>
+			</ul>
+		</div>
+		<div class="chromeLin">
+			<a id="chromeLin"></a>
+			<h4>Chrome (Linux)</h4>
+			<ul>
+				<li>Run chrome with the --proxy-server flag like: google-chrome --proxy-server="127.0.0.1:5301"</li>
+				<li>Resolve Handshake Names like: welcome.nb/, or https://3b/</li>
+				<li>Note: For Handshake names, make sure you add the trailing slash (/) after the TLD like 3b/ or welcome.nb/</li>
+			</ul>
+		</div>
+		<div class="ios">
+			<a id="ios"></a>
+			<h4>iOS</h4>
+			
+			<ul>
+				<li>Open "Settings"</li>
+				<li>Wi-Fi Settings</li>
+				<li>Click the "i" icon next to your wifi network like:</li>
+				<li><img src="./img/wifi_setting_ios0.jpeg" /></li>
+				<li>Scroll to the bottom of this screen, and tap "Configure Proxy"</li>
+				<li>Set to "Manual" (try Automatic too if youre lucky)</li>
+				<li>Set the IP and port to the address listed in the HandyBrowser Proxy Info Menu</li>
+				<li>Tap "Save" in the top-right</li>
+				<li>Visit a Handshake enabled site like http://welcome.nb./ (notice the "." after the TLD)</li>
 
-	<div class="saveButton">
-		Save HSD Details
-	</div>
-</div> -->
-<div class="minerForm minerMain" id="main">
-	<div class="infoElement" id="gpuTemplate">
-		<img src="img/gpu.png" /> 
-		<ul>
-			<li>GPU0</li>
-			<li>0MH</li>
-		</ul>
-	</div>
-	<div class="gpuStatus">
+			</ul>
+		</div>
+		<div class="android">
+			<a id="android"></a>
+			<h4>Android</h4>
+			<ul>
+				<li>Open "Settings"</li>
+				<li>Network &amp; internet</li>
+				<li>Wi-Fi</li>
+				<li>Click the settings cog next to your network name</li>
+				<li>Click the "Pencil" icon at the top to edit network</li>
+				<li>Under "Proxy" click on "None" to edit --> Select "Manual"</li>
+				<li>Proxy hostname = IP listed in the HandyBrowser Proxy Info Menu</li>
+				<li>Proxy port = port listed in the HandyBrowser Proxy Info Menu</li>
+				<li>SAVE</li>
+				<li>Now we update the root CA security certificate::</li>
+				<ul>
+					<li>Download the Certificate .crt file in the HandyBrowser Proxy Info Menu, transfer to your Android device</li>
+					<li>settings</li>
+					<li>security</li>
+					<li>advanced</li>
+					<li>encryption & credentials</li>
+					<li>install a certificate</li>
+					<li>select the downloaded .crt file</li> 
+					<li>done</li>
+				</ul>
+				<li>Visit a Handshake enabled site like http://welcome.nb, or https://3b on any Browser app</li>
+			</ul>
+		</div>
 		
 	</div>
-	<div class="latest">
-		<div class="blocksToday"><span class="number">--</span><span class="label">Solutions Last 100 Blocks</span></div>
-		<div class="blocksAllTime"><span class="number">--</span><span class="label">Solutions All Time</span></div>
-	</div>
-	<div class="stats">
-		<div class="halfChart" id="left">
-			<div class="label">Difficulty <small>Last 100 Blocks</small></div>
-			<svg></svg>
+	<div class="donate50">
+		<div class="donateLabel">
+			Donate HNS to the HandyBrowser Team:
 		</div>
-		<div class="halfChart" id="right">
-			<div class="label">Hash Rate</div>
-			<svg></svg>
+		<img class="qr" src="./icons/qr.png" />
+		<div class="donateLabel">
+			<input class="selectMe" readonly="readonly" value="hs1qwfpd5ukdwdew7tn7vdgtk0luglgckp3klj44f8" size="45" />
 		</div>
 	</div>
-	<div class="syncedButton">
-		<span class="syncedIcon">&#9745;</span>
-		<span class="statusPrefix">Local Node</span> 
-		<span class="statusLabel">Starting Synchronization...</span>
-	</div>
-	<div class="title">View Latest Block in HNSCAN: <a target="_blank" href="http://hnscan.com/block/0">0</a></div>
-	<div class="settings">&#9776;<!-- &#9881; --></div>
-	<div class="startStop paused">&#9654;</div>
-	<div class="logs">&#128220;</div>
-</div>
-<div id="modal">
-	<div class="modalBody">
-		<div class="modalTitle"></div>
-		<div class="modalContent"></div>
-		<div class="modalButtons">
-			<div class="save button">Save</div>
-			<div class="close button">Close</div>
+	<div class="donate50">
+		<div class="donateLabel">
+			Donate BTC to the HandyBrowser Team:
+		</div>
+		<img class="qr" src="./img/btc_qr.jpg" />
+		<div class="donateLabel">
+			<input class="selectMe" readonly="readonly" value="bc1qk3rk4kgek0hzpgs8qj4yej9j5fs7kcnjk7kuvt" size="45" />
 		</div>
 	</div>
-</div>
-<div id="loading">
-	<div class="lds-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
-</div>
-<div id="settingsOptions">
-	<ul>
-		<li id="miningMode">Mining Settings</li>
-		<li id="gpuSettings">GPUs</li>
-	</ul>
-</div>
-<div id="introLogo"></div>
 </body>
 </html>

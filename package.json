@@ -1,18 +1,21 @@
 {
-  "name": "HandyBrowser",
+  "chromium-args": "--proxy-server=127.0.0.1:5301",
+  "dependencies": {
+    "sudo-prompt": "^9.2.1"
+  },
   "main": "boot.html",
+  "name": "HandyBrowser",
+  "node-remote": {
+    "scheme": "file"
+  },
   "nodejs": true,
   "window": {
-    "width": 480,
-    "frame":false,
-    "resizable":false,
-    "position":"center",
+    "chromium-args": "--proxy-server=127.0.0.1:5301",
+    "frame": false,
     "height": 240,
     "icon": "icons/app_png.png",
-    "chromium-args":"--allow-running-insecure-content --ignore-certificate-errors --ignore-urlfetcher-cert-requests --remember-cert-error-decisions --proxy-server=127.0.0.1:5301"
-  },
-  "node-remote":{
-    "scheme":"file"
-  },
-  "chromium-args":"--allow-running-insecure-content --ignore-certificate-errors --ignore-urlfetcher-cert-requests --remember-cert-error-decisions --proxy-server=127.0.0.1:5301"
+    "position": "center",
+    "resizable": false,
+    "width": 480
+  }
 }

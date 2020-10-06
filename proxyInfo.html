@@ -1,0 +1,115 @@
+<link rel="stylesheet" type="text/css" href="css/tray.css" />
+<link rel="stylesheet" type="text/css" href="css/bookmarkManager.css" />
+<link rel="stylesheet" type="text/css" href="./css/map.css" />	
+<div class="proxyInfo">
+	<div id="modalNav">
+		<div class="optionButton active" id="closeMap">x</div>
+		<div class="optionButton notActive" id="hide">-</div>
+		<div class="optionButton notActive" id="full">+</div>
+	</div>
+
+	<div class="facts">
+		Fun fact: you can use the Handshake backend of HandyBrowser in your favorite web browsers on the same local network (meaning your mobile too).<br />
+		How-to: First, start HandyBrowser to run the Handshake Proxy backend. (You can close HandyBrowser anytime after it boots). Then:<br />
+		<a href="#ff">Firefox Instructions</a>
+		<a href="#chromeWin">Chrome (Windows) Instructions</a>
+		<a href="#chromeLin">Chrome (Linux) Instructions</a>
+		<a href="#ios">iOS Instructions</a>
+		<a href="#android">Android Instructions</a>
+	</div>
+	<div class="ips">
+		<div class="IP">
+			My IP: 127.0.0.1
+		</div>
+		<div class="port">
+			Port: 5301
+		</div>
+	</div>
+	
+	<div class="firefox">
+		<a id="ff"></a>
+		<h4>Firefox</h4>
+		
+		<ul>
+			<li>Goto Options</li>
+			<li>Search for "Proxy"</li>
+			<li>Click on the "Settings..." button in the Network Settings results</li>
+			<li>Enter your IP and port from above like so:</li>
+			<li><img src="./img/proxysetting_firefox.png" /></li>
+			<li>Now search in options for "Certificates", and click the "View Certificates..." Button</li>
+			<li><img src="./img/certs_ff1.png" /></li>
+			<li><a class="downloadCert">Download your HandyBrowser Proxy Certificate here</a>, and then in Firefox, click "Import..." to import the downloaded certificate.</li>
+			<li>When importing, you will check the box for "Trust this CA to Identify Websites" like this:</li>
+			<li><img src="./img/certs_ff2.png" /><br />And then click "OK"</li>
+			<li>Now visit a Handshake enabled site, like: http://welcome.nb/, or https://3b/</li>
+		</ul>
+	</div>
+	<div class="chromeWin">
+		<a id="chromeWin"></a>
+		<h4>Chrome (Windows)</h4>
+		<ul>
+			<li>Goto Settings</li>
+			<li>Search for "proxy"</li>
+			<li>Click the option for "Open your Computer&#039;s Proxy Settings</li>
+			<li>Scroll down to "Manual Proxy Setup"</li>
+			<li>Click the toggle for "Use a proxy server"</li>
+			<li>Address: localhost</li>
+			<li>Port: 5301</li>
+			<li>Click "Save"</li>
+			<li>Resolve Handshake Names like: welcome.nb/, or https://3b/</li>
+			<li>Note: For Handshake names, make sure you add the trailing slash (/) after the TLD like 3b/ or welcome.nb/</li>
+		</ul>
+	</div>
+	<div class="chromeLin">
+		<a id="chromeLin"></a>
+		<h4>Chrome (Linux)</h4>
+		<ul>
+			<li>Run chrome with the --proxy-server flag like: google-chrome --proxy-server="127.0.0.1:5301"</li>
+			<li>Resolve Handshake Names like: welcome.nb/, or https://3b/</li>
+			<li>Note: For Handshake names, make sure you add the trailing slash (/) after the TLD like 3b/ or welcome.nb/</li>
+		</ul>
+	</div>
+	<div class="ios">
+		<a id="ios"></a>
+		<h4>iOS</h4>
+		<ul>
+			<li>Open "Settings"</li>
+			<li>Wi-Fi Settings</li>
+			<li>Click the "i" icon next to your wifi network like:</li>
+			<li><img src="./img/wifi_setting_ios0.jpeg" /></li>
+			<li>Scroll to the bottom of this screen, and tap "Configure Proxy"</li>
+			<li>Set to "Manual" (try Automatic too if youre lucky)</li>
+			<li>Set the IP and port to the address listed on this page</li>
+			<li>Tap "Save" in the top-right</li>
+			<li>Visit a Handshake enabled site like http://welcome.nb./ (notice the "." after the TLD)</li>
+
+		</ul>
+	</div>
+	<div class="android">
+		<a id="android"></a>
+		<h4>Android</h4>
+		<ul>
+			<li>Open "Settings"</li>
+			<li>Network &amp; internet</li>
+			<li>Wi-Fi</li>
+			<li>Click the settings cog next to your network name</li>
+			<li>Click the "Pencil" icon at the top to edit network</li>
+			<li>Under "Proxy" click on "None" to edit --> Select "Manual"</li>
+			<li>Proxy hostname = IP listed on this page</li>
+			<li>Proxy port = port listed on this page</li>
+			<li>SAVE</li>
+			<li>Now we update the root CA security certificate::</li>
+				<ul>
+					<li><a class="downloadCert">Download the HandyBrowser Proxy Certificate here</a>, then transfer it to your Android device</li>
+					<li>settings</li>
+					<li>security</li>
+					<li>advanced</li>
+					<li>encryption & credentials</li>
+					<li>install a certificate</li>
+					<li>select the downloaded .crt file</li> 
+					<li>done</li>
+				</ul>
+			<li>Visit a Handshake enabled site like http://welcome.nb on any Browser app</li>
+		</ul>
+	</div>
+</div>

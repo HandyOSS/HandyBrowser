@@ -1,12 +1,12 @@
 const AnyProxy = require('anyproxy');
 const options = {
-  port: 5301,
+  port: 5302,
   webInterface: {
     enable: false,
     webPort: 8002
   },
   rule: require('./proxyRule.js'),
-  forceProxyHttps: true,
+  forceProxyHttps: false,
   wsIntercept: true,
   silent: true
 };

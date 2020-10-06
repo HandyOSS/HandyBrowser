@@ -1,5 +1,5 @@
 #!/bin/sh
-cp /usr/hsdProxy/resolv.conf /etc/resolv.conf && node /usr/hsdProxy/runProxy.js &
+cp /usr/hsdProxy/resolv.conf /etc/resolv.conf && sleep 3 && node /usr/hsdProxy/runProxy.js &
 
 set -e
 

@@ -11,6 +11,17 @@ $(document).ready(function(){
 class bsApp{
 	constructor(){
 		console.log('construct');
+		nw.App.on('open',()=>{
+			console.log('new open process');
+			this.showTray();
+		})
+		if(process.platform == 'darwin'){
+			nw.App.on('reopen',()=>{
+				console.log('new open process');
+				this.showTray();
+			});
+		}
+		nw.Window.get().focus();
 		//set guid		
 		if(window.localStorage.getItem('guid') == null){
 			this.guid = this.getGuid();
@@ -21,7 +32,7 @@ class bsApp{
 		}
 
 		/*setting this will use hsd or hnsd*/
-		this.resolver = 'hsd'; //|| hnsd
+		this.resolver =  'hnsd'; // OR 'hsd'
 
 		window.localStorage.setItem('resolver',this.resolver);
 
@@ -37,6 +48,7 @@ class bsApp{
 				//write linux .desktop file proper
 				this.writeLinuxDesktopRunner();
 			}
+			this.initSystemTray()
 		}
 		
 	}
@@ -49,8 +61,8 @@ class bsApp{
 	showTray(){
 		let w = screen.availWidth;
 		let h = screen.availHeight;
-		let x = 0;
-		let y = 0;
+		let x = screen.availLeft;
+		let y = screen.availTop;
 		let hasState = false;
 		if(window.localStorage.getItem('windowState') != null){
 			let state = JSON.parse(window.localStorage.getItem('windowState'));
@@ -179,7 +191,7 @@ class bsApp{
 		listD.on('close',d=>{
 			$('.syncedButton .statusLabel').html('Built Docker Container!')
 			console.log('start listD stdout',listData,listData.indexOf('earthlab'));
-			if(listData.indexOf('handybrowser') == -1){
+			if(listData.indexOf('handybrowserhnsd') == -1){
 				//we dont need to build image
 				this.createDockerImage();
 			}
@@ -199,14 +211,14 @@ class bsApp{
 			"Calculating Dollarydoos",
 			"Connecting to the Masternodes...",
 			"Downloading Skyrim...",
-			"Texting Vitalik...",
-			"Washing our Hands...",
 			"Contacting Aliens...",
 			"640K ought to be enough for anybody...",
 			"We're almost done, this shit is hard...",
 			"The bits are flipping...",
 			"Ooops lost a file...",
 			"Just kidding...",
+			"Texting Vitalik...",
+			"Washing our Hands...",
 			"Handshake was built by aliens, they're lying...",
 			"Satellites moving into position...",
 			"Wakanda Forever...",
@@ -226,16 +238,17 @@ class bsApp{
 			"Convincing the Handshake AI not to turn evil...",
 			"Creating the New Internet...",
 		];
-		$('.main').html('BUILDING NEW '+this.serviceName+' DOCKER MACHINE...THIS MAY TAKE A FEW MINUTES (one time only).<br /><span class="statusMessage"></span>');
+		$('.main').html('BUILDING NEW '+this.serviceName+' DOCKER MACHINE...THIS WILL TAKE A FEW MINUTES (one time only).<br /><span class="statusMessage"></span>');
 		let wasError = false;
 		
-		let dockerFileName = this.resolver == 'hsd' ? './Dockerfile-HSD_RESOLVER' : './Dockerfile-HNSD';
+		let dockerFileName = this.resolver == 'hsd' ? './Dockerfile-HSD_RESOLVER' : './Dockerfile-HNSD-Prebuilt';
 		
-		let createD = spawn('docker',['build', '-t', 'handybrowser', '-f', dockerFileName, '.'],{cwd:nw.__dirname+'/docker_utils'});
+		let createD = spawn('docker',['build', '-t', 'handybrowserhnsd', '-f', dockerFileName, '.'],{cwd:nw.__dirname+'/docker_utils'});
 		let hsdLogs = '';
 		let stepVal = 0;
 		createD.stdout.on('data',d=>{
 			let text = d.toString('utf8');
+			console.log('progress',text);
 			if(text.indexOf ('Step') >= 0){
 				let stepText = text.split('Step')[1];
 				stepText = stepText.split(':')[0];
@@ -243,6 +256,7 @@ class bsApp{
 				if(stepVal > msgStrings.length-1){
 					stepVal = 0;
 				}
+				
 				$('.main .statusMessage').html('Step '+stepText+': '+msgStrings[stepVal])
 				stepVal++;
 			}
@@ -264,7 +278,7 @@ class bsApp{
 		$('.main').html('BUILDING NEW '+this.serviceName+' DOCKER ENVIRONMENT...THIS MAY TAKE A MINUTE (once).');
 		let wasContainerError = false;
 		let hsdLogs = '';
-		let containerD = spawn('docker', ['run', '-p', '13937:13037', '-p', '13938:13038', '-p', '14937:14037','-p','14938:14038', '-p', '12937:12037', '-p', '12938:12038', '-p', '3008:3008', '-p', '15937:15037', '-p', '15938:15038', '-p', '5301:5301', '-p', '13038:13038', '-p', '15359:15359', '--expose', '3008', '--name', this.containerName, '-td', 'handybrowser'],{cwd:nw.__dirname+'/docker_utils'});
+		let containerD = spawn('docker', ['run', '-p', '13937:13037', '-p', '13938:13038', '-p', '14937:14037','-p','14938:14038', '-p', '12937:12037', '-p', '12938:12038', '-p', '3008:3008', '-p', '15937:15037', '-p', '15938:15038', '-p', '5301:5301', '-p', '5302:5302', '-p', '13038:13038', '-p', '15359:15359', '--expose', '3008', '--name', this.containerName, '-td', 'handybrowserhnsd'],{cwd:nw.__dirname+'/docker_utils'});
 		containerD.stdout.on('data',d=>{
 			
 			console.log('container creation data',d.toString('utf8'));
@@ -291,13 +305,18 @@ class bsApp{
 		let envVars = process.env;
 		console.log('starting hsd')
 		let hsdProcess;
+		let hsdFullnodeProcess;
 		console.log('this resolver',this.resolver)
 		if(this.resolver == 'hsd'){
 			hsdProcess = spawn('docker',['exec','-i',this.containerName,'sh','-c','"./run.hns.resolver.sh\ '+this.guid+'"'],{shell:true})
 		} 
 		else{
 			hsdProcess = spawn('docker',['exec','-i',this.containerName,'sh','-c','"./run.hnsd.sh"'],{shell:true})
+			hsdFullnodeProcess = spawn('docker',['exec','-i',this.containerName,'sh','-c','"/usr/hsd/run.hns.node.sh\ '+this.guid+'"'],{shell:true})
 		}
+
+		let godaneProxyProcess = spawn('docker',['exec','-i',this.containerName,'sh','-c','"/usr/godane/run.godane.proxy.sh\ '+this.guid+'"'],{shell:true})
+		
 		//let hsdLogs = '';
 		hsdProcess.stdout.on('data',d=>{
 			//console.log('hsd data',d.toString('utf8'));
@@ -316,6 +335,7 @@ class bsApp{
 			
 		})
 		hsdProcess.stderr.on('data',d=>{
+			console.log('stderr log',d.toString('utf8'))
 			let errmsg = d.toString('utf8');
 			let msg;
 			if(errmsg.indexOf('failed opening ns') >= 0 || errmsg.indexOf('lock') >= 0){
@@ -324,8 +344,13 @@ class bsApp{
 			else{
 				msg = errmsg;
 			}
+			if(errmsg.indexOf('EFAILURE') >= 0 && this.resolver == 'hnsd'){
+				msg = 'HNSD ALREADY RUNNING';
+			}
 			$('.main').html(msg);
-			this.finishup();
+			if(this.resolver == 'hsd'){
+				this.finishup();
+			}
 		})
 		hsdProcess.on('close',d=>{
 			console.log('hsd process closed');
@@ -334,6 +359,253 @@ class bsApp{
 		console.log('attempt start of hsd')
 	}
 	finishup(){
+		let manifest = nw.App.manifest;
+		console.log('finishup');
+		let ogCert = '';
+		try{
+			ogCert = fs.readFileSync(nw.App.dataPath+'/godane.cert.crt','utf8');
+		}
+		catch(e){
+
+		}
+		//always keep the godane cert updated in the app manifest
+		let p = new Promise((resolve,reject)=>{
+		let cpSpawn = spawn('docker',['cp','HandyBrowserHNSD:/root/.godane/cert.crt',nw.App.dataPath+'/godane.cert.crt']);
+		cpSpawn.on('close',()=>{
+			//console.log('copied cert')
+			let certText = fs.readFileSync(nw.App.dataPath+'/godane.cert.crt','utf8');
+			if(process.platform != "darwin"){
+				ogCert = manifest.additional_trust_anchors;
+				if(typeof ogCert != "undefined"){
+					ogCert = manifest.additional_trust_anchors[0];
+				}
+			}
+			/*certText = certText.replace(/\n/gi,'\n');
+			if(process.platform != 'darwin'){
+				let guts = certText.split('\n').slice(0,-1).slice(1,-1);
+				let begin = certText.split('\n').slice(0,-1).slice(0,1)
+				let end = certText.split('\n').slice(0,-1).slice(-1)
+				guts = guts.join('')
+				certText = guts;
+
+			}*/
+			//console.log('certText',certText);
+			manifest.additional_trust_anchors = [certText];
+			manifest.main = manifest.main.split('/');
+			manifest.main = manifest.main[manifest.main.length-1];
+			if(process.platform == 'win32'){
+				manifest.main = manifest.main.split('\\')
+				manifest.main = manifest.main[manifest.main.length-1];
+			}
+			let execPath = process.execPath;
+			let startPath = nw.App.startPath;
+			/*let p = spawn('sleep',['1','&&',execPath,startPath])
+			p.stdout.on('data',d=>{
+				console.log('stdout:::',d.toString('utf8'))
+			})
+			p.stderr.on('data',d=>{
+				console.log('stderr:::',d.toString('utf8'))
+			})*/
+			//setTimeout(()=>{
+				//let child;
+			const path = require('path');
+			let wp;
+			if (process.platform == "darwin")  {
+				wp = path.dirname(process.execPath.match(/^([^\0]+?\.app)\//)[1])
+				//fs.writeFileSync(wp+'/package.json',JSON.stringify(manifest,null,2),'utf8');
+		        //child = spawn("open", ["-n", "-a", process.execPath.match(/^([^\0]+?\.app)\//)[1]], {detached:true})
+		    } else {
+		        //child = spawn(process.execPath, [], {detached: true})
+		        wp = path.dirname(process.execPath)+'/package.nw'
+				//fs.writeFileSync(wp+'/package.json',JSON.stringify(manifest,null,2),'utf8');
+		    }
+		    console.log('write manifest to',wp);
+		    if(process.platform == 'win32'){
+		    	fs.writeFileSync(wp+'/package.json',JSON.stringify(manifest,null,2),'utf8');
+			}
+		    if(ogCert != certText){
+		    	if(localStorage.getItem('isRebuildingDockerNode') != null){
+					localStorage.removeItem('isRebuildingDockerNode');
+				}
+		    	console.log('rewrite cert and restart')
+		    	$('.main').html('UPDATING PROXY CERTIFICATE AND RESTARTING HANDYBROWSER...');
+		    	//we rewrote it, we should restart the app real fast
+		    	if(process.platform == 'darwin'){
+		    		//console.log('to restart',wp+'/utils/restart.mac.sh')
+		    		//security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "nw.App.dataPath+'/godane.cert.crt"
+		    		$('.main').html('UPDATING PROXY CERTIFICATE.<br />INSTALLATION WILL ASK FOR PERMISSIONS...');
+
+		    		setTimeout(()=>{
+
+
+			    		process.env.SUDO_ASKPASS = global.__dirname+'/js/mac.askpass.js';
+			    		const cpExec = require('child_process').exec;
+			    		cpExec('sudo --askpass security delete-certificate -c HandyBrowser',{env:process.env},
+			    			function(error1,stdout1,stderr1){
+			    				//console.log('del mac cert',error1,stdout1,stderr1);
+			    				//deleted old cert with name HandyBrowser
+			    				cpExec('sudo --askpass security add-trusted-cert -d -r trustRoot -k "/Library/Keychains/System.keychain" "'+nw.App.dataPath+'/godane.cert.crt"',{env:process.env},
+			    					function(error,stdout,stderr){
+					    				if(error){
+					    					$('.main').html('WARNING: CERTIFICATE NOT UPDATED.<br />STARTING HANDYBROWSER...');
+					    				}
+					    				else{
+					    					$('.main').html('CERTIFICATE WAS UPDATED.<br />STARTING HANDYBROWSER...');
+					    				}
+					    				console.log('add mac cert',error,stdout,stderr)
+					    				/*let restartMAC = spawn(wp+'/utils/restart.mac.sh',[process.pid,process.execPath.match(/^([^\0]+?\.app)\//)[1]],{detached:true})
+							    		restartMAC.unref();
+							    		setTimeout(()=>{
+							    			nw.App.quit();
+							    		},2000)*/
+							    		setTimeout(()=>{
+							    			resolve();
+							    		},2000)
+							    	}
+							    );
+					    		
+			    			}
+			    		)
+			    	},2000);
+		    		/*let restartMAC = spawn(wp+'/utils/restart.mac.sh',[process.pid,process.execPath.match(/^([^\0]+?\.app)\//)[1]],{detached:true})
+		    		restartMAC.unref();
+		    		setTimeout(()=>{
+		    			nw.App.quit();
+		    		},2000)*/
+		    		//restart.unref();
+		    		//nw.App.quit();
+		    	}
+		    	if(process.platform == 'win32'){
+		    		//let restartWIN = spawn('cmd.exe',['sh',wp+'/utils/restart.windows.sh',process.pid,process.execPath],{detached:true})
+		    		//Import-Certificate -FilePath "C:\CA-PublicKey.Cer" -CertStoreLocation Cert:\LocalMachine\Root
+		    		/*
+					
+		    		*/
+		    		$('.main').html('UPDATING PROXY CERTIFICATE.<br />INSTALLATION WILL ASK FOR PERMISSIONS...');
+		    		
+		    		const sp = require('sudo-prompt');
+					let options = {
+					  name: 'HandyBrowser'
+					};
+					process.title = 'HandyBrowser';
+					setTimeout(()=>{
+						let spe = sp.exec('powershell.exe -command "get-childitem \"Cert:\\LocalMachine\\Root\" | Where-Object { $_.Subject -eq \'CN=HandyBrowser, O=HandyBrowser\' } | Remove-Item ; if($?) { Import-Certificate -FilePath \''+nw.App.dataPath+'\\godane.cert.crt\' -CertStoreLocation Cert:\\LocalMachine\\Root }',
+							function(error, stdout, stderr) {
+								//console.log('remove cert err,stdout,stderr',error,stdout,stderr);
+								$('.main').html('CERTIFICATE INSTALLED.<br />RESTARTING HANDYBROWSER...');
+		    		
+								
+								let restartWIN = spawn( 'restart.windows.bat',[ process.pid, process.execPath],{detached:true,silent:true,cwd:wp+'/utils'});
+					
+								setTimeout(()=>{
+									nw.Window.get().setAlwaysOnTop(true);
+								},100)
+								restartWIN.unref();
+								setTimeout(()=>{
+									nw.App.quit();
+								},2000)
+								restartWIN.stdout.on('data',d=>{
+									console.log('stdout:::',d.toString('utf8'))
+								})
+								restartWIN.stderr.on('data',d=>{
+									console.log('stderr:::',d.toString('utf8'))
+								})
+								
+							}
+						);
+					},2000);
+		    		/*let installCert = spawn('powershell.exe',['-command','Import-Certificate', '-FilePath', '"'+nw.App.dataPath+'/godane.cert.crt'+'"', '-CertStoreLocation', 'Cert:\\LocalMachine\\Root'])
+		    		installCert.stdout.on('data',d=>{
+		    			console.log('install stdout',d.toString('utf8'));
+		    		})
+		    		installCert.stderr.on('data',d=>{
+		    			console.log('install stderr',d.toString('utf8'));
+		    		})
+		    		installCert.on('close',()=>{
+		    			let restartWIN = spawn( 'restart.windows.bat',[ process.pid, process.execPath],{detached:true,silent:true,cwd:wp+'/utils'});
+		    		
+			    		setTimeout(()=>{
+			    			nw.Window.get().setAlwaysOnTop(true);
+			    		},100)
+			    		restartWIN.unref();
+			    		setTimeout(()=>{
+			    			nw.App.quit();
+			    		},2000)
+			    		restartWIN.stdout.on('data',d=>{
+							console.log('stdout:::',d.toString('utf8'))
+						})
+						restartWIN.stderr.on('data',d=>{
+							console.log('stderr:::',d.toString('utf8'))
+						})
+		    		})
+		    		*/
+		    	}
+		    	if(process.platform == 'linux'){
+		    		$('.main').html('UPDATING PROXY CERTIFICATE.<br />INSTALLATION WILL ASK FOR PERMISSIONS...');
+		    		/*let installCERT = spawn('./install_CA_cert_linux.sh',[nw.App.dataPath+'/godane.cert.crt'],{detached:true,silent:true,cwd:wp+'/utils'})
+		    		installCERT.stdout.on('data',d=>{
+						console.log('stdout:::',d.toString('utf8'))
+					})
+					installCERT.stderr.on('data',d=>{
+						console.log('stderr:::',d.toString('utf8'))
+					})
+					installCERT.on('close',()=>{
+						console.log('install cert closed');
+					})*/
+					//check for certutil
+					let utilCheck = spawn('certutil',['-H']);
+					let wasError = false;
+					utilCheck.on('error',()=>{
+						wasError = true;
+						console.log('util check err');
+						$('.main').html('"certutil" command not found</br />Please run:<br /><br />sudo apt install libnss3-tools<br /><br /> and restart HandyBrowser');
+					})
+					utilCheck.on('close',()=>{
+						//success
+						if(wasError){
+							return;
+						}
+						fs.writeFileSync(wp+'/package.json',JSON.stringify(manifest,null,2),'utf8'); //add cert to manifest
+						const sp = require('sudo-prompt');
+						let options = {
+						  name: 'HandyBrowser',
+						  env:process.env
+						};
+						process.title = 'HandyBrowser';
+						setTimeout(()=>{
+							sp.exec(wp+'/utils/install_CA_cert_linux.sh '+nw.App.dataPath+'/godane.cert.crt '+process.env.HOME,options,
+								function(error, stdout, stderr) {
+									//if(error){
+										console.log("ERR",error,stdout,stderr);
+										
+									//}
+									$('.main').html('CERTIFICATE INSTALLED.<br />STARTING HANDYBROWSER...');
+								    //let restartLIN = spawn(wp+'/utils/restart.linux.sh',[process.pid,process.execPath],{detached:true,env:process.env})
+						    		//restartLIN.unref();
+						    		setTimeout(()=>{
+						    			//nw.App.quit();
+						    			resolve();
+						    		},2000)
+								}
+							);
+						},2000)
+					})
+					
+					
+		    		
+		    	}
+			    //child.unref()
+		    }
+		    else {
+		    	resolve();
+		    }
+			//},100);
+			
+		})
+		//console.log('manifest',nw.App.manifest);
+		//}
+		
+	}).then(()=>{
 		let toClose = nw.Window.get();
 		if(localStorage.getItem('isRebuildingDockerNode') != null){
 			localStorage.removeItem('isRebuildingDockerNode');
@@ -341,10 +613,18 @@ class bsApp{
 		else{
 			this.showTray();
 		}
-		
 		setTimeout(()=>{
-			toClose.close();
+			if(process.platform != 'linux'){
+				//tray icon not showing on ubuntu 16?
+				toClose.hide();//toClose.close();
+			}
+			else{
+				toClose.close();
+			}
 		},1000)
+	})
+		
+		
 	}
 	pushToLogs(line,type,context){
 		console.log('LOGS:',line,type,context);
@@ -375,7 +655,7 @@ class bsApp{
 	}
 	nukeDocker(){
 		$('.main').html('REMOVING DOCKER CONTAINER...');
-		let containerD = spawn('docker',['stop','HandyBrowserHSD','&&','docker','rm','HandyBrowserHSD','&&','docker','image','rm','handybrowser'],{shell:true});
+		let containerD = spawn('docker',['stop','HandyBrowserHNSD','&&','docker','rm','HandyBrowserHNSD','&&','docker','image','rm','handybrowserhnsd'],{shell:true});
 		containerD.on('close',d=>{
 			
 			$('.main').html('REMOVED DOCKER CONTAINER, REBUILDING');
@@ -393,5 +673,159 @@ class bsApp{
 			$('.main').html('ERROR REMOVING DOCKER CONTAINER: '+d.toString('utf8'));
 			console.log('cant nuke docker continer',d.toString('utf8'))
 		})
+	}
+	initSystemTray(){
+		// Create a tray icon
+		let icon = './icons/app_256x256x32.png';
+		let title = 'HandyBrowser';
+		if(process.platform == 'darwin'){
+			icon = './icons/app_16x16x32.png'
+			title = '';
+		}
+		//if(process.platform == 'darwin'){
+		var tray = new nw.Tray({ title: title, icon: icon });
+
+		// Give it a menu
+		var menu = new nw.Menu();
+		menu.append(
+			new nw.MenuItem({ label: 'New HandyBrowser Window',click:()=>{
+				this.showTray();
+			} 
+		}));
+		menu.append(
+			new nw.MenuItem({
+				label:'How to Use Handshake on Chrome/Firefox/Mobile',
+				click:()=>{
+					this.showHowtoProxy();
+				}
+			})
+		)
+		menu.append(
+			new nw.MenuItem({
+				label:'Quit and Halt Handshake Proxy',
+				click:()=>{
+					let stopCmd = spawn('docker',['stop','HandyBrowserHNSD'],{shell:true});
+					$('.main').html('STOPPING DOCKER HNSD CONTAINER...');
+					nw.Window.get().show();
+					nw.Window.get().focus();
+					stopCmd.stdout.on('data',(d)=>{
+						console.log('stop cmd out',d.toString('utf8'))
+						tray.remove();
+						nw.Window.get().close(true);
+						nw.App.quit();
+					})
+					stopCmd.stderr.on('data',(d)=>{
+						tray.remove();
+						nw.Window.get().close(true);
+						nw.App.quit();
+					})
+					
+				}
+			})
+		);
+		
+		tray.menu = menu;
+		//}
+
+		/*// Remove the tray
+		tray.remove();
+		tray = null;*/
+	}
+	showHowtoProxy(){
+		//show the proxy info panel
+		const nets = os.networkInterfaces();
+		const results = {};
+
+		for (const name of Object.keys(nets)) {
+		    for (const net of nets[name]) {
+		        // skip over non-ipv4 and internal (i.e. 127.0.0.1) addresses
+		        if (net.family === 'IPv4' && !net.internal) {
+		            
+		            if(net.address.indexOf('10.') == 0 || net.address.indexOf('192.168') == 0){
+		            	if (!results[name]) {
+			                results[name] = [];
+			            }
+		            	results[name].push(net.address);
+		        	}
+		        }
+		    }
+		}
+
+
+		let state = localStorage.getItem('windowState');
+		let x = screen.availLeft;
+		let y = screen.availTop;
+		let w = screen.availWidth;
+		let h = screen.availHeight;
+
+		if(state != null){
+			state = JSON.parse(state);
+			x = state.x;
+			y = state.y;
+			w = state.width;
+			h = state.height;
+		}
+		nw.Window.open('./proxyInfo.html',{
+			width:w,
+			height:h,
+			frame:false,
+			resizable:true,
+			transparent:true,
+			x:x,
+			y:y
+		},(win)=>{
+			win.x = x;
+			win.y = y;
+			win.on('loaded',()=>{
+				$.getJSON('http://localhost:5302/__handybrowser_get_godane_cert__',(certD)=>{
+					let certText = certD.data;
+					/*let $a = $('#downloadCert',$(win.window.document));
+					$a[0].href = URL.createObjectURL(new Blob([certText]));
+					$a.attr('type','text/crt')
+					$a.attr('download','godane.cert.crt');*/
+					let $a = $('.downloadCert',$(win.window.document));
+				  	$a.each(function(){
+				  		$(this)[0].href = URL.createObjectURL(new Blob([certText]));
+					  	$(this).attr('type','text/crt')
+					  	$(this).attr('download','godane.cert.crt');
+				  	})
+				})
+				$('#modalNav',$(win.window.document)).css('position','fixed');
+				//console.log('opened win',win,$('.proxyInfo',$(win.window.document)));
+				console.log('ip res',results);
+				if(Object.keys(results).length > 0){
+					let $el = $('.proxyInfo .ips',$(win.window.document))
+					$el.html('<div class="myInfoLabel">My Proxy Server Info:</div>')
+					Object.keys(results).map(netName=>{
+						console.log('nn',results[netName])
+						if(results[netName].length > 0){
+							results[netName].map((ip,i)=>{
+								if(i == 0){
+					  			$el.append('<div>'+netName+'</div>')
+					  		}
+					  		$el.append('<div class="IP">IP: '+ip+'</div>')
+					  		$el.append('<div class="port">port: 5301</div>')
+							})
+				  		
+				  		}
+					})
+				}
+				switch(process.platform){
+					case 'win32':
+						$('#modalNav',$(win.window.document)).addClass('windows');
+					break;
+					case 'linux':
+						$('#modalNav',$(win.window.document)).addClass('linux');
+					break;
+				}
+
+				$('#closeMap',$(win.window.document)).on('click',()=>{
+					//$('#modal',win.window).hide().html('');
+					win.close(true);
+				})
+			})
+			
+		});
+		
 	}
 }
