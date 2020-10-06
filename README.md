@@ -46,8 +46,9 @@ Why Nw.js over Electron? The lead-dev of this project has used Nw.js extensively
   - Added Godane proxy support
   - Added HNSD light resolver for faster Handshake Name resolution during initial sync
   - Added the [quick reference guide](https://HandyMiner.github.io/HandyBrowser/) both external and within the app for quick setup to your other browsers and mobile devices
-  - Support Audius.co music playback
-  - Bugfixes: enable fullscreen video support; fixes for Vimeo/Netflix playback
+  - Added support for Audius.co music playback
+  - Added Bitcoin donation address modal for HandyBrowser team
+  - Bugfixes: Enable fullscreen video support; fixes for Vimeo/Netflix playback
   - Security: Tested Mist (Electron) XSS Vulnerabilities against HandyBrowser, [mist vulnerability report](https://drive.google.com/file/d/1LSsD9gzOejmQ2QipReyMXwr_M0Mg1GMH/view)
   - Security: Verified a range of certificate warnings/errors with [https://badssl.com](https://badssl.com)
 
