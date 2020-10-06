@@ -34,7 +34,7 @@ First, install frontend client dependencies
 
 HandyBrowser (aka "Handy") is using node-webkit [nw.js](https://nwjs.io) under the hood. Nw.js packages the latest chromium with the latest node.js and allows us granular security, html and many other features. 
 Since we did not want users to manually have to modify system level configurations and run HNSD/HNS resolvers locally themselves, we rely on Docker. 
-Docker allows us to create a lightweight linux virtual machine that installs HNS resolvers, and is pre-configured to use the HNS resolver. We simply proxy all web traffic from the chromium browser into the Docker machine via another community procject, [godane](https://github.com/buffrr/godane),  which resolves via HSD and returns content securely with it's own Root CA Certificate! [Godane](https://github.com/buffrr/godane) generates a root CA certificate on container creation which allows the user to proxy https traffic to the browser securely. **During installation Docker runs a one-time install process, after that it won't need to be run again, and you'll be able to start browsing/resolving names immediately (even as the HSD fullnodes syncs in Docker).**
+Docker allows us to create a lightweight linux virtual machine that installs HNS resolvers, and is pre-configured to use the HNS resolver. We simply proxy all web traffic from the Chromium browser into the Docker machine via another community procject, [Godane](https://github.com/buffrr/godane),  which resolves via HSD and returns content securely with it's own Root CA Certificate! [Godane](https://github.com/buffrr/godane) generates a root CA certificate on container creation which allows the user to proxy https traffic to the browser securely. **During installation Docker runs a one-time install process, after that it won't need to be run again, and you'll be able to start browsing/resolving names immediately (even as the HSD fullnodes syncs in Docker).**
 
 ![alt text](./img/HandyBrowser_flowchart.png)
 
@@ -43,13 +43,13 @@ Why Nw.js over Electron? The lead-dev of this project has used Nw.js extensively
 
 ### HandyBrowser v0.2.0 Features
 
-  - Added godane proxy
+  - Added Godane proxy support
   - Added HNSD light resolver for faster Handshake Name resolution during initial sync
-  - Added the [quick reference quide](https://HandyMiner.github.io/HandyBrowser/) both external and within the app for quick setup to your other browsers and mobile devices
+  - Added the [quick reference guide](https://HandyMiner.github.io/HandyBrowser/) both external and within the app for quick setup to your other browsers and mobile devices
   - Support Audius.co music playback
-  - Bugfix: enable fullscreen video support
-  - Tested Mist (Electron) XSS Vulnerabilities against HandyBrowser, [mist vulnerability report](https://drive.google.com/file/d/1LSsD9gzOejmQ2QipReyMXwr_M0Mg1GMH/view)
-  - Verified a range of certificate warnings/errors with [https://badssl.com](https://badssl.com)
+  - Bugfixes: enable fullscreen video support; fixes for Vimeo/Netflix playback
+  - Security: Tested Mist (Electron) XSS Vulnerabilities against HandyBrowser, [mist vulnerability report](https://drive.google.com/file/d/1LSsD9gzOejmQ2QipReyMXwr_M0Mg1GMH/view)
+  - Security: Verified a range of certificate warnings/errors with [https://badssl.com](https://badssl.com)
 
 ### HandyBrowser v0.1.0 Features
 
