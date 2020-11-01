@@ -48,6 +48,11 @@
 		    "type": "url",
 		    "name": "HNScan",
 		    "url": "http://HNScan.com"
+		  },
+		  {
+		    "type": "url",
+		    "name": "niami.io",
+		    "url": "https://www.niami.io/"
 		  }
 
 		]
